@@ -1,0 +1,59 @@
+﻿@model AIS.Models.ChangeUserViewModel
+
+@{
+    ViewData["Title"] = "Update User";
+}
+
+<div style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 1rem; margin-bottom: 4vh; margin-top: 3.5vh">
+    <!-- Heading centered -->
+    <h2 class="text-muted" style="flex: 1; text-align: center; font-weight: bolder; margin: 0">
+        Update User
+    </h2>
+</div>
+
+<div class="mb-4" style="height:25vh; width:25vh; border-radius:50%; overflow:hidden; margin-left: auto; margin-right: auto">
+    <img style="width:100%; height:100%; object-fit:cover; object-position: center" src="@Model.ImageDisplay" />
+</div>
+
+<div class="row">
+    <div class="col-md-4 offset-md-4">
+        <form method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly"></div>
+
+            <input type="hidden" asp-for="ImageUrl" />
+
+            <div class="form-group">
+                <label asp-for="FirstName"></label>
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-warning"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LastName"></label>
+                <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-warning"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ImageFile" class="control-label"></label>
+                <input asp-for="ImageFile" class="form-control" type="file" />
+                <span asp-validation-for="ImageFile" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-success mr-2">
+                    <i class="fa-solid fa-check mr-2"></i>Save
+                </button>
+                <a asp-action="ChangePassword" class="btn btn-warning"><i class="fa-solid fa-key mr-2"></i>Change Password</a>
+            </div>
+            @if (ViewBag.UserMessage != null)
+            {
+                <ejs-message id="@ViewBag.MsgId" severity="@ViewBag.Severity" content="@ViewBag.UserMessage" style=" border-radius: 5px;"></ejs-message>
+            }
+
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

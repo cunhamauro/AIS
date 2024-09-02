@@ -1,0 +1,70 @@
+﻿@model AIS.Data.Entities.Flight
+
+@{
+    ViewData["Title"] = "Delete Flight";
+}
+
+<div>
+    <h2 class="text-muted" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Delete Flight</h2>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.FlightNumber)
+        </dt>
+        <dd class="col-sm-8">
+            @Html.DisplayFor(model => model.FlightNumber)
+        </dd>
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.Aircraft)
+        </dt>
+        <dd class="col-sm-8">
+            @Model.Aircraft.Id - @Model.Aircraft.Model
+        </dd>
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.Origin)
+        </dt>
+        <dd class="col-sm-8">
+            @Model.Origin.IATA - @Model.Origin.City, @Model.Origin.Country
+        </dd>
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.Destination)
+        </dt>
+        <dd class="col-sm-8">
+            @Model.Destination.IATA - @Model.Destination.City, @Model.Destination.Country
+        </dd>
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.Departure)
+        </dt>
+        <dd class="col-sm-8">
+            @Html.DisplayFor(model => model.Departure)
+        </dd>
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.Arrival)
+        </dt>
+        <dd class="col-sm-8">
+            @Html.DisplayFor(model => model.Arrival)
+        </dd>
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.AvailableSeats)
+        </dt>
+        <dd class="col-sm-8">
+            @{
+                int availableSeats = Model.AvailableSeats.Count;
+                int capacity = Model.Aircraft.Capacity;
+                int occupation = capacity - availableSeats;
+
+                // Handle division by zero to avoid runtime errors
+                decimal availability = (capacity > 0) ? (decimal)availableSeats / capacity * 100 : 0;
+            }
+            @availableSeats / @capacity (@availability.ToString("0")%)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger mr-2">
+            <i class="fa-solid fa-trash-can mr-2"></i>Delete
+        </button>
+        <a asp-action="Index" class="btn btn-secondary"><i class="fa-solid fa-chevron-left mr-2"></i>Back</a>
+    </form>
+</div>

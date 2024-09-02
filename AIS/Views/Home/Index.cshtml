@@ -1,0 +1,66 @@
+﻿@using AIS.Services
+@using System.Web
+@model IEnumerable<AIS.Data.Entities.Flight>
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 1rem; margin-bottom: 4vh; margin-top: 3.5vh">
+    <!-- Heading centered -->
+    <h2 class="text-muted" style="flex: 1; text-align: center; font-weight: bolder; margin: 0">
+        Scheduled Flights
+    </h2>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Origin)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Destination)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Departure)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Arrival)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @item.Origin.City, @item.Origin.Country
+                    <br />
+                    <img src="@Url.Content(item.Origin.ImageUrl)" class="mt-2" alt="Country Flag Image" style="height:5vh; border:solid; border-color: lightgray; border-width: 0.5px" />
+                </td>
+                <td>
+                    @item.Destination.City, @item.Destination.Country
+                    <br />
+                    <img src="@Url.Content(item.Destination.ImageUrl)" class="mt-2" alt="Country Flag Image" style="height:5vh; border:solid; border-color: lightgray; border-width: 0.5px" />
+                </td>
+                <td>
+                    @item.Departure.ToString("dd MMMM, yyyy HH:mm'h'")
+                </td>
+                <td>
+                    @item.Arrival.ToString("dd MMMM, yyyy HH:mm'h'")
+                </td>
+                <td>
+                    <a asp-controller="Tickets" asp-action="BuyTicket" asp-route-id="@item.Id" class="btn btn-success mr-2 mb-2"><i class="fa-solid fa-ticket mr-2"></i>Buy Ticket</a><br>
+                    <a asp-controller="Flights" asp-action="FlightInformation" asp-route-id="@item.Id" class="btn btn-info mb-2"><i class="fa-solid fa-circle-info mr-2"></i>Information</a><br>
+                    @{
+                        string encodedCountry = item.Destination.Country.Replace(" ","_");
+                    }
+                    <a asp-action="Gallery" asp-route-id="@item.Destination.Id" class="btn btn-primary mr-2"><i class="fa-solid fa-camera mr-2"></i>Gallery</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

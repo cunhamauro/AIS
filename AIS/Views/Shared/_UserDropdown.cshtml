@@ -1,0 +1,19 @@
+﻿@using Syncfusion.EJ2
+
+@* Style [icon size] override *@
+<style>
+    .e-dropdown-popup ul .e-item .e-menu-icon {
+        font-size: 14px;
+    }
+</style>
+
+@{
+    var itemsUser = new List<object>
+                            {
+                            new { text = "Update user", url = Url.Action("ChangeUser", "Account"), iconCss = "fa-solid fa-user-pen" },
+                            new { text = "Change password", url = Url.Action("ChangePassword", "Account"), iconCss = "fa-solid fa-key" },
+                            new { text = "Logout", url = Url.Action("Logout", "Account"), iconCss = "fa-solid fa-right-from-bracket" }
+                            };
+}
+<ejs-dropdownbutton id="icontextbtnUser" content="@this.User.Identity.Name" items="itemsUser" iconCss="fa-solid fa-user" style="border-radius: 5px;"></ejs-dropdownbutton>
+

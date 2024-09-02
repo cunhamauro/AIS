@@ -1,0 +1,182 @@
+﻿@model AIS.Models.FlightViewModel
+
+@{
+    ViewData["Title"] = "Add Flight";
+}
+
+<h2 class="text-muted" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Add Flight</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="OriginId" class="control-label"></label>
+                <select id="originSelect" asp-for="OriginId" asp-items="Model.OriginList" class="form-control">
+                    <option value="0">Select an Origin</option>
+                </select>
+                <span asp-validation-for="OriginId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DestinationId" class="control-label"></label>
+                <select id="destinationSelect" asp-for="DestinationId" asp-items="Model.DestinationList" class="form-control">
+                    <option value="0">Select a Destination</option>
+                </select>
+                <span asp-validation-for="DestinationId" class="text-danger"></span>
+            </div>
+            @{
+                var now = DateTime.Now.AddHours(24).AddMinutes(10);
+            }
+            <div class="form-group">
+                <label asp-for="Departure" class="control-label"></label>
+                <input id="departureDate" asp-for="Departure" class="form-control" type="datetime-local" value="@now.ToString("yyyy-MM-ddTHH:mm")" />
+                <span asp-validation-for="Departure" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Arrival" class="control-label"></label>
+                <input id="arrivalDate" asp-for="Arrival" class="form-control" type="datetime-local" value="@now.ToString("yyyy-MM-ddTHH:mm")" />
+                <span asp-validation-for="Arrival" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AircraftId" class="control-label"></label>
+                <select disabled id="aircraftSelect" asp-for="AircraftId" asp-items="Model.AircraftList" class="form-control">
+                    <option value="0">Select an Aircraft</option>
+                </select>
+                <span asp-validation-for="AircraftId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-success mr-2">
+                    <i class="fa-solid fa-check mr-2"></i>Save
+                </button>
+                <a asp-action="Index" class="btn btn-secondary"><i class="fa-solid fa-chevron-left mr-2"></i>Back</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+
+        // Scripts for selection UI/UX
+        <script>
+            document.getElementById('originSelect').addEventListener('change', function () {
+
+                var originValue = this.value;
+                var destinationSelect = document.getElementById('destinationSelect');
+                var options = destinationSelect.options;
+
+                // Reset the destination dropdown to its default option (When both are selected, if we go back to the first, so it doesnt conflict)
+                destinationSelect.value = "0";
+
+                // Enable and reset all airports in the destination dropdown
+                for (var i = 0; i < options.length; i++) {
+                    options[i].disabled = false;
+                    options[i].style.color = ''; // Reset color to default
+                }
+
+                // Disable and grey out the airport in the destination dropdown that matches the selected origin airport
+                if (originValue !== "0") {
+                    for (var i = 0; i < options.length; i++) {
+                        if (options[i].value === originValue) {
+                            options[i].disabled = true; // Disable the airport
+                            options[i].style.color = 'grey'; // Change color to grey
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('aircraftSelect').addEventListener('click', function () {
+
+                var aircraftSelect = document.getElementById('aircraftSelect');
+                var options = aircraftSelect.options;
+
+                options[0].disabled = true;
+                options[0].style.color = 'grey';
+            });
+
+            document.getElementById('originSelect').addEventListener('click', function () {
+
+                var originSelect = document.getElementById('originSelect');
+                var options = originSelect.options;
+
+                options[0].disabled = true;
+                options[0].style.color = 'grey';
+            });
+
+            document.getElementById('destinationSelect').addEventListener('click', function () {
+
+                var destinationSelect = document.getElementById('destinationSelect');
+                var options = destinationSelect.options;
+
+                options[0].disabled = true;
+                options[0].style.color = 'grey';
+            });
+
+        </script>
+
+        // Scripts for getting available aircrafts for given inputs
+        <script type="text/javascript">
+
+            $(document).ready(function () {
+                function UpdateAvailableAircrafts() {
+                    var originId = $("#originSelect").val();
+                    var departureDate = $("#departureDate").val();
+                    var arrivalDate = $("#arrivalDate").val();
+                    var destinationId = $("#destinationSelect").val();
+
+                    // Check if all fields are valid
+                    var allFieldsValid = originId > 0 && destinationId > 0 && departureDate && arrivalDate;
+
+                    if (allFieldsValid) {
+                        // Enable the Aircraft dropdown
+                        $("#aircraftSelect").prop('disabled', false);
+                        $("#aircraftSelect").empty(); // Clear the Aircraft dropdown
+
+                        $.ajax({
+                            url: '@Url.Action("GetAvailableAircrafts", "Flight")',
+                            type: 'POST',
+                            dataType: 'json',
+                            data: {
+                                departure: departureDate,
+                                arrival: arrivalDate,
+                                originId: originId
+                            },
+                            success: function (aircrafts) {
+                                console.log('Received aircrafts:', aircrafts); // Debug: log the response
+                                $("#aircraftSelect").append('<option value="0">Select an Aircraft</option>');
+                                $.each(aircrafts, function (index, aircraft) {
+                                    console.log('Aircraft:', aircraft); // Debug: log each aircraft object
+                                    $("#aircraftSelect").append('<option value="' + aircraft.id + '">' + aircraft.model + '</option>');
+                                });
+                            },
+                            error: function (xhr, status, error) {
+                                console.error('Error fetching aircrafts:', status, error); // Improved error logging
+                                alert('Failed to retrieve available Aircrafts: ' + error);
+                            }
+                        });
+                    } else {
+                        // Disable and clear the Aircraft dropdown if any field is invalid
+                        $("#aircraftSelect").prop('disabled', true);
+                        $("#aircraftSelect").empty();
+                        $("#aircraftSelect").append('<option value="0">Select an Aircraft</option>');
+                    }
+                }
+
+                // Bind the change event to the OriginId dropdown
+                $("#originSelect").change(UpdateAvailableAircrafts);
+
+                // // Bind the change event to the OriginId dropdown
+                $("#destinationSelect").change(UpdateAvailableAircrafts);
+
+                // Bind the change event to the departureDate input
+                $("#departureDate").change(UpdateAvailableAircrafts);
+
+                // Bind the change event to the arrivalDate input
+                $("#arrivalDate").change(UpdateAvailableAircrafts);
+            });
+        </script>
+    }
+}
+
+

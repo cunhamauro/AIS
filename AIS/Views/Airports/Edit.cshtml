@@ -1,0 +1,41 @@
+﻿@model AIS.Data.Entities.Airport
+
+@{
+    ViewData["Title"] = "Edit Airport";
+}
+
+<h2 class="text-muted" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Edit Airport</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="IATA" class="control-label"></label>
+                <input asp-for="IATA" class="form-control" />
+                <span asp-validation-for="IATA" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="City" class="control-label"></label>
+                <input asp-for="City" class="form-control" />
+                <span asp-validation-for="City" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Country" class="control-label"></label>
+                <input asp-for="Country" class="form-control" />
+                <span asp-validation-for="Country" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-success">
+                    <i class="fa-solid fa-check mr-2"></i>Save
+                </button>
+                <a asp-action="Index" class="btn btn-secondary"><i class="fa-solid fa-chevron-left mr-2"></i>Back</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

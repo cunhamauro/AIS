@@ -1,0 +1,75 @@
+﻿@model AIS.Data.Entities.Airport
+
+@{
+    ViewData["Title"] = "Airport Details";
+}
+
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+
+<div class="container">
+    <h2 class="text-muted" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Airport Details</h2>
+    <hr />
+    <div class="row">
+
+        <!-- Left: Airport info -->
+        <div class="col-md-3">
+            <dl class="row">
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.IATA)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.IATA)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.City)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.City)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.Country)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.Country)
+                </dd>
+            </dl>
+            <div>
+                <a asp-action="Index" class="btn btn-secondary"><i class="fa-solid fa-chevron-left mr-2"></i>Back</a>
+            </div>
+        </div>
+
+        <!-- Middle: Flag -->
+        <div class="col-md-3">
+            <dl class="row">
+                <dt class="col-sm-12 mb-2">
+                    @Html.DisplayNameFor(model => model.ImageUrl)
+                </dt>
+                <dd class="col-sm-12">
+                    <img src="@Url.Content(Model.ImageUrl)" alt="Country Flag Image" style="max-width:100%;height:auto; border:solid; border-color: lightgray; border-width: 0.5px" />
+                </dd>
+            </dl>
+        </div>
+
+        <!-- Right: Google Maps -->
+        <div class="col-md-6">
+            <dl class="row">
+                <dt class="col-sm-12 mb-2">
+                    Location
+                </dt>
+                <dd class="col-sm-12">
+                    <div style="position: relative; width: 100%; height: 50vh; overflow: hidden;">
+                        <iframe width="600"
+                                height="450"
+                                frameborder="0"
+                                style="border:0"
+                                src="https://www.google.com/maps/embed/v1/place?key=@Configuration["GoogleMaps:ApiKey"]&q=Airport+@Model.IATA+City+@Model.City&zoom=6&language=en"
+                                @* City as second parameter after IATA -> as fallback because some IATAs are not recognized by GoogleMaps *@
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                </dd>
+            </dl>
+        </div>
+    </div>
+</div>
+

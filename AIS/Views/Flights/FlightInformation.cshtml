@@ -1,0 +1,88 @@
+﻿@using AIS.Services
+@model AIS.Data.Entities.Flight
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@inject IImagesAPIService imageAPIService
+
+@{
+    ViewData["Title"] = "Flight Information";
+}
+
+<div class="container">
+    <h2 class="text-muted" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Flight Information</h2>
+    <hr />
+    <div class="row">
+        <!-- Left: Flight info -->
+        <div class="col-md-5">
+            <dl class="row">
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.FlightNumber)
+                </dt>
+                <dd class="col-sm-6">
+                    @Html.DisplayFor(model => model.FlightNumber)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.Origin)
+                </dt>
+                <dd class="col-sm-6">
+                    Airport @Model.Origin.IATA <img src="@Url.Content(Model.Origin.ImageUrl)" class="ml-2" alt="Country Flag Image" style="height:2vh; border:solid; border-color: lightgray; border-width: 0.5px" /> <br> @Model.Origin.City, @Model.Origin.Country
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.Destination)
+                </dt>
+                <dd class="col-sm-6">
+                    Airport @Model.Destination.IATA <img src="@Url.Content(Model.Destination.ImageUrl)" class="ml-2" alt="Country Flag Image" style="height:2vh; border:solid; border-color: lightgray; border-width: 0.5px" /> <br> @Model.Destination.City, @Model.Destination.Country
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.Departure)
+                </dt>
+                <dd class="col-sm-6">
+                    @Model.Departure.ToString("dd MMMM, yyyy HH:mm'h'")
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.Arrival)
+                </dt>
+                <dd class="col-sm-6">
+                    @Model.Arrival.ToString("dd MMMM, yyyy HH:mm'h'")
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.AvailableSeats)
+                </dt>
+                <dd class="col-sm-6">
+                    @{
+                        int availableSeats = Model.AvailableSeats.Count;
+                        int capacity = Model.Aircraft.Capacity;
+                        int occupation = capacity - availableSeats;
+
+                        // Handle division by zero to avoid runtime errors
+                        decimal availability = (capacity > 0) ? (decimal)availableSeats / capacity * 100 : 0;
+                    }
+                    @availableSeats / @capacity (@availability.ToString("0")%)
+                </dd>
+            </dl>
+            <div class="form-group">
+                <a asp-controller="Tickets" asp-action="BuyTicket" asp-route-id="@Model.Id" class="btn btn-success mr-2"><i class="fa-solid fa-ticket mr-2"></i>Buy Ticket</a>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-secondary"><i class="fa-solid fa-chevron-left mr-2"></i>Back</a>
+            </div>
+        </div>
+        <!-- Right: Map trajectory -->
+        <div class="col-md-7">
+            <dl class="row">
+                <dt class="col-sm-12 mb-2">
+                    Flight Trajectory
+                </dt>
+                <dd class="col-sm-12">
+                    <div style="position: relative; width: 100%; overflow: hidden;">
+                        <iframe width="650"
+                                height="480"
+                                frameborder="0"
+                                style="border:0"
+                                src="https://www.google.com/maps/embed/v1/directions?key=@Configuration["GoogleMaps:ApiKey"]&origin=Airport+@Model.Origin.IATA+@Model.Origin.Country&destination=Airport+@Model.Destination.IATA+@Model.Destination.Country&mode=flying&maptype=satellite&language=en"
+                                @* Country as second parameter after IATA -> as fallback because some IATAs are not recognized by GoogleMaps *@
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                </dd>
+            </dl>
+        </div>
+    </div>
+</div>

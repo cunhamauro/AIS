@@ -1,0 +1,21 @@
+﻿@using Syncfusion.EJ2
+
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+
+@* Style [icon size] override *@
+<style>
+    .e-dropdown-popup ul .e-item .e-menu-icon {
+        font-size: 14px;
+    }
+</style>
+
+
+@{
+    var itemsMaster = new List<object>
+                            {
+                            new { text = "Users", url = Url.Action("", ""), iconCss = "fa-solid fa-user-group" },
+                            new { text = "Roles", url = Url.Action("", ""), iconCss = "fa-solid fa-user-tag" },
+                            };
+}
+<ejs-dropdownbutton id="icontextbtnMaster" content="Admin" items="itemsMaster" iconCss="fa-solid fa-gear" style="border-radius: 5px;"></ejs-dropdownbutton>
+

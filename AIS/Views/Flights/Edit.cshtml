@@ -1,0 +1,74 @@
+﻿@model AIS.Models.FlightViewModel
+
+@{
+    ViewData["Title"] = "Edit Flight";
+}
+
+<h1>Edit</h1>
+
+<h2 class="text-muted" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Edit Flight</h2>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+
+            <!-- Readonly Fields -->
+            <div class="form-group">
+                <label class="control-label">ID</label>
+                <input type="text" class="form-control" value="@Model.Id" readonly />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="FlightNumber" class="control-label"></label>
+                <input type="text" class="form-control" value="@Model.FlightNumber" readonly />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Origin" class="control-label"></label>
+                <input type="text" class="form-control" value="@Model.Origin.IATA - @Model.Origin.City, @Model.Origin.Country" readonly />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Destination" class="control-label"></label>
+                <input type="text" class="form-control" value="@Model.Destination.IATA - @Model.Destination.City, @Model.Destination.Country" readonly />
+            </div>
+
+            <!-- Editable Fields -->
+            <div class="form-group">
+                <label asp-for="AircraftId" class="control-label"></label>
+                <select asp-for="AircraftId" asp-items="Model.AircraftList" class="form-control">
+                    <option value="-1">Select an Aircraft</option>
+                </select>
+                <span asp-validation-for="AircraftId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Departure" class="control-label"></label>
+                <input asp-for="Departure" class="form-control" type="datetime-local" value="@Model.Departure.ToString("yyyy-MM-ddTHH:mm")" />
+                <span asp-validation-for="Departure" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Arrival" class="control-label"></label>
+                <input asp-for="Arrival" class="form-control" type="datetime-local" value="@Model.Arrival.ToString("yyyy-MM-ddTHH:mm")" />
+                <span asp-validation-for="Arrival" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-success mr-2">
+                    <i class="fa-solid fa-check mr-2"></i>Save
+                </button>
+                <a asp-action="Index" class="btn btn-secondary"><i class="fa-solid fa-chevron-left mr-2"></i>Back</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+

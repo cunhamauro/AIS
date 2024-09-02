@@ -1,0 +1,111 @@
+﻿@using AIS.Data.Entities
+@using AIS.Helpers
+@using Microsoft.AspNetCore.Identity
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AIS</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <!-- Syncfusion ASP.NET Core controls styles -->
+    <link rel="stylesheet" href="https://cdn.syncfusion.com/ej2/26.2.9/fluent.css" />
+    <!-- Syncfusion ASP.NET Core controls scripts -->
+    <script src="https://cdn.syncfusion.com/ej2/26.2.9/dist/ej2.min.js"></script>
+    <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" />
+    <link rel="stylesheet" href="~/logo-font/style.css" /> @* Customized font for AIS logo, class: icon-AIS-logo *@
+
+    @inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+    @inject IUserHelper userHelper
+
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index"><img src="~/images/AIS-logo.png" style="height: 2.3rem" /></a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        @if (this.User.Identity.IsAuthenticated && this.User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Flights" asp-action="Index">Flights</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Aircrafts" asp-action="Index">Aircrafts</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Airports" asp-action="Index">Airports</a>
+                            </li>
+                        }
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+                    </ul>
+
+                    <ul class="nav navbar-nav navbar-right mr-3">
+                        @if (this.User.Identity.IsAuthenticated && this.User.IsInRole("Admin"))
+                        {
+                            <partial name="_AdminDropdown" />
+                        }
+                    </ul>
+                    @if (this.User.Identity.IsAuthenticated)
+                    {
+                        <ul class="nav navbar-nav navbar-right">
+                            <partial name="_UserDropdown" />
+                        </ul>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li>
+                                <div class="profile-image ml-3" style="border-radius:50%; height:auto; width:auto; overflow:hidden; display:flex; align-items: center; justify-content: center; height: 37px; width:37px">
+                                    <img src="@await userHelper.GetUserProfileImageAsync(this.User)" alt="Profile Image" style="width:100%; height:100%; object-fit:cover; object-position: center" />
+                                </div>
+                            </li>
+                        </ul>
+                    }
+                    else
+                    {
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login"><i class="fa-solid fa-right-to-bracket mr-2"></i>Login</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark ml-1" asp-area="" asp-controller="Account" asp-action="Register"><i class="fa-solid fa-user-plus mr-2"></i>Register</a>
+                            </li>
+                        </ul>
+                    }
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container" style="text-align: center; font-size: 0.9rem">
+            Aero Info System
+            <span class="icon-AIS-logo fa-lg ml-2" style="margin-bottom: 0rem"></span>
+            <span class="ml-2">by Mauro Cunha</span>
+            <a href="https://www.linkedin.com/in/cunhamauro/"><i class="fa-brands fa-linkedin fa-lg ml-2 text-muted"></i></a>
+            <a href="https://github.com/cunhamauro"><i class="fa-brands fa-github fa-lg ml-2 text-muted"></i></a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <!-- Syncfusion ASP.NET Core Script Manager -->
+    <ejs-scripts></ejs-scripts>
+</body>
+</html>

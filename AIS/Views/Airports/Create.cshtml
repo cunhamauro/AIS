@@ -1,0 +1,47 @@
+﻿@model AIS.Models.AirportViewModel
+
+@{
+    ViewData["Title"] = "Add Airport";
+}
+
+<h2 class="text-muted" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Add Airport</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="IATA" class="control-label"></label>
+                <select id="airportSelect" asp-for="IATA" asp-items="Model.IataList" class="form-control">
+                    <option value="">Select an Airport</option>
+                </select>
+                <span asp-validation-for="IATA" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-success mr-2">
+                    <i class="fa-solid fa-check mr-2"></i>Save
+                </button>
+                <a asp-action="Index" class="btn btn-secondary"><i class="fa-solid fa-chevron-left mr-2"></i>Back</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+
+    <script>
+            document.getElementById('airportSelect').addEventListener('click', function () {
+
+                var airportSelect = document.getElementById('airportSelect');
+                var options = airportSelect.options;
+
+                options[0].disabled = true;
+                options[0].style.color = 'grey';
+            });
+    </script>
+    }
+}

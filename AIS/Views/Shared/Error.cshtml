@@ -1,0 +1,26 @@
+﻿@model ErrorViewModel
+@{
+    ViewData["Title"] = $"{Model.ErrorMessage}";
+}
+
+<style>
+    .error-container {
+        margin-top: 31vh;
+        text-align: center;
+    }
+
+    .error-message{
+        color: rgba(255, 0, 0, 0.5);
+        font-weight: bolder;
+    }
+</style>
+
+<div class="error-container">
+    <h1 class="error-message" style="font-size: 4.3rem; margin-bottom: 0.8rem">@Model.ErrorMessage</h1>
+    @if (Model.ShowRequestId)
+    {
+        <p>
+            <span style="font-weight:600">Request ID:</span> <code>@Model.RequestId</code>
+        </p>
+    }
+</div>

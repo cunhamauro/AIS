@@ -1,0 +1,55 @@
+﻿@model AIS.Models.AircraftViewModel
+
+@{
+    ViewData["Title"] = "Add Aircraft";
+}
+
+<h2 class="text-muted" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Add Aircraft</h2>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Model" class="control-label"></label>
+                <input asp-for="Model" class="form-control" />
+                <span asp-validation-for="Model" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Capacity" class="control-label"></label>
+                <input asp-for="Capacity" class="form-control" />
+                <span asp-validation-for="Capacity" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Rows" class="control-label"></label>
+                <input asp-for="Rows" class="form-control" />
+                <span asp-validation-for="Rows" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ImageFile" class="control-label"></label>
+                <input asp-for="ImageFile" class="form-control" type="file" />
+                <span asp-validation-for="ImageFile" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check" style="display:flex; align-items:center">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Status" style="margin-top: 0.4rem" /> @Html.DisplayNameFor(model => model.Status)
+                </label>
+            </div>
+            <ejs-message id="msg_info" severity="Info" content="The Aircraft's status is active by default!" style="margin-top: -2%; margin-bottom: 5%;     border-radius: 5px;"></ejs-message>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-success mr-2">
+                    <i class="fa-solid fa-check mr-2"></i>Save
+                </button>
+                <a asp-action="Index" class="btn btn-secondary"><i class="fa-solid fa-chevron-left mr-2"></i>Back</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

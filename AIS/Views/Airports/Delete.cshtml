@@ -1,0 +1,64 @@
+﻿@model AIS.Data.Entities.Airport
+
+@{
+    ViewData["Title"] = "Delete Airport";
+}
+
+<div class="container">
+    <h2 class="text-muted" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Delete Airport</h2>
+    <hr />
+    <div class="row">
+
+        <!-- Left: Airport info -->
+        <div class="col-md-5">
+            <dl class="row">
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.IATA)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.IATA)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.City)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.City)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.Country)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.Country)
+                </dd>
+            </dl>
+            <div>
+
+                <form asp-action="Delete">
+                    <input type="hidden" asp-for="Id" />
+                    <button type="submit" class="btn btn-danger mr-2">
+                        <i class="fa-solid fa-trash-can mr-2"></i>Delete
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary"><i class="fa-solid fa-chevron-left mr-2"></i>Back</a>
+                </form>
+
+                @if (ViewBag.ShowMsg == true)
+                {
+                    <ejs-message id="msg_error" severity="Error" content="The Airport can't be deleted because it has Flights assigned!" style="margin-top: 1.2vh; border-radius: 5px;"></ejs-message>
+                }
+
+            </div>
+        </div>
+
+        <!-- Right: Flag -->
+        <div class="col-md-7">
+            <dl class="row">
+                <dt class="col-sm-12 mb-2">
+                    @Html.DisplayNameFor(model => model.ImageUrl)
+                </dt>
+                <dd class="col-sm-12">
+                    <img src="@Url.Content(Model.ImageUrl)" alt="Country Flag Image" style="max-width:100%; height:auto; border:solid; border-color: lightgray; border-width: 0.5px" />
+                </dd>
+            </dl>
+        </div>
+    </div>
+</div>
