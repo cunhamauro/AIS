@@ -1,4 +1,4 @@
-﻿using AIS.Data;
+﻿using AIS.Data.Classes;
 using AIS.Data.Entities;
 using System.Collections.Generic;
 using System.Linq;

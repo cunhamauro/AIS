@@ -1,5 +1,5 @@
-﻿using AIS.Data;
-using AIS.Data.Entities;
+﻿using AIS.Data.Entities;
+using AIS.Data.Repositories;
 using AIS.Helpers;
 using AIS.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -58,7 +58,7 @@ namespace AIS.Controllers
         {
             AircraftViewModel viewModel = new AircraftViewModel
             {
-                Status = true // Set Status to true by default
+                IsActive = true // Set Status to true by default
             };
 
             return View(viewModel);
@@ -76,10 +76,10 @@ namespace AIS.Controllers
                 // Assign user
                 var currentUser = await _userHelper.GetUserAsync(User);
 
-                //if (currentUser == null)
-                //{
-                //    return 
-                //}
+                if (currentUser == null)
+                {
+                    RedirectToAction("UserNotFound", "Account");
+                }
 
                 viewModel.User = currentUser; // Assign the current user to the aircraft
 
@@ -149,10 +149,10 @@ namespace AIS.Controllers
                 // Update the user
                 var currentUser = await _userHelper.GetUserAsync(User);
 
-                //if (currentUser == null)
-                //{
-                //    return 
-                //}
+                if (currentUser == null)
+                {
+                    RedirectToAction("UserNotFound", "Account");
+                }
 
                 aircraft.User = currentUser; // Change the user to the current active one
 

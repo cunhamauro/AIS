@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
-using AIS.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using AIS.Data.Repositories;
 
 namespace AIS.Services
 {

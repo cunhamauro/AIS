@@ -1,4 +1,4 @@
-﻿using AIS.Data;
+﻿using AIS.Data.Classes;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
 using System.Threading.Tasks;

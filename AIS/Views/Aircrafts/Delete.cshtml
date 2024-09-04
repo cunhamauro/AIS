@@ -11,40 +11,8 @@
     <div class="row">
         <!-- Left: Aircraft info -->
         <div class="col-md-5">
-            <dl class="row">
-                <dt class="col-sm-4">
-                    @Html.DisplayNameFor(model => model.Id)
-                </dt>
-                <dd class="col-sm-8">
-                    @Html.DisplayFor(model => model.Id)
-                </dd>
-                <dt class="col-sm-4">
-                    @Html.DisplayNameFor(model => model.Model)
-                </dt>
-                <dd class="col-sm-8">
-                    @Html.DisplayFor(model => model.Model)
-                </dd>
-                <dt class="col-sm-4">
-                    @Html.DisplayNameFor(model => model.Capacity)
-                </dt>
-                <dd class="col-sm-8">
-                    @Html.DisplayFor(model => model.Capacity)
-                </dd>
-                <dt class="col-sm-4">
-                    @Html.DisplayNameFor(model => model.Rows)
-                </dt>
-                <dd class="col-sm-8">
-                    @Html.DisplayFor(model => model.Rows)
-                </dd>
-                <dt class="col-sm-4">
-                    @Html.DisplayNameFor(model => model.Status)
-                </dt>
-                <dd class="col-sm-8">
-                    @Html.DisplayFor(model => model.Status)
-                </dd>
-            </dl>
+            <partial name="_DetailsDelete" />
             <div>
-
                 <form asp-action="Delete">
                     <input type="hidden" asp-for="Id" />
                     <button type="submit" class="btn btn-danger mr-2">

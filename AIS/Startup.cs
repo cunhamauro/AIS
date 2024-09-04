@@ -1,5 +1,6 @@
 using AIS.Data;
 using AIS.Data.Entities;
+using AIS.Data.Repositories;
 using AIS.Helpers;
 using AIS.Services;
 using Microsoft.AspNetCore.Builder;

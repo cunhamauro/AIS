@@ -18,6 +18,11 @@ namespace AIS.Models
         public string Username { get; set; }
 
         [Required]
+        [Display(Name = "Phone Number")]
+        [Phone]
+        public string PhoneNumber { get; set; }
+
+        [Required]
         [MinLength(6)]
         public string Password { get; set; }
 

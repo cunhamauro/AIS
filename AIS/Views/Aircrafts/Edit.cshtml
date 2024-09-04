@@ -10,7 +10,7 @@
 <div class="row">
 
     <div class="col-md-4">
-        <ejs-message id="msg_info" severity="Info" content="Only Aircraft Status and Image can be updated!" style="margin-bottom: 5%; border-radius: 5px;"></ejs-message>
+        <ejs-message id="msg_info" severity="Info" content="Only Aircraft active status and image can be updated!" style="margin-bottom: 5%; border-radius: 5px;"></ejs-message>
 
         <form asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -43,7 +43,7 @@
             <!-- Editable -->
             <div class="form-group form-check">
                 <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Status" /> @Html.DisplayNameFor(model => model.Status)
+                    <input class="form-check-input" asp-for="IsActive" /> @Html.DisplayNameFor(model => model.IsActive)
                 </label>
             </div>
             <div class="form-group">

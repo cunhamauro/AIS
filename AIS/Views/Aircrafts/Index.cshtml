@@ -11,7 +11,7 @@
     </a>
 
     <!-- Heading centered -->
-    <h2 class="text-muted" style="flex: 1; text-align: center; font-weight: bolder; margin: 0">
+    <h2 class="text-muted" style="flex: 1; text-align: center; font-weight: bolder; margin: 0; padding-right: 10vh">
         List of Aircrafts
     </h2>
 </div>
@@ -32,7 +32,7 @@
                 @Html.DisplayNameFor(model => model.Rows)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Status)
+                @Html.DisplayNameFor(model => model.IsActive)
             </th>
             <th></th>
         </tr>
@@ -54,7 +54,7 @@
                     @Html.DisplayFor(modelItem => item.Rows)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Status)
+                    @Html.DisplayFor(modelItem => item.IsActive)
                 </td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning mr-2"><i class="fa-solid fa-pen mr-2"></i>Edit</a>

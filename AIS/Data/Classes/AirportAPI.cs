@@ -1,4 +1,4 @@
-﻿namespace AIS.Data
+﻿namespace AIS.Data.Classes
 {
     public class AirportAPI
     {

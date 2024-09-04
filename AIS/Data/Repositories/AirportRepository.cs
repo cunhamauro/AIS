@@ -2,9 +2,10 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
-namespace AIS.Data
+namespace AIS.Data.Repositories
 {
     public class AirportRepository : GenericRepository<Airport>, IAirportRepository
     {
@@ -16,7 +17,7 @@ namespace AIS.Data
         }
 
         /// <summary>
-        /// Check if a IATA code is repeated (Airport already created)
+        /// Check if a IATA code is repeated (Airport already added)
         /// </summary>
         /// <param name="iata">IATA Code</param>
         /// <returns>IATA already exists?</returns>
@@ -48,6 +49,23 @@ namespace AIS.Data
             }
 
             return selectAirportList;
+        }
+
+        /// <summary>
+        /// Transfer 'ownership' of all Airports from an User to the current Admin
+        /// </summary>
+        /// <param name="userAirports">User</param>
+        /// <param name="admin">Admin</param>
+        /// <returns>Task</returns>
+        public async Task AirportsFromUserToAdmin(List<Airport> userAirports, User admin)
+        {
+            foreach (Airport airport in userAirports)
+            {
+                airport.User = admin;
+                await UpdateAsync(airport);
+            }
+
+            await _context.SaveChangesAsync();
         }
     }
 }

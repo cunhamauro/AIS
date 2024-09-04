@@ -43,7 +43,8 @@ namespace AIS.Data.Entities
             }
         }
 
-        public bool Status { get; set; } = true;
+        [Display(Name = "Active")]
+        public bool IsActive{ get; set; } = true;
 
         public User User { get; set; }
 

@@ -1,4 +1,4 @@
-﻿using AIS.Data;
+﻿using AIS.Data.Classes;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

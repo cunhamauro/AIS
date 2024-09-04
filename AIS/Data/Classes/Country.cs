@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AIS.Data
+namespace AIS.Data.Classes
 {
     public class Country
     {
@@ -8,7 +8,7 @@ namespace AIS.Data
 
         public Name Name { get; set; }
 
-        public Flags Flags {  get; set; }
+        public Flags Flags { get; set; }
 
         #endregion
     }

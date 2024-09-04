@@ -1,6 +1,7 @@
 ﻿using AIS.Data.Entities;
 using AIS.Models;
 using Microsoft.AspNetCore.Identity;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -8,6 +9,18 @@ namespace AIS.Helpers
 {
     public interface IUserHelper
     {
+        Task<bool> UserInEntities(User user);
+
+        Task RemoveUserFromEntities(User user, ClaimsPrincipal admin);
+
+        Task DeleteUserAsync(User user);
+
+        Task UpdateUserEmailAndUsernameAsync(User user, string newEmail);
+
+        Task<List<UserWithRolesViewModel>> GetUsersIncludeRolesAsync();
+
+        Task<UserWithRolesViewModel> GetUserByIdIncludeRoleAsync(string userId);
+
         Task<string> GetUserProfileImageAsync(ClaimsPrincipal userClaims);
 
         Task<User> GetUserAsync(ClaimsPrincipal principal);
@@ -27,6 +40,8 @@ namespace AIS.Helpers
         Task CheckRoleAsync(string roleName);
 
         Task AddUserToRoleAsync(User user, string roleName);
+
+        Task RemoveUserFromRoleAsync(User user, string roleName);
 
         Task<bool> IsUserInRoleAsync(User user, string roleName);
 

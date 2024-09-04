@@ -1,5 +1,6 @@
-﻿using AIS.Data;
+﻿using AIS.Data.Classes;
 using AIS.Data.Entities;
+using AIS.Data.Repositories;
 using AIS.Helpers;
 using AIS.Models;
 using AIS.Services;
@@ -135,10 +136,10 @@ namespace AIS.Controllers
             // Assign user to the created airport
             var currentUser = await _userHelper.GetUserAsync(User);
 
-            //if (currentUser == null)
-            //{
-            //    //return 
-            //}
+            if (currentUser == null)
+            {
+                RedirectToAction("UserNotFound", "Account");
+            }
 
             // Get the image flag url
             string imageUrl = listCountriesAPI.FirstOrDefault(c => c.Name.Common == airport.Country).Flags.Png;

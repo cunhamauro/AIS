@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace AIS.Data
+namespace AIS.Data.Repositories
 {
     public interface IFlightRepository : IGenericRepository<Flight>
     {
@@ -14,5 +14,7 @@ namespace AIS.Data
         Task<bool> AirportInFlights(int id);
 
         Task<bool> AircraftInFlights(int id);
+
+        Task FlightsFromUserToAdmin(List<Flight> userFlights, User admin);
     }
 }

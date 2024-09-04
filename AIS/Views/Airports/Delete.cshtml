@@ -11,26 +11,7 @@
 
         <!-- Left: Airport info -->
         <div class="col-md-5">
-            <dl class="row">
-                <dt class="col-sm-4">
-                    @Html.DisplayNameFor(model => model.IATA)
-                </dt>
-                <dd class="col-sm-8">
-                    @Html.DisplayFor(model => model.IATA)
-                </dd>
-                <dt class="col-sm-4">
-                    @Html.DisplayNameFor(model => model.City)
-                </dt>
-                <dd class="col-sm-8">
-                    @Html.DisplayFor(model => model.City)
-                </dd>
-                <dt class="col-sm-4">
-                    @Html.DisplayNameFor(model => model.Country)
-                </dt>
-                <dd class="col-sm-8">
-                    @Html.DisplayFor(model => model.Country)
-                </dd>
-            </dl>
+            <partial name="_DetailsDelete" />
             <div>
 
                 <form asp-action="Delete">

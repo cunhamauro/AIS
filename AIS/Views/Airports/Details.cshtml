@@ -13,26 +13,7 @@
 
         <!-- Left: Airport info -->
         <div class="col-md-3">
-            <dl class="row">
-                <dt class="col-sm-4">
-                    @Html.DisplayNameFor(model => model.IATA)
-                </dt>
-                <dd class="col-sm-8">
-                    @Html.DisplayFor(model => model.IATA)
-                </dd>
-                <dt class="col-sm-4">
-                    @Html.DisplayNameFor(model => model.City)
-                </dt>
-                <dd class="col-sm-8">
-                    @Html.DisplayFor(model => model.City)
-                </dd>
-                <dt class="col-sm-4">
-                    @Html.DisplayNameFor(model => model.Country)
-                </dt>
-                <dd class="col-sm-8">
-                    @Html.DisplayFor(model => model.Country)
-                </dd>
-            </dl>
+            <partial name="_DetailsDelete" />
             <div>
                 <a asp-action="Index" class="btn btn-secondary"><i class="fa-solid fa-chevron-left mr-2"></i>Back</a>
             </div>
@@ -63,7 +44,7 @@
                                 frameborder="0"
                                 style="border:0"
                                 src="https://www.google.com/maps/embed/v1/place?key=@Configuration["GoogleMaps:ApiKey"]&q=Airport+@Model.IATA+City+@Model.City&zoom=6&language=en"
-                                @* City as second parameter after IATA -> as fallback because some IATAs are not recognized by GoogleMaps *@
+                        @* City as second parameter after IATA -> as fallback because some IATAs are not recognized by GoogleMaps *@
                                 allowfullscreen>
                         </iframe>
                     </div>

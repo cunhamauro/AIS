@@ -1,4 +1,5 @@
 ﻿using AIS.Data.Entities;
+using AIS.Data.Repositories;
 using AIS.Helpers;
 using AIS.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -24,13 +25,133 @@ namespace AIS.Controllers
         private readonly IConfiguration _configuration;
         private readonly IMailHelper _mailHelper;
         private readonly IImageHelper _imageHelper;
+        private readonly IAirportRepository _airportRepository;
+        private readonly IAircraftRepository _aircraftRepository;
+        private readonly IFlightRepository _flightRepository;
 
-        public AccountController(IUserHelper userHelper, IConfiguration configuration, IMailHelper mailHelper, IImageHelper imageHelper)
+        public AccountController(IUserHelper userHelper, IConfiguration configuration, IMailHelper mailHelper, IImageHelper imageHelper, IAirportRepository airportRepository, IAircraftRepository aircraftRepository, IFlightRepository flightRepository)
         {
             _userHelper = userHelper;
             _configuration = configuration;
             _mailHelper = mailHelper;
             _imageHelper = imageHelper;
+            _airportRepository = airportRepository;
+            _aircraftRepository = aircraftRepository;
+            _flightRepository = flightRepository;
+        }
+
+        // GET: Users
+        public async Task<IActionResult> Index()
+        {
+            var listUsersIncludeRole = await _userHelper.GetUsersIncludeRolesAsync();
+
+            return View(listUsersIncludeRole);
+        }
+
+        // GET: Account/Edit/userid
+        [HttpGet]
+        [Route("Edit/{id}")]
+        public async Task<IActionResult> Edit(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return UserNotFound();
+            }
+
+            UserWithRolesViewModel userModel = await _userHelper.GetUserByIdIncludeRoleAsync(id);
+            ChangeRolesEmailViewModel rolesModel = new ChangeRolesEmailViewModel
+            {
+                UserWithRoles = userModel,
+                Email = userModel.User.Email,
+            };
+
+            rolesModel.GetRoles();
+
+            if (rolesModel == null)
+            {
+                return UserNotFound();
+            }
+
+            if (userModel.User.Email == _configuration["Admin:Email"])
+            {
+                ViewBag.ShowMsg = true;
+                ViewBag.Message = "The Master Admin can not lose the Admin role!";
+                ViewBag.State = true; // Disable the Admin checkbox so it cannot be changed
+
+                return View(rolesModel);
+            }
+
+            return View(rolesModel);
+        }
+
+        // GET: Account/Edit/userid
+        [HttpPost]
+        [Route("Edit/{id}")]
+        public async Task<IActionResult> Edit(ChangeRolesEmailViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            bool client = model.IsClient;
+
+            var user = await _userHelper.GetUserByIdAsync(model.UserWithRoles.User.Id);
+
+            if (model.IsAdmin && !await _userHelper.IsUserInRoleAsync(user, "Admin"))
+            {
+                await _userHelper.AddUserToRoleAsync(user, "Admin");
+            }
+            else if (!model.IsAdmin && await _userHelper.IsUserInRoleAsync(user, "Admin"))
+            {
+                if (user.Email != _configuration["Admin:Email"])
+                {
+                    await _userHelper.RemoveUserFromRoleAsync(user, "Admin");
+                }
+            }
+
+            if (model.IsEmployee && !await _userHelper.IsUserInRoleAsync(user, "Employee"))
+            {
+                await _userHelper.AddUserToRoleAsync(user, "Employee");
+            }
+            else if (!model.IsEmployee && await _userHelper.IsUserInRoleAsync(user, "Employee"))
+            {
+                await _userHelper.RemoveUserFromRoleAsync(user, "Employee");
+            }
+
+            if (model.IsClient && !await _userHelper.IsUserInRoleAsync(user, "Client"))
+            {
+                await _userHelper.AddUserToRoleAsync(user, "Client");
+            }
+            else if (!model.IsClient && await _userHelper.IsUserInRoleAsync(user, "Client"))
+            {
+                await _userHelper.RemoveUserFromRoleAsync(user, "Client");
+            }
+
+            await _userHelper.UpdateUserEmailAndUsernameAsync(user, model.Email);
+
+            return RedirectToAction(nameof(Index));
+        }
+
+
+
+        // GET: Account/Details/userId
+        [HttpGet]
+        [Route("Details/{id}")]
+        public async Task<IActionResult> Details(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return UserNotFound();
+            }
+
+            UserWithRolesViewModel userModel = await _userHelper.GetUserByIdIncludeRoleAsync(id);
+
+            if (userModel == null)
+            {
+                return UserNotFound();
+            }
+            return View(userModel);
         }
 
         public IActionResult Login()
@@ -42,6 +163,69 @@ namespace AIS.Controllers
 
             return View();
         }
+
+        // GET: Account/Delete/userid
+        public async Task<IActionResult> Delete(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return UserNotFound();
+            }
+
+            UserWithRolesViewModel userModel = await _userHelper.GetUserByIdIncludeRoleAsync(id);
+            User user = userModel.User;
+            User currentAdmin = await _userHelper.GetUserAsync(this.User);
+
+            if (user.Id == currentAdmin.Id) // Dont allow the current account to delete itself
+            {
+                ViewBag.ShowMsg = true;
+                ViewBag.Message = "An User (Admin) is not allowed to delete itself!";
+                ViewBag.State = "disabled";
+
+                return View(userModel);
+            }
+
+            ViewBag.ShowMsg = await _userHelper.UserInEntities(await _userHelper.GetUserByIdAsync(id));
+            ViewBag.Message = "This User is registered in current entities!";
+
+            if (userModel == null)
+            {
+                return UserNotFound();
+            }
+
+            return View(userModel);
+        }
+
+        // POST: Aircrafts/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(string id)
+        {
+            User user = await _userHelper.GetUserByIdAsync(id);
+
+            User currentAdmin = await _userHelper.GetUserAsync(this.User);
+
+            if (user.Id == currentAdmin.Id)
+            {
+                return RedirectToAction("Delete", "Account");
+            }
+
+            if (await _userHelper.UserInEntities(user)) // If User is registered in Entities
+            {
+                await _userHelper.RemoveUserFromEntities(user, this.User); // Remove him from those Entities and assign them the current Admin
+            }
+
+            // Delete profile image when User is also deleted
+            if (!string.IsNullOrEmpty(user.ImageUrl) && user.ImageUrl != @"~/images/default-profile-image.png") // Dont delete if its the no image
+            {
+                _imageHelper.DeleteImage(user.ImageUrl);
+            }
+
+            await _userHelper.DeleteUserAsync(user); // Finally, delete the user
+
+            return RedirectToAction(nameof(Index));
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
@@ -105,7 +289,8 @@ namespace AIS.Controllers
                         FirstName = model.FirstName,
                         LastName = model.LastName,
                         Email = model.Username,
-                        UserName = model.Username
+                        UserName = model.Username,
+                        PhoneNumber = model.PhoneNumber,
                     };
 
                     var result = await _userHelper.AddUserAsync(user, model.Password);
@@ -248,6 +433,7 @@ namespace AIS.Controllers
                 model.ImageUrl = user.ImageUrl;
                 model.FirstName = user.FirstName;
                 model.LastName = user.LastName;
+                model.PhoneNumber = user.PhoneNumber;
             }
 
             return View(model);
@@ -274,7 +460,7 @@ namespace AIS.Controllers
 
                 if (user != null)
                 {
-                    if (user.FirstName == model.FirstName && user.LastName == model.LastName)
+                    if (user.FirstName == model.FirstName && user.LastName == model.LastName && user.PhoneNumber == model.PhoneNumber)
                     {
                         noChanges = true;
                     }
@@ -282,6 +468,7 @@ namespace AIS.Controllers
                     user.ImageUrl = path;
                     user.FirstName = model.FirstName;
                     user.LastName = model.LastName;
+                    user.PhoneNumber = model.PhoneNumber;
 
                     var result = await _userHelper.UpdateUserAsync(user);
 
@@ -436,9 +623,14 @@ namespace AIS.Controllers
             return View("Error", new ErrorViewModel { ErrorMessage = "User not authorized!", RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
+        public IActionResult UserNotFound()
+        {
+            return View("Error", new ErrorViewModel { ErrorMessage = "User not found!", RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
         public IActionResult ConfirmEmail(string title, string message)
         {
-            return View("ConfirmEmail", new EmailConfirmationViewModel { Title = title, Message = message});
+            return View("ConfirmEmail", new EmailConfirmationViewModel { Title = title, Message = message });
         }
     }
 }

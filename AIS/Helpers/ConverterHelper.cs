@@ -1,5 +1,5 @@
-﻿using AIS.Data;
-using AIS.Data.Entities;
+﻿using AIS.Data.Entities;
+using AIS.Data.Repositories;
 using AIS.Models;
 using System.Threading.Tasks;
 
@@ -26,7 +26,7 @@ namespace AIS.Helpers
                 Rows = model.Rows,
                 Model = model.Model,
                 Seats = model.Seats,
-                Status = model.Status,
+                IsActive = model.IsActive,
                 User = model.User,
             };
         }
@@ -41,7 +41,7 @@ namespace AIS.Helpers
                 Rows = aircraft.Rows,
                 Model = aircraft.Model,
                 Seats = aircraft.Seats,
-                Status = aircraft.Status,
+                IsActive = aircraft.IsActive,
                 User = aircraft.User,
             };
         }

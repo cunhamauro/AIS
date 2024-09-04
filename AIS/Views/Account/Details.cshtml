@@ -1,0 +1,87 @@
+﻿@model AIS.Models.UserWithRolesViewModel
+
+@{
+    ViewData["Title"] = "User Details";
+    var currentUrl = $"{Context.Request.Scheme}://{Context.Request.Host}";
+}
+
+<div class="container">
+    <h2 class="text-muted" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Aircraft Details</h2>
+    <hr />
+    <div class="row">
+        <!-- Left: User info -->
+        <div class="col-md-6">
+            <dl class="row">
+                <dt class="col-sm-4">
+                    User ID
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.User.Id)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.User.FirstName)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.User.FirstName)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.User.LastName)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.User.LastName)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.User.Email)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.User.Email)
+                </dd>
+                <dt class="col-sm-4">
+                    Email Confirmed
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.User.EmailConfirmed)
+                </dd>
+                <dt class="col-sm-4">
+                    Phone Number
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.User.PhoneNumber)
+                </dd>
+                <dt class="col-sm-4">
+                    Role(s)
+                </dt>
+                <dd class="col-sm-8">
+                    @if (Model.Roles.Any())
+                    {
+                        <ul>
+                            @foreach (var role in Model.Roles)
+                            {
+                                <li>@role</li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>No Roles assigned</p>
+                    }
+                </dd>
+            </dl>
+            <div>
+                <a asp-action="Edit" asp-route-id="@Model.User.Id" class="btn btn-warning mr-2"><i class="fa-solid fa-pen mr-2"></i>Edit</a>
+                <a asp-action="Index" class="btn btn-secondary"><i class="fa-solid fa-chevron-left mr-2"></i>Back</a>
+            </div>
+        </div>
+        <!-- Right: Profile image -->
+        <div class="col-md-6">
+            <dl class="row">
+                <dt class="col-sm-12 mb-2">
+                    Profile Image
+                </dt>
+                <dd class="col-sm-12">
+                    <img src="@Url.Content($"{currentUrl}{Model.User.ImageDisplay}")" alt="User Profile Image" style="max-width:55%;height:auto; border-radius:5%" />
+                </dd>
+            </dl>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,136 @@
+﻿@using AIS.Helpers
+@model AIS.Models.UserWithRolesViewModel
+@inject IUserHelper userHelper
+
+@{
+    ViewData["Title"] = "Delete User";
+    var currentUrl = $"{Context.Request.Scheme}://{Context.Request.Host}";
+}
+
+<div class="container">
+    <h2 class="text-muted" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Delete Aircraft</h2>
+    <hr />
+    <div class="row">
+        <!-- Left: Aircraft info -->
+        <div class="col-md-6">
+            <dl class="row">
+                <dt class="col-sm-4">
+                    User ID
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.User.Id)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.User.FirstName)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.User.FirstName)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.User.LastName)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.User.LastName)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.User.Email)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.User.Email)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.User.PhoneNumber)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.User.PhoneNumber)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.Roles)
+                </dt>
+                <dd class="col-sm-8">
+                    @if (Model.Roles.Any())
+                    {
+                        <ul>
+                            @foreach (var role in Model.Roles)
+                            {
+                                <li>@role</li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>No Roles assigned</p>
+                    }
+                </dd>
+            </dl>
+            <div>
+                @{
+                    var buttonState = "";
+                    buttonState = ViewBag.State;
+                }
+                <form asp-action="Delete" method="post" id="deleteForm">
+@*                     <input type="hidden" name="id" id="userId" value="@Model.User.Id" />
+ *@                    <input type="hidden" asp-for="@Model.User.Id" />
+                    <button type="button" class="btn btn-danger mr-2" id="btnDeleteUser" @buttonState>
+                        <i class="fa-solid fa-trash-can mr-2"></i>Delete
+                    </button>
+                  <a asp-action="Index" class="btn btn-secondary"><i class="fa-solid fa-chevron-left mr-2"></i>Back</a>
+                </form>
+            </div>
+            <div style="width: 60%">
+                @if (ViewBag.ShowMsg != null && ViewBag.ShowMsg )
+                {
+                    <ejs-message id="msg_warning_get" severity="Warning" content="@ViewBag.Message" style="margin-top: 1.2vh; border-radius: 5px;"></ejs-message>
+                }
+            </div>
+        </div>
+        <!-- Right: Image -->
+        <div class="col-md-6">
+            <dl class="row">
+                <dt class="col-sm-12 mb-2">
+                    Profile Image
+                </dt>
+                <dd class="col-sm-12">
+                    <img src="@Url.Content($"{currentUrl}{Model.User.ImageDisplay}")" alt="User Profile Image" style="height:24%; border-radius:25%" />
+                </dd>
+            </dl>
+        </div>
+    </div>
+</div>
+
+<div id="deleteDialog" class="modal fade">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Confirm User deletion</h4>
+                <button type="button" class="close" data-dismiss="modal"><i class="fa fa-window-close"></i></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this User?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="btnDeleteYes">Yes</button>
+                <button type="button" class="btn btn-danger" id="btnDeleteNo">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#btnDeleteUser").click(function (e) {
+                e.preventDefault(); // Prevent the form from being submitted immediately
+                $("#deleteDialog").modal("show"); // Show the modal
+            });
+
+            $("#btnDeleteYes").click(function () {
+                $("#deleteForm").submit(); // Submit the form
+            });
+
+            $("#btnDeleteNo").click(function () {
+                $("#deleteDialog").modal("hide"); // Hide the modal
+            });
+        });
+    </script>
+}

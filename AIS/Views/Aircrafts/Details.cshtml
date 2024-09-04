@@ -11,38 +11,7 @@
     <div class="row">
         <!-- Left: Aircraft info -->
         <div class="col-md-4">
-            <dl class="row">
-                <dt class="col-sm-4">
-                    @Html.DisplayNameFor(model => model.Id)
-                </dt>
-                <dd class="col-sm-8">
-                    @Html.DisplayFor(model => model.Id)
-                </dd>
-                <dt class="col-sm-4">
-                    @Html.DisplayNameFor(model => model.Model)
-                </dt>
-                <dd class="col-sm-8">
-                    @Html.DisplayFor(model => model.Model)
-                </dd>
-                <dt class="col-sm-4">
-                    @Html.DisplayNameFor(model => model.Capacity)
-                </dt>
-                <dd class="col-sm-8">
-                    @Html.DisplayFor(model => model.Capacity)
-                </dd>
-                <dt class="col-sm-4">
-                    @Html.DisplayNameFor(model => model.Rows)
-                </dt>
-                <dd class="col-sm-8">
-                    @Html.DisplayFor(model => model.Rows)
-                </dd>
-                <dt class="col-sm-4">
-                    @Html.DisplayNameFor(model => model.Status)
-                </dt>
-                <dd class="col-sm-8">
-                    @Html.DisplayFor(model => model.Status)
-                </dd>
-            </dl>
+            <partial name="_DetailsDelete" />
             <div>
                 <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning mr-2"><i class="fa-solid fa-pen mr-2"></i>Edit</a>
                 <a asp-action="Index" class="btn btn-secondary"><i class="fa-solid fa-chevron-left mr-2"></i>Back</a>

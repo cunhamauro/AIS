@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 
-namespace AIS.Data
+namespace AIS.Data.Repositories
 {
     public interface IGenericRepository<T> where T : class
     {

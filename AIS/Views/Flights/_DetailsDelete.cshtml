@@ -1,0 +1,55 @@
+﻿@model AIS.Data.Entities.Flight
+
+<dl class="row">
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.FlightNumber)
+    </dt>
+    <dd class="col-sm-8">
+        @Html.DisplayFor(model => model.FlightNumber)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.Aircraft)
+    </dt>
+    <dd class="col-sm-8">
+        @Model.Aircraft.Id - @Model.Aircraft.Model
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.Origin)
+    </dt>
+    <dd class="col-sm-8">
+        @Model.Origin.IATA - @Model.Origin.City, @Model.Origin.Country<img src="@Url.Content(Model.Origin.ImageUrl)" class="ml-2" alt="Country Flag Image" style="height:2vh; border:solid; border-color: lightgray; border-width: 0.5px" />
+
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.Destination)
+    </dt>
+    <dd class="col-sm-8">
+        @Model.Destination.IATA - @Model.Destination.City, @Model.Destination.Country<img src="@Url.Content(Model.Destination.ImageUrl)" class="ml-2" alt="Country Flag Image" style="height:2vh; border:solid; border-color: lightgray; border-width: 0.5px" />
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.Departure)
+    </dt>
+    <dd class="col-sm-8">
+        @Html.DisplayFor(model => model.Departure)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.Arrival)
+    </dt>
+    <dd class="col-sm-8">
+        @Html.DisplayFor(model => model.Arrival)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.AvailableSeats)
+    </dt>
+    <dd class="col-sm-8">
+        @{
+            int availableSeats = Model.AvailableSeats.Count;
+            int capacity = Model.Aircraft.Capacity;
+            int occupation = capacity - availableSeats;
+
+            // Handle division by zero to avoid runtime errors
+            decimal availability = (capacity > 0) ? (decimal)availableSeats / capacity * 100 : 0;
+        }
+        @availableSeats / @capacity (@availability.ToString("0")%)
+    </dd>
+</dl>

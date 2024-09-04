@@ -1,0 +1,85 @@
+﻿@model IEnumerable<AIS.Models.UserWithRolesViewModel>
+
+@{
+    ViewData["Title"] = "Users";
+}
+
+<div style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 1rem; margin-bottom: 4vh; margin-top: 3.5vh">
+    <!-- Button on the left -->
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="fa-solid fa-user mr-2"></i>New
+    </a>
+
+    <!-- Heading centered -->
+    <h2 class="text-muted" style="flex: 1; text-align: center; font-weight: bolder; margin: 0; padding-right: 10vh">
+        List of Users
+    </h2>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th style="width: 5%;">
+                User ID
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.User.FirstName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.User.LastName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.User.Email)
+            </th>
+            <th>
+                Phone Number
+            </th>
+            <th>
+                Role(s)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td style="width: 5%;">
+                    @Html.DisplayFor(modelItem => item.User.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.User.FirstName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.User.LastName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.User.Email)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.User.PhoneNumber)
+                </td>
+                <td>
+                    @if (item.Roles.Any())
+                    {
+                        <ul>
+                            @foreach (var role in item.Roles)
+                            {
+                            <li>@role</li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>No Roles assigned</p>
+                    }
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.User.Id" class="btn btn-warning mb-2"><i class="fa-solid fa-pen mr-2"></i>Edit</a><br>
+                    <a asp-action="Details" asp-route-id="@item.User.Id" class="btn btn-info mb-2"><i class="fa-solid fa-list mr-2"></i>Details</a><br>
+                    <a asp-action="Delete" asp-route-id="@item.User.Id" class="btn btn-danger"><i class="fa-solid fa-trash-can mr-2"></i>Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

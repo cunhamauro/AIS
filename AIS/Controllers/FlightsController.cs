@@ -1,5 +1,5 @@
-﻿using AIS.Data;
-using AIS.Data.Entities;
+﻿using AIS.Data.Entities;
+using AIS.Data.Repositories;
 using AIS.Helpers;
 using AIS.Models;
 using AIS.Services;
@@ -36,7 +36,7 @@ namespace AIS.Controllers
         // GET: Flights
         public IActionResult Index()
         {
-            return View(_flightRepository.GetAll().Include(o => o.Origin).Include(d => d.Destination).Include(a => a.Aircraft));
+            return View(_flightRepository.GetAll().Include(o => o.Origin).Include(d => d.Destination).Include(a => a.Aircraft)); // Show all Flights and nested Entities
         }
 
         // GET: Flights/FlightInformation/5

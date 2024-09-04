@@ -2,9 +2,10 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
-namespace AIS.Data
+namespace AIS.Data.Repositories
 {
     public class AircraftRepository : GenericRepository<Aircraft>, IAircraftRepository
     {
@@ -38,6 +39,22 @@ namespace AIS.Data
             }
 
             return selectAircraftList;
+        }
+
+        /// <summary>
+        /// Transfer 'ownership' of all Aircrafts from an User to the current Admin
+        /// </summary>
+        /// <param name="userAircrafts">User</param>
+        /// <param name="admin">Admin</param>
+        /// <returns>Task</returns>
+        public async Task AircraftsFromUserToAdmin(List<Aircraft> userAircrafts, User admin)
+        {
+            foreach (Aircraft aircraft in userAircrafts)
+            {
+                aircraft.User = admin;
+            }
+
+            await _context.SaveChangesAsync();
         }
     }
 }

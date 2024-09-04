@@ -1,0 +1,94 @@
+﻿@model AIS.Models.ChangeRolesEmailViewModel
+
+@{
+    ViewData["Title"] = "Edit User";
+}
+
+<h2 class="text-muted" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Edit User</h2>
+<hr />
+<div class="row">
+    <div class="col-md-10">
+        <form asp-action="Edit">
+            <div class="row">
+                <div class="col-md-6">
+
+                    <!-- Not editable Id -->
+                    <div class="form-group">
+                        <label class="control-label">User ID</label>
+                        <input type="text" class="form-control" value="@Model.UserWithRoles.User.Id" readonly />
+                    </div>
+
+                    <!-- Left side: Assigned Roles -->
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="@Model.UserWithRoles.User.Id" />
+                    @{
+                        bool disabled = ViewBag.State;
+                    }
+                    <label class="form-check-label mb-2">Assigned Roles</label>
+                    @if (disabled)
+                    {
+                        <div class="form-group form-check d-flex align-items-center">
+                            <label class="form-check-label d-flex align-items-center">
+                                <input class="form-check-input" asp-for="IsAdmin" disabled />
+                                @Html.DisplayNameFor(model => model.IsAdmin)
+                            </label>
+                            @if (ViewBag.ShowMsg != null && ViewBag.ShowMsg)
+                            {
+                                <ejs-message id="msg_warning_get" severity="Warning" content="@ViewBag.Message" class="ml-3" style="border-radius: 5px;"></ejs-message>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-group form-check">
+                            <label class="form-check-label">
+                                <input class="form-check-input" asp-for="IsAdmin" /> @Html.DisplayNameFor(model => model.IsAdmin)
+                            </label>
+                        </div>
+                    }
+                    <div class="form-group form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="IsEmployee" /> @Html.DisplayNameFor(model => model.IsEmployee)
+                        </label>
+                    </div>
+                    <div class="form-group form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="IsClient" /> @Html.DisplayNameFor(model => model.IsClient)
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Right side: Email Input -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Email" class="control-label"></label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom: Submit and Back buttons -->
+            <div class="form-group">
+                <button type="submit" class="btn btn-success mr-2">
+                    <i class="fa-solid fa-check mr-2"></i>Save
+                </button>
+                <a asp-action="Index" class="btn btn-secondary"><i class="fa-solid fa-chevron-left mr-2"></i>Back</a>
+            </div>
+            <div style="width: 35%">
+                @if (ViewBag.ShowMsg != null && ViewBag.ShowMsg)
+                {
+                    <ejs-message id="msg_warning_get" severity="Warning" content="@ViewBag.Message" style="margin-top: 1.2vh; border-radius: 5px;"></ejs-message>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+

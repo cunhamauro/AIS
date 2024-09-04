@@ -31,8 +31,9 @@ namespace AIS.Data
             //_context.Flights.RemoveRange(flightsToDelete);
             //await _context.SaveChangesAsync();
 
-            await _userHelper.CheckRoleAsync(_configuration["Admin:Role"]);
+            await _userHelper.CheckRoleAsync("Admin");
             await _userHelper.CheckRoleAsync("Client");
+            await _userHelper.CheckRoleAsync("Employee");
 
             var user = await _userHelper.GetUserByEmailAsync(_configuration["Admin:Email"]);
 
@@ -51,20 +52,20 @@ namespace AIS.Data
 
                 if (!result.Succeeded)
                 {
-                    throw new InvalidOperationException($"Could not create the user {_configuration["Admin:Role"]} in seeder!");
+                    throw new InvalidOperationException($"Could not create the user Admin in seeder!");
                 }
 
-                await _userHelper.AddUserToRoleAsync(user, _configuration["Admin:Role"]);
+                await _userHelper.AddUserToRoleAsync(user, "Admin");
 
                 var token = await _userHelper.GenerateEmailConfirmationTokenAsync(user);
                 await _userHelper.ConfirmEmailAsync(user, token);
             }
 
-            var isInRole = await _userHelper.IsUserInRoleAsync(user, _configuration["Admin:Role"]);
+            var isInRole = await _userHelper.IsUserInRoleAsync(user, "Admin");
 
             if (!isInRole)
             {
-                await _userHelper.AddUserToRoleAsync(user, _configuration["Admin:Role"]);
+                await _userHelper.AddUserToRoleAsync(user, "Admin");
             }
         }
     }

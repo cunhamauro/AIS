@@ -1,4 +1,4 @@
-﻿using AIS.Data;
+﻿using AIS.Data.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +20,7 @@ namespace AIS.Controllers.API
             _flightRepository = flightRepository;
         }
 
-        // GET api All Flights
+        // GET api all Flights
         [HttpGet]
         public async Task<IActionResult> GetAllFlights()
         {

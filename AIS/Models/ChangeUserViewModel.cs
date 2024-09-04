@@ -13,6 +13,11 @@ namespace AIS.Models
         [Display(Name = "Last Name")]
         public string LastName { get; set; }
 
+        [Required]
+        [Display(Name = "Phone Number")]
+        [Phone]
+        public string PhoneNumber { get; set; }
+
         [Display(Name = "Profile Image")]
         public IFormFile ImageFile { get; set; }
 

@@ -14,6 +14,7 @@ namespace AIS.Data.Entities
         [Display(Name = "Profile Image")]
         public string ImageUrl { get; set; }
 
+        [Display(Name = "Profile Image")]
         public string ImageDisplay
         {
             get
