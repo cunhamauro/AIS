@@ -19,4 +19,8 @@
     <PackageReference Include="Syncfusion.EJ2.AspNet.Core" Version="26.2.9" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\images\aircrafts\" />
+  </ItemGroup>
+
 </Project>
