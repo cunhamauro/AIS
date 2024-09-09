@@ -1,7 +1,5 @@
-﻿@using AIS.Services
-@model AIS.Data.Entities.Flight
+﻿@model AIS.Data.Entities.Flight
 @inject Microsoft.Extensions.Configuration.IConfiguration Configuration
-@inject IImagesAPIService imageAPIService
 
 @{
     ViewData["Title"] = "Flight Information";
@@ -48,15 +46,7 @@
                     @Html.DisplayNameFor(model => model.AvailableSeats)
                 </dt>
                 <dd class="col-sm-6">
-                    @{
-                        int availableSeats = Model.AvailableSeats.Count;
-                        int capacity = Model.Aircraft.Capacity;
-                        int occupation = capacity - availableSeats;
-
-                        // Handle division by zero to avoid runtime errors
-                        decimal availability = (capacity > 0) ? (decimal)availableSeats / capacity * 100 : 0;
-                    }
-                    @availableSeats / @capacity (@availability.ToString("0")%)
+                    @ViewBag.SeatsInfo
                 </dd>
             </dl>
             <div class="form-group">

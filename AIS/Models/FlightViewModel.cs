@@ -10,17 +10,17 @@ namespace AIS.Models
     {
         [Required]
         [Display(Name = "Aircraft")]
-        [Range(1, int.MaxValue, ErrorMessage = "Please select a valid flight aircraft!")]
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a valid Flight Aircraft!")]
         public int AircraftId { get; set; }
 
         [Required]
         [Display(Name = "Origin")]
-        [Range(1, int.MaxValue, ErrorMessage = "Please select a valid flight origin!")]
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a valid Flight Origin!")]
         public int OriginId { get; set; }
 
         [Required]
         [Display(Name = "Destination")]
-        [Range(1, int.MaxValue, ErrorMessage = "Please select a valid flight destination!")]
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a valid Flight Destination!")]
         public int DestinationId { get; set; }
 
         public IEnumerable<SelectListItem> OriginList { get; set; }

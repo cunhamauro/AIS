@@ -1,6 +1,4 @@
-﻿@using AIS.Services
-@using System.Web
-@model AIS.Models.FlightsFiltersModelView
+﻿@model AIS.Models.FlightsFiltersModelView
 @inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 
 @{
@@ -11,6 +9,10 @@
     .filter-header {
         font-size: 1.4rem;
         font-weight: bolder;
+    }
+
+    .filter-text {
+        font-size: 0.9rem;
     }
 </style>
 
@@ -26,7 +28,7 @@
                     </select>
                 </div>
                 <div class="form-group form-check">
-                    <label class="form-check-label" style="font-size: 0.9rem">
+                    <label class="form-check-label filter-text ">
                         <input class="form-check-input" asp-for="FilterByOrigin" style="margin-top: 0.4rem" /> @Html.DisplayNameFor(model => model.FilterByOrigin)
                     </label>
                 </div>
@@ -39,7 +41,7 @@
                     </select>
                 </div>
                 <div class="form-group form-check">
-                    <label class="form-check-label" style="font-size: 0.9rem">
+                    <label class="form-check-label filter-text ">
                         <input class="form-check-input" asp-for="FilterByDestination" style="margin-top: 0.4rem" /> @Html.DisplayNameFor(model => model.FilterByDestination)
                     </label>
                 </div>
@@ -51,7 +53,7 @@
                     <span asp-validation-for="Departure" class="text-danger"></span>
                 </div>
                 <div class="form-group form-check">
-                    <label class="form-check-label" style="font-size: 0.9rem">
+                    <label class="form-check-label filter-text ">
                         <input class="form-check-input" asp-for="FilterByDeparture" style="margin-top: 0.4rem" /> @Html.DisplayNameFor(model => model.FilterByDeparture)
                     </label>
                 </div>
@@ -63,7 +65,7 @@
                     <span asp-validation-for="Arrival" class="text-danger"></span>
                 </div>
                 <div class="form-group form-check">
-                    <label class="form-check-label" style="font-size: 0.9rem">
+                    <label class="form-check-label filter-text ">
                         <input class="form-check-input" asp-for="FilterByArrival" style="margin-top: 0.4rem" /> @Html.DisplayNameFor(model => model.FilterByArrival)
                     </label>
                 </div>
@@ -96,31 +98,34 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.Flights)
+        @if (Model.Flights != null && Model.Flights.Any())
         {
-            <tr>
-                <td>
-                    @item.Origin.City, @item.Origin.Country
-                    <br />
-                    <img src="@Url.Content(item.Origin.ImageUrl)" class="mt-2" alt="Country Flag Image" style="height:5vh; border:solid; border-color: lightgray; border-width: 0.5px" />
-                </td>
-                <td>
-                    @item.Destination.City, @item.Destination.Country
-                    <br />
-                    <img src="@Url.Content(item.Destination.ImageUrl)" class="mt-2" alt="Country Flag Image" style="height:5vh; border:solid; border-color: lightgray; border-width: 0.5px" />
-                </td>
-                <td>
-                    @item.Departure.ToString("dd MMMM, yyyy HH:mm'h'")
-                </td>
-                <td>
-                    @item.Arrival.ToString("dd MMMM, yyyy HH:mm'h'")
-                </td>
-                <td>
-                    <a asp-controller="Tickets" asp-action="BuyTicket" asp-route-id="@item.Id" class="btn btn-success mr-2 mb-2"><i class="fa-solid fa-ticket mr-2"></i>Buy Ticket</a><br>
-                    <a asp-controller="Flights" asp-action="FlightInformation" asp-route-id="@item.Id" class="btn btn-info mb-2"><i class="fa-solid fa-circle-info mr-2"></i>Information</a><br>
-                    <a asp-action="Gallery" asp-route-id="@item.Destination.Id" class="btn btn-primary mr-2"><i class="fa-solid fa-camera mr-2"></i>Destination</a>
-                </td>
-            </tr>
+            @foreach (var item in Model.Flights)
+            {
+                <tr>
+                    <td>
+                        @item.Origin.City, @item.Origin.Country
+                        <br />
+                        <img src="@Url.Content(item.Origin.ImageUrl)" class="mt-2" alt="Country Flag Image" style="height:5vh; border:solid; border-color: lightgray; border-width: 0.5px" />
+                    </td>
+                    <td>
+                        @item.Destination.City, @item.Destination.Country
+                        <br />
+                        <img src="@Url.Content(item.Destination.ImageUrl)" class="mt-2" alt="Country Flag Image" style="height:5vh; border:solid; border-color: lightgray; border-width: 0.5px" />
+                    </td>
+                    <td>
+                        @item.Departure.ToString("dd MMMM, yyyy HH:mm'h'")
+                    </td>
+                    <td>
+                        @item.Arrival.ToString("dd MMMM, yyyy HH:mm'h'")
+                    </td>
+                    <td>
+                        <a asp-controller="Tickets" asp-action="Create" asp-route-id="@item.Id" class="btn btn-success mr-2 mb-2"><i class="fa-solid fa-ticket mr-2"></i>Buy Ticket</a><br>
+                        <a asp-controller="Flights" asp-action="FlightInformation" asp-route-id="@item.Id" class="btn btn-info mb-2"><i class="fa-solid fa-circle-info mr-2"></i>Information</a><br>
+                        <a asp-action="Gallery" asp-route-id="@item.Destination.Id" class="btn btn-primary mr-2"><i class="fa-solid fa-camera mr-2"></i>Destination</a>
+                    </td>
+                </tr>
+            }
         }
     </tbody>
 </table>
@@ -177,122 +182,3 @@
         </script>
     }
 }
-
-@*Versao 1
-<form asp-action="Index">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <div class="container">
-        <div class="row">
-            <div class="col">
-                <div class="form-group">
-                    <label asp-for="OriginId" class="control-label"></label>
-                    <select id="originSelect" asp-for="OriginId" asp-items="Model.OriginList" class="form-control">
-                        <option value="0">Select an Origin</option>
-                    </select>
-                </div>
-                <div class="form-group form-check" style="display:flex; align-items:center">
-                    <label class="form-check-label">
-                        <input class="form-check-input" asp-for="FilterByOrigin" style="margin-top: 0.4rem" /> @Html.DisplayNameFor(model => model.FilterByOrigin)
-                    </label>
-                </div>
-            </div>
-            <div class="col">
-                <div class="form-group">
-                    <label asp-for="DestinationId" class="control-label"></label>
-                    <select id="destinationSelect" asp-for="DestinationId" asp-items="Model.DestinationList" class="form-control">
-                        <option value="0">Select a Destination</option>
-                    </select>
-                </div>
-                <div class="form-group form-check" style="display:flex; align-items:center">
-                    <label class="form-check-label">
-                        <input class="form-check-input" asp-for="FilterByDestination" style="margin-top: 0.4rem" /> @Html.DisplayNameFor(model => model.FilterByDestination)
-                    </label>
-                </div>
-            </div>
-            <div class="col">
-            </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col">
-                <div class="form-group">
-                    <label asp-for="Departure" class="control-label"></label>
-                    <input id="departureDate" asp-for="Departure" class="form-control" type="datetime-local" value="@Model.Departure.ToString("yyyy-MM-ddTHH:mm")" />
-                    <span asp-validation-for="Departure" class="text-danger"></span>
-                </div>
-                <div class="form-group form-check" style="display:flex; align-items:center">
-                    <label class="form-check-label">
-                        <input class="form-check-input" asp-for="FilterByDeparture" style="margin-top: 0.4rem" /> @Html.DisplayNameFor(model => model.FilterByDeparture)
-                    </label>
-                </div>
-            </div>
-            <div class="col">
-                <div class="form-group">
-                    <label asp-for="Arrival" class="control-label"></label>
-                    <input id="arrivalDate" asp-for="Arrival" class="form-control" type="datetime-local" value="@Model.Arrival.ToString("yyyy-MM-ddTHH:mm")" />
-                    <span asp-validation-for="Arrival" class="text-danger"></span>
-                </div>
-                <div class="form-group form-check" style="display:flex; align-items:center">
-                    <label class="form-check-label">
-                        <input class="form-check-input" asp-for="FilterByArrival" style="margin-top: 0.4rem" /> @Html.DisplayNameFor(model => model.FilterByArrival)
-                    </label>
-                </div>
-            </div>
-            <div class="col">
-                <button type="submit" class="btn btn-success mr-2">
-                    <i class="fa-solid fa-check mr-2"></i>Filter
-                </button>
-            </div>
-        </div>
-    </div>
-</form> *@
-@*
-    Versao 2
-<form asp-action="Index">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <div class="form-group">
-        <label asp-for="OriginId" class="control-label"></label>
-        <select id="originSelect" asp-for="OriginId" asp-items="Model.OriginList" class="form-control">
-            <option value="0">Select an Origin</option>
-        </select>
-    </div>
-    <div class="form-group form-check" style="display:flex; align-items:center">
-        <label class="form-check-label">
-            <input class="form-check-input" asp-for="FilterByOrigin" style="margin-top: 0.4rem" /> @Html.DisplayNameFor(model => model.FilterByOrigin)
-        </label>
-    </div>
-    <div class="form-group">
-        <label asp-for="DestinationId" class="control-label"></label>
-        <select id="destinationSelect" asp-for="DestinationId" asp-items="Model.DestinationList" class="form-control">
-            <option value="0">Select a Destination</option>
-        </select>
-    </div>
-    <div class="form-group form-check" style="display:flex; align-items:center">
-        <label class="form-check-label">
-            <input class="form-check-input" asp-for="FilterByDestination" style="margin-top: 0.4rem" /> @Html.DisplayNameFor(model => model.FilterByDestination)
-        </label>
-    </div>
-    <div class="form-group">
-        <label asp-for="Departure" class="control-label"></label>
-        <input id="departureDate" asp-for="Departure" class="form-control" type="datetime-local" value="@Model.Departure.ToString("yyyy-MM-ddTHH:mm")" />
-        <span asp-validation-for="Departure" class="text-danger"></span>
-    </div>
-    <div class="form-group form-check" style="display:flex; align-items:center">
-        <label class="form-check-label">
-            <input class="form-check-input" asp-for="FilterByDeparture" style="margin-top: 0.4rem" /> @Html.DisplayNameFor(model => model.FilterByDeparture)
-        </label>
-    </div>
-    <div class="form-group">
-        <label asp-for="Arrival" class="control-label"></label>
-        <input id="arrivalDate" asp-for="Arrival" class="form-control" type="datetime-local" value="@Model.Arrival.ToString("yyyy-MM-ddTHH:mm")" />
-        <span asp-validation-for="Arrival" class="text-danger"></span>
-    </div>
-    <div class="form-group form-check" style="display:flex; align-items:center">
-        <label class="form-check-label">
-            <input class="form-check-input" asp-for="FilterByArrival" style="margin-top: 0.4rem" /> @Html.DisplayNameFor(model => model.FilterByArrival)
-        </label>
-    </div>
-    <button type="submit" class="btn btn-success mr-2">
-        <i class="fa-solid fa-check mr-2"></i>Filter
-    </button>
-</form>
- *@

@@ -10,10 +10,12 @@ namespace AIS.Models
 
         [Required]
         [Display(Name = "New Password")]
+        [MinLength(6)]
+
         public string NewPassword { get; set; }
 
         [Required]
-        [Compare("NewPassword")]
+        [Compare("NewPassword", ErrorMessage = "The New Password and Confirmation Password do not match.")]
         [Display(Name = "Confirm New Password")]
         public string Confirm { get; set; }
     }

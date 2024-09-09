@@ -6,6 +6,7 @@ using AIS.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -22,8 +23,10 @@ namespace AIS.Controllers
         private readonly IConverterHelper _converterHelper;
         private readonly IUserHelper _userHelper;
         private readonly IAircraftAvailabilityService _aircraftAvailabilityService;
+        private readonly IConfiguration _configuration;
+        private readonly int marginBetweenFlights;
 
-        public FlightsController(IAirportRepository airportRepository, IAircraftRepository aircraftRepository, IFlightRepository flightRepository, IConverterHelper converterHelper, IUserHelper userHelper, IAircraftAvailabilityService aircraftAvailabilityService)
+        public FlightsController(IAirportRepository airportRepository, IAircraftRepository aircraftRepository, IFlightRepository flightRepository, IConverterHelper converterHelper, IUserHelper userHelper, IAircraftAvailabilityService aircraftAvailabilityService, IConfiguration configuration)
         {
             _airportRepository = airportRepository;
             _aircraftRepository = aircraftRepository;
@@ -31,6 +34,9 @@ namespace AIS.Controllers
             _converterHelper = converterHelper;
             _userHelper = userHelper;
             _aircraftAvailabilityService = aircraftAvailabilityService;
+            _configuration = configuration;
+
+            marginBetweenFlights = int.Parse(_configuration["AppSettings:MarginMinutesBetweenFlights"]);
         }
 
         // GET: Flights
@@ -47,12 +53,20 @@ namespace AIS.Controllers
                 return FlightNotFound();
             }
 
-            Flight flight = await _flightRepository.GetFlightIncludeByIdAsync(id.Value);
+            Flight flight = await _flightRepository.GetFlightTrackIncludeByIdAsync(id.Value);
 
             if (flight == null)
             {
                 return FlightNotFound();
             }
+
+            // Calculate seats info
+            int availableSeats = flight.AvailableSeats.Count;
+            int capacity = flight.Aircraft.Capacity;
+
+            // Handle division by zero to avoid errors
+            decimal availability = (capacity > 0) ? (decimal)availableSeats / capacity * 100 : 0;
+            ViewBag.SeatsInfo = $"{availableSeats} / {capacity} ({availability.ToString("0")} %)";
 
             return View(flight);
         }
@@ -65,7 +79,7 @@ namespace AIS.Controllers
                 return FlightNotFound();
             }
 
-            Flight flight = await _flightRepository.GetFlightIncludeByIdAsync(id.Value);
+            Flight flight = await _flightRepository.GetFlightTrackIncludeByIdAsync(id.Value);
 
             if (flight == null)
             {
@@ -125,8 +139,7 @@ namespace AIS.Controllers
                 });
             }
 
-            var currentUser = await _userHelper.GetUserAsync(User);
-            model.User = currentUser;
+            model.User = await _userHelper.GetUserAsync(User);
 
             // Convert the model to a flight
             Flight flight = _converterHelper.ToFlight(aircraft, origin, destination, model, true);
@@ -154,7 +167,7 @@ namespace AIS.Controllers
                 return FlightNotFound();
             }
 
-            Flight flight = await _flightRepository.GetFlightIncludeByIdAsync(id.Value);
+            Flight flight = await _flightRepository.GetFlightTrackIncludeByIdAsync(id.Value);
 
             if (flight == null)
             {
@@ -249,7 +262,7 @@ namespace AIS.Controllers
                 return FlightNotFound();
             }
 
-            Flight flight = await _flightRepository.GetFlightIncludeByIdAsync(id.Value);
+            Flight flight = await _flightRepository.GetFlightTrackIncludeByIdAsync(id.Value);
 
             if (flight == null)
             {
@@ -271,26 +284,68 @@ namespace AIS.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult FlightNotFound()
+        [HttpPost]
+        [Route("Flights/GetAvailableAircrafts")]
+        public async Task<JsonResult> GetAvailableAircrafts(DateTime departure, DateTime arrival, int originId)
         {
-            return View("Error", new ErrorViewModel { ErrorMessage = "Flight not found!", RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            var currentDate = DateTime.Now;
+
+            // If the dates are not valid, simply return an empty list of aircrafts
+            if (departure < arrival && departure >= currentDate.AddMinutes(marginBetweenFlights) && arrival >= currentDate.AddMinutes(marginBetweenFlights))
+            {
+                Airport origin = await _airportRepository.GetByIdAsync(originId);
+
+                if (origin != null && origin.Id > 0)
+                {
+                    List<Aircraft> availableAircrafts = await _aircraftAvailabilityService.AvailableAircrafts(departure, arrival, origin);
+                    return Json(availableAircrafts);
+                }
+            }
+            return Json(new List<Aircraft>());
         }
 
         [HttpPost]
-        [Route("Flight/GetAvailableAircrafts")]
-        public async Task<JsonResult> GetAvailableAircrafts(DateTime departure, DateTime arrival, int originId)
+        [Route("Flights/GetAvailableAircraftsEdit")]
+        public async Task<JsonResult> GetAvailableAircraftsEdit(int flightId, DateTime departure, DateTime arrival, int originId)
         {
-            Airport origin = await _airportRepository.GetByIdAsync(originId);
+            var currentDate = DateTime.Now;
 
-            if (origin != null && origin.Id > 0)
+            // If the dates are not valid, simply return an empty list of aircrafts
+            if (departure < arrival && departure >= currentDate.AddMinutes(marginBetweenFlights) && arrival >= currentDate.AddMinutes(marginBetweenFlights))
             {
-                List<Aircraft> availableAircrafts = await _aircraftAvailabilityService.AvailableAircrafts(departure, arrival, origin);
-                return Json(availableAircrafts);
+                Airport origin = await _airportRepository.GetByIdAsync(originId);
+
+                if (origin != null && origin.Id > 0)
+                {
+                    List<Aircraft> availableAircrafts = await _aircraftAvailabilityService.AvailableAircrafts(departure, arrival, origin);
+
+                    Flight flightToEdit = await _flightRepository.GetFlightTrackIncludeByIdAsync(flightId);
+
+                    Aircraft currentAircraft = flightToEdit.Aircraft;
+
+                    if (await _aircraftAvailabilityService.AircraftEditAvailableOnDate(currentAircraft, departure, arrival, flightToEdit))
+                    {
+                        if (!availableAircrafts.Contains(currentAircraft))
+                        {
+                            availableAircrafts.Add(flightToEdit.Aircraft);
+                        }
+                    }
+                    else
+                    {
+                        if (availableAircrafts.Contains(currentAircraft))
+                        {
+                            availableAircrafts.Remove(flightToEdit.Aircraft);
+                        }
+                    }
+                    return Json(availableAircrafts);
+                }
             }
-            else
-            {
-                return Json(new List<Aircraft>()); // Return an empty list if the origin is invalid
-            }
+            return Json(new List<Aircraft>());
+        }
+
+        public IActionResult FlightNotFound()
+        {
+            return View("DisplayMessage", new DisplayMessageViewModel { Title = "Flight not found", Message = "You didn't make it to the gate in time..." });
         }
     }
 }

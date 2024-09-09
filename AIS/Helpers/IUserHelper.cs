@@ -9,6 +9,10 @@ namespace AIS.Helpers
 {
     public interface IUserHelper
     {
+        Task<IdentityResult> ResetPasswordAsync(User user, string token, string newPassword);
+
+        Task<string> GeneratePasswordResetTokenAsync(User user);
+
         Task<bool> UserInEntities(User user);
 
         Task RemoveUserFromEntities(User user, ClaimsPrincipal admin);
@@ -20,8 +24,6 @@ namespace AIS.Helpers
         Task<List<UserWithRolesViewModel>> GetUsersIncludeRolesAsync();
 
         Task<UserWithRolesViewModel> GetUserByIdIncludeRoleAsync(string userId);
-
-        Task<string> GetUserProfileImageAsync(ClaimsPrincipal userClaims);
 
         Task<User> GetUserAsync(ClaimsPrincipal principal);
 

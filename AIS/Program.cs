@@ -14,13 +14,17 @@ namespace AIS
             host.Run();
         }
 
-        private static void RunSeeding(IHost host)
+        private static async void RunSeeding(IHost host)
         {
             var scopeFactory = host.Services.GetService<IServiceScopeFactory>();
             using (var scope = scopeFactory.CreateScope())
             {
                 var seeder = scope.ServiceProvider.GetService<SeedDatabase>();
                 seeder.SeedAsync().Wait();
+
+                //var context = scope.ServiceProvider.GetRequiredService<DataContext>();
+                //await context.CreateOrUpdateStoredProcedureAsync();
+                //await context.CreateTriggerAsync();
             }
         }
 

@@ -7,12 +7,13 @@
 <h2 class="text-muted" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Add Airport</h2>
 <hr />
 
-<div class="mb-3">
-    <a target="_blank" href="https://www.ccra.com/airport-codes/">List of Airports<i class="ml-2 fa-solid fa-magnifying-glass"></i></a>
+<div class="mb-3 row">
+    <div class="col-md-4 offset-md-4">
+        <a target="_blank" href="https://www.ccra.com/airport-codes/"><span style="font-size: 1.25em; font-weight: bold">List of Airports</span><i class="ml-2 fa-solid fa-magnifying-glass"></i></a>
+    </div>
 </div>
-
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-4 offset-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 

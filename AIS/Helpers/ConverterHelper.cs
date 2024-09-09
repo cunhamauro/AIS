@@ -16,6 +16,18 @@ namespace AIS.Helpers
             _airportRepository = airportRepository;
         }
 
+        public User ToUser(CreateUserViewModel model)
+        {
+            return new User
+            {
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                Email = model.Email,
+                PhoneNumber = model.PhoneNumber,
+                UserName = model.Email,
+            };
+        }
+
         public Aircraft ToAircraft(AircraftViewModel model, string path, bool isNew)
         {
             return new Aircraft
@@ -82,6 +94,8 @@ namespace AIS.Helpers
                 FlightNumber = flight.FlightNumber,
                 Origin = flight.Origin,
                 Destination = flight.Destination,
+                OriginId = flight.Origin.Id,
+                DestinationId = flight.Destination.Id,
             };
         }
     }

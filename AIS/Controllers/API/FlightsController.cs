@@ -24,14 +24,14 @@ namespace AIS.Controllers.API
         [HttpGet]
         public async Task<IActionResult> GetAllFlights()
         {
-            return Ok(await _flightRepository.GetFlightsIncludeAsync());
+            return Ok(await _flightRepository.GetFlightsTrackIncludeAsync());
         }
 
         // GET api/<FlightsController>/5
         [HttpGet("{id}")]
         public async Task<IActionResult> GetFlightById(int id)
         {
-            return Ok(await _flightRepository.GetFlightIncludeByIdAsync(id));
+            return Ok(await _flightRepository.GetFlightTrackIncludeByIdAsync(id));
         }
     }
 }

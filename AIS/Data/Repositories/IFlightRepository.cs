@@ -7,9 +7,9 @@ namespace AIS.Data.Repositories
 {
     public interface IFlightRepository : IGenericRepository<Flight>
     {
-        Task<Flight> GetFlightIncludeByIdAsync(int id);
+        Task<Flight> GetFlightTrackIncludeByIdAsync(int id);
 
-        Task<List<Flight>> GetFlightsIncludeAsync();
+        Task<List<Flight>> GetFlightsTrackIncludeAsync();
 
         Task<bool> AirportInFlights(int id);
 

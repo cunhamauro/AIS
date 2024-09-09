@@ -6,8 +6,9 @@
 
 <h2 class="text-muted" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Add Flight</h2>
 <hr />
+
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-4 offset-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
@@ -44,6 +45,7 @@
                 </select>
                 <span asp-validation-for="AircraftId" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <button type="submit" class="btn btn-success mr-2">
                     <i class="fa-solid fa-check mr-2"></i>Save
@@ -134,7 +136,7 @@
                         $("#aircraftSelect").empty(); // Clear the Aircraft dropdown
 
                         $.ajax({
-                            url: '@Url.Action("GetAvailableAircrafts", "Flight")',
+                            url: '@Url.Action("GetAvailableAircrafts", "Flights")',
                             type: 'POST',
                             dataType: 'json',
                             data: {

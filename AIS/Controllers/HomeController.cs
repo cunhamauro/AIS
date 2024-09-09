@@ -1,7 +1,9 @@
 ﻿using AIS.Data.Entities;
 using AIS.Data.Repositories;
 using AIS.Models;
+using AIS.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Syncfusion.EJ2.Spreadsheet;
 using System;
@@ -17,12 +19,19 @@ namespace AIS.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IFlightRepository _flightRepository;
         private readonly IAirportRepository _airportRepository;
+        private readonly IImagesAPIService _imagesAPIService;
+        private readonly IConfiguration _configuration;
+        private readonly int numImagesGallery;
 
-        public HomeController(ILogger<HomeController> logger, IFlightRepository flightRepository, IAirportRepository airportRepository)
+        public HomeController(ILogger<HomeController> logger, IFlightRepository flightRepository, IAirportRepository airportRepository, IImagesAPIService imagesAPIService, IConfiguration configuration)
         {
             _logger = logger;
             _flightRepository = flightRepository;
             _airportRepository = airportRepository;
+            _imagesAPIService = imagesAPIService;
+            _configuration = configuration;
+
+            numImagesGallery = int.Parse(_configuration["AppSettings:NumberImagesGallery"]);
         }
 
         [HttpGet]
@@ -31,27 +40,48 @@ namespace AIS.Controllers
         {
             if (id == null)
             {
-                return RedirectToAction("Index");
+                return PageNotFound();
             }
 
             Airport airport = await _airportRepository.GetByIdAsync(id.Value);
 
             if (airport == null)
             {
-                return RedirectToAction("Index");
+                return PageNotFound();
             }
 
-            return View(airport);
+            // United+Arab+Emirates for image search 
+            string searchCountry = airport.Country.Replace(" ", "+");
+
+            List<string> listUrls = await _imagesAPIService.GetCountryImageUrl(searchCountry); // Image urls fetched through Google Search API
+
+            CountryGalleryViewModel model = new CountryGalleryViewModel
+            {
+                CountryName = airport.Country,
+                ImageUrls = new List<string>(),
+            };
+
+            for (int i = 0; i < numImagesGallery; i++) // Add the number of images we want to display (5 default)
+            {
+                model.ImageUrls.Add(listUrls[i]);
+            }
+
+            return View(model);
         }
 
         public async Task<IActionResult> Index(FlightsFiltersModelView model)
         {
             // Get all flights initially
-            var flights = await _flightRepository.GetFlightsIncludeAsync();
+            var flights = await _flightRepository.GetFlightsTrackIncludeAsync();
+
+            // Get only the flights with seats available
+            flights = flights.Where(f => f.AvailableSeats.Count > 0).ToList(); // TODO CHECK IF FLIGHT ONLY WITH SEATS FILTER FUNCTIONS HOME CONTROLLER INDEX
+
             FlightsFiltersModelView flightsModel = new FlightsFiltersModelView();
 
             if (flights != null && flights.Any())
             {
+                // Get the current time if times are not filtered in the view
                 flightsModel.Departure = DateTime.Now;
                 flightsModel.Arrival = DateTime.Now.AddHours(1);
 
@@ -68,14 +98,14 @@ namespace AIS.Controllers
 
                 if (model.FilterByDeparture)
                 {
-                    flights = flights.Where(f => f.Departure.Date > model.Departure.Date).ToList();
-                    flightsModel.Departure = model.Departure;
+                    flights = flights.Where(f => f.Departure > model.Departure).ToList();
+                    flightsModel.Departure = model.Departure; // If departure is filtered, set it
                 }
 
                 if (model.FilterByArrival)
                 {
-                    flights = flights.Where(f => f.Arrival.Date < model.Arrival.Date).ToList();
-                    flightsModel.Arrival = model.Arrival;
+                    flights = flights.Where(f => f.Arrival < model.Arrival).ToList();
+                    flightsModel.Arrival = model.Arrival; // If arrival is filtered, set it
                 }
 
                 // Prepare the model to be passed to the view
@@ -89,7 +119,6 @@ namespace AIS.Controllers
                 flightsModel.FilterByDeparture = model.FilterByDeparture;
                 flightsModel.FilterByArrival = model.FilterByArrival;
             }
-
             return View(flightsModel);
         }
 
@@ -101,12 +130,12 @@ namespace AIS.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View("Error", new ErrorViewModel { ErrorMessage = "Something went wrong!", RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View("DisplayMessage", new DisplayMessageViewModel { Title = "Something went wrong", Message = $"Get your parachute!" });
         }
 
         public IActionResult PageNotFound()
         {
-            return View("Error", new ErrorViewModel { ErrorMessage = "Page not found!", RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View("DisplayMessage", new DisplayMessageViewModel { Title = "Page not found", Message = $"Need a ticket to go back?" });
         }
     }
 }

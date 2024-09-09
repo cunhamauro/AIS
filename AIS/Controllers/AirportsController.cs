@@ -136,11 +136,6 @@ namespace AIS.Controllers
             // Assign user to the created airport
             var currentUser = await _userHelper.GetUserAsync(User);
 
-            if (currentUser == null)
-            {
-                RedirectToAction("UserNotFound", "Account");
-            }
-
             // Get the image flag url
             string imageUrl = listCountriesAPI.FirstOrDefault(c => c.Name.Common == airport.Country).Flags.Png;
 
@@ -252,7 +247,7 @@ namespace AIS.Controllers
 
         public IActionResult AirportNotFound()
         {
-            return View("Error", new ErrorViewModel { ErrorMessage = "Airport not found!", RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View("DisplayMessage", new DisplayMessageViewModel { Title = "Airport not found", Message = $"Looks like we're flying in circles..." });
         }
     }
 }

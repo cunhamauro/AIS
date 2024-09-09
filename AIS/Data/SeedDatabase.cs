@@ -1,9 +1,9 @@
 ﻿using AIS.Data.Entities;
 using AIS.Helpers;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using System;
-using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace AIS.Data
@@ -13,23 +13,19 @@ namespace AIS.Data
         private readonly DataContext _context;
         private readonly IUserHelper _userHelper;
         private readonly IConfiguration _configuration;
+        private readonly UserManager<User> _userManager;
 
-        public SeedDatabase(DataContext context, IUserHelper userHelper, IConfiguration configuration)
+        public SeedDatabase(DataContext context, IUserHelper userHelper, IConfiguration configuration, UserManager<User> userManager)
         {
             _context = context;
             _userHelper = userHelper;
             _configuration = configuration;
+            _userManager = userManager;
         }
 
         public async Task SeedAsync()
         {
             await _context.Database.EnsureCreatedAsync();
- 
-            // Remove flights that have a departure time + 1 hour < current time
-            //var currentTime = DateTime.UtcNow.AddHours(1);
-            //var flightsToDelete = _context.Flights.AsNoTracking().Where(f => f.Departure < currentTime);
-            //_context.Flights.RemoveRange(flightsToDelete);
-            //await _context.SaveChangesAsync();
 
             await _userHelper.CheckRoleAsync("Admin");
             await _userHelper.CheckRoleAsync("Client");

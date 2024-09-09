@@ -76,11 +76,6 @@ namespace AIS.Controllers
                 // Assign user
                 var currentUser = await _userHelper.GetUserAsync(User);
 
-                if (currentUser == null)
-                {
-                    RedirectToAction("UserNotFound", "Account");
-                }
-
                 viewModel.User = currentUser; // Assign the current user to the aircraft
 
                 // Save image
@@ -148,11 +143,6 @@ namespace AIS.Controllers
 
                 // Update the user
                 var currentUser = await _userHelper.GetUserAsync(User);
-
-                if (currentUser == null)
-                {
-                    RedirectToAction("UserNotFound", "Account");
-                }
 
                 aircraft.User = currentUser; // Change the user to the current active one
 
@@ -225,7 +215,7 @@ namespace AIS.Controllers
 
         public IActionResult AircraftNotFound()
         {
-            return View("Error", new ErrorViewModel { ErrorMessage = "Aircraft not found!", RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier }); ;
+            return View("DisplayMessage", new DisplayMessageViewModel { Title = "Aircraft not found", Message = $"Did it fly over the Bermuda Triangle?" });
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿@using AIS.Helpers
 @model AIS.Models.UserWithRolesViewModel
-@inject IUserHelper userHelper
 
 @{
     ViewData["Title"] = "Delete User";
@@ -8,7 +7,7 @@
 }
 
 <div class="container">
-    <h2 class="text-muted" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Delete Aircraft</h2>
+    <h2 class="text-muted" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Delete User</h2>
     <hr />
     <div class="row">
         <!-- Left: Aircraft info -->
@@ -77,7 +76,7 @@
                   <a asp-action="Index" class="btn btn-secondary"><i class="fa-solid fa-chevron-left mr-2"></i>Back</a>
                 </form>
             </div>
-            <div style="width: 60%">
+            <div>
                 @if (ViewBag.ShowMsg != null && ViewBag.ShowMsg )
                 {
                     <ejs-message id="msg_warning_get" severity="Warning" content="@ViewBag.Message" style="margin-top: 1.2vh; border-radius: 5px;"></ejs-message>

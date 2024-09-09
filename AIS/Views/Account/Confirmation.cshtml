@@ -1,0 +1,28 @@
+﻿@model ConfirmationViewModel
+@{
+    ViewData["Title"] = $"{Model.Title}";
+}
+
+<style>
+    .confirm-container {
+        margin-top: 32vh;
+        text-align: center;
+    }
+
+    .confirm-title {
+        margin-bottom: 0.8rem;
+        font-size: 5rem;
+        font-weight: bolder;
+        color: dodgerblue;
+    }
+
+    .confirm-text {
+        font-size: 1.50rem;
+    }
+
+</style>
+
+<div class="confirm-container">
+    <h1 class="confirm-title">@Model.Title</h1>
+    <p class="confirm-text" style="margin-bottom: -0.5rem">@Model.Message</p>
+</div>

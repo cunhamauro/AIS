@@ -1,0 +1,78 @@
+﻿@model AIS.Models.CreateUserViewModel
+
+@{
+    ViewData["Title"] = "Add User";
+}
+
+<h2 class="text-muted" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Add User</h2>
+<hr />
+
+<div class="row">
+    <div class="col-md-4 offset-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly"></div>
+            <div class="form-group">
+                <label asp-for="FirstName"></label>
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-warning"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LastName"></label>
+                <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-warning"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Email"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-warning"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PhoneNumber">Phone Number</label>
+                <input asp-for="PhoneNumber" class="form-control" />
+                <span asp-validation-for="PhoneNumber" class="text-warning"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="RoleName" class="control-label"></label>
+                <select id="roleSelect" asp-for="RoleName" asp-items="@Model.RolesList" class="form-control">
+                    <option value="">Select a Role</option>
+                </select>
+                <span asp-validation-for="RoleName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-success mr-2">
+                    <i class="fa-solid fa-check mr-2"></i>Save
+                </button>
+                <a asp-action="Index" class="btn btn-secondary"><i class="fa-solid fa-chevron-left mr-2"></i>Back</a>
+            </div>
+
+            @if (ViewBag.RegisterMessage != null)
+            {
+                <ejs-message id="@ViewBag.MsgId" severity="@ViewBag.Severity" content="@ViewBag.RegisterMessage" style=" border-radius: 5px;"></ejs-message>
+            }
+
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+
+        // Scripts for selection UI/UX
+        <script>
+
+            document.getElementById('roleSelect').addEventListener('click', function () {
+
+                var originValue = this.value;
+                var roleSelect = document.getElementById('roleSelect');
+                var options = roleSelect.options;
+
+                options[0].disabled = true;
+                options[0].style.color = 'grey';
+            });
+
+        </script>
+    }
+}
+
+

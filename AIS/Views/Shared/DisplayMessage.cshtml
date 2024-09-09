@@ -1,0 +1,28 @@
+﻿@model DisplayMessageViewModel
+@{
+    ViewData["Title"] = $"{Model.Title}";
+}
+
+<style>
+    .messageDisplay-container {
+        margin-top: 32vh;
+        text-align: center;
+    }
+
+    .messageDisplay-title {
+        margin-bottom: 0.8rem;
+        font-size: 5rem;
+        font-weight: bolder;
+        color: dodgerblue;
+    }
+
+    .messageDisplay-message {
+        font-size: 1.50rem;
+    }
+
+</style>
+
+<div class="messageDisplay-container">
+    <h1 class="messageDisplay-title">@Model.Title</h1>
+    <p class="messageDisplay-message" style="margin-bottom: -0.5rem">@Model.Message</p>
+</div>

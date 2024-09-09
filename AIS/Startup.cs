@@ -13,7 +13,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Syncfusion.Licensing;
 using System;
-using System.Net.Security;
 using System.Text;
 
 namespace AIS
@@ -86,6 +85,7 @@ namespace AIS
             services.AddScoped<IAircraftRepository, AircraftRepository>();
             services.AddScoped<IAirportRepository, AirportRepository>();
             services.AddScoped<IFlightRepository, FlightRepository>();
+            services.AddScoped<ITicketRepository, TicketRepository>();
 
             // Helpers
             services.AddScoped<IUserHelper, UserHelper>();
@@ -106,7 +106,7 @@ namespace AIS
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
             if (env.IsDevelopment())
             {

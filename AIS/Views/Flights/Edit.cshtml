@@ -6,11 +6,14 @@
 
 <h2 class="text-muted" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Edit Flight</h2>
 <hr />
+
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-4 offset-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
+            <input type="hidden" id="flightId" asp-for="Id" />
+            <input type="hidden" id="originSelect" asp-for="OriginId" />
+            <input type="hidden" id="destinationSelect" asp-for="DestinationId" />
 
             <!-- Readonly Fields -->
             <div class="form-group">
@@ -34,24 +37,22 @@
             </div>
 
             <!-- Editable Fields -->
-            <div class="form-group">
-                <label asp-for="AircraftId" class="control-label"></label>
-                <select asp-for="AircraftId" asp-items="Model.AircraftList" class="form-control">
-                    <option value="-1">Select an Aircraft</option>
-                </select>
-                <span asp-validation-for="AircraftId" class="text-danger"></span>
-            </div>
 
             <div class="form-group">
                 <label asp-for="Departure" class="control-label"></label>
-                <input asp-for="Departure" class="form-control" type="datetime-local" value="@Model.Departure.ToString("yyyy-MM-ddTHH:mm")" />
+                <input id="departureDate" asp-for="Departure" class="form-control" type="datetime-local" value="@Model.Departure.ToString("yyyy-MM-ddTHH:mm")" />
                 <span asp-validation-for="Departure" class="text-danger"></span>
             </div>
-
             <div class="form-group">
                 <label asp-for="Arrival" class="control-label"></label>
-                <input asp-for="Arrival" class="form-control" type="datetime-local" value="@Model.Arrival.ToString("yyyy-MM-ddTHH:mm")" />
+                <input id="arrivalDate" asp-for="Arrival" class="form-control" type="datetime-local" value="@Model.Arrival.ToString("yyyy-MM-ddTHH:mm")" />
                 <span asp-validation-for="Arrival" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AircraftId" class="control-label"></label>
+                <select id="aircraftSelect" asp-for="AircraftId" asp-items="Model.AircraftList" class="form-control">
+                </select>
+                <span asp-validation-for="AircraftId" class="text-danger"></span>
             </div>
 
             <div class="form-group">
@@ -67,6 +68,72 @@
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
+
+        <script type="text/javascript">
+
+            $(document).ready(function () {
+                function UpdateAvailableAircrafts() {
+                    var originId = $("#originSelect").val();
+                    var departureDate = $("#departureDate").val();
+                    var arrivalDate = $("#arrivalDate").val();
+                    var destinationId = $("#destinationSelect").val();
+                    var flightId = $("#flightId").val();
+                    var selectedAircraftId = $("#aircraftSelect").val();
+
+                    $("#aircraftSelect").empty(); // Clear the Aircraft dropdown
+
+                    $.ajax({
+                        url: '@Url.Action("GetAvailableAircraftsEdit", "Flights")',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            flightId: flightId,
+                            departure: departureDate,
+                            arrival: arrivalDate,
+                            originId: originId
+                        },
+                        success: function (aircrafts) {
+                            console.log('Received aircrafts:', aircrafts); // Debug: log the response
+                            $("#aircraftSelect").append('<option value="0">Select an Aircraft</option>');
+
+                            var isSelectedAircraftStillAvailable = false;
+
+                            $.each(aircrafts, function (index, aircraft) {
+                                $("#aircraftSelect").append('<option value="' + aircraft.id + '">' + aircraft.model + '</option>');
+
+                                // Check if the previously selected aircraft is still in the list
+                                if (selectedAircraftId == aircraft.id) {
+                                    isSelectedAircraftStillAvailable = true;
+                                }
+                            });
+
+                            // If the previously selected aircraft is still available, select it
+                            if (isSelectedAircraftStillAvailable) {
+                                $("#aircraftSelect").val(selectedAircraftId);
+                            }
+                            else {
+                                // if the original selected aircraft is not available, default to option 0: Select an Aircraft
+                                $("#aircraftSelect").val("0");
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error fetching aircrafts:', status, error); // Improved error logging
+                            alert('Failed to retrieve available Aircrafts: ' + error);
+                        }
+                    });
+                }
+
+                // Call the function when page loads to show immediately the available aircrafts
+                UpdateAvailableAircrafts();
+
+                // Bind the change event to the departureDate input
+                $("#departureDate").change(UpdateAvailableAircrafts);
+
+                // Bind the change event to the arrivalDate input
+                $("#arrivalDate").change(UpdateAvailableAircrafts);
+            });
+        </script>
     }
 }
+
 

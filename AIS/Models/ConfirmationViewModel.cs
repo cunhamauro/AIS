@@ -1,6 +1,6 @@
 ﻿namespace AIS.Models
 {
-    public class EmailConfirmationViewModel
+    public class ConfirmationViewModel
     {
         public string Title { get; set; }
 

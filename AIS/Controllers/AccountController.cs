@@ -5,12 +5,10 @@ using AIS.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Syncfusion.EJ2.Notifications;
 using System;
-using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -28,8 +26,9 @@ namespace AIS.Controllers
         private readonly IAirportRepository _airportRepository;
         private readonly IAircraftRepository _aircraftRepository;
         private readonly IFlightRepository _flightRepository;
+        private readonly IConverterHelper _converterHelper;
 
-        public AccountController(IUserHelper userHelper, IConfiguration configuration, IMailHelper mailHelper, IImageHelper imageHelper, IAirportRepository airportRepository, IAircraftRepository aircraftRepository, IFlightRepository flightRepository)
+        public AccountController(IUserHelper userHelper, IConfiguration configuration, IMailHelper mailHelper, IImageHelper imageHelper, IAirportRepository airportRepository, IAircraftRepository aircraftRepository, IFlightRepository flightRepository, IConverterHelper converterHelper)
         {
             _userHelper = userHelper;
             _configuration = configuration;
@@ -38,6 +37,7 @@ namespace AIS.Controllers
             _airportRepository = airportRepository;
             _aircraftRepository = aircraftRepository;
             _flightRepository = flightRepository;
+            _converterHelper = converterHelper;
         }
 
         // GET: Users
@@ -46,112 +46,6 @@ namespace AIS.Controllers
             var listUsersIncludeRole = await _userHelper.GetUsersIncludeRolesAsync();
 
             return View(listUsersIncludeRole);
-        }
-
-        // GET: Account/Edit/userid
-        [HttpGet]
-        [Route("Edit/{id}")]
-        public async Task<IActionResult> Edit(string id)
-        {
-            if (string.IsNullOrEmpty(id))
-            {
-                return UserNotFound();
-            }
-
-            UserWithRolesViewModel userModel = await _userHelper.GetUserByIdIncludeRoleAsync(id);
-            ChangeRolesEmailViewModel rolesModel = new ChangeRolesEmailViewModel
-            {
-                UserWithRoles = userModel,
-                Email = userModel.User.Email,
-            };
-
-            rolesModel.GetRoles();
-
-            if (rolesModel == null)
-            {
-                return UserNotFound();
-            }
-
-            if (userModel.User.Email == _configuration["Admin:Email"])
-            {
-                ViewBag.ShowMsg = true;
-                ViewBag.Message = "The Master Admin can not lose the Admin role!";
-                ViewBag.State = true; // Disable the Admin checkbox so it cannot be changed
-
-                return View(rolesModel);
-            }
-
-            return View(rolesModel);
-        }
-
-        // GET: Account/Edit/userid
-        [HttpPost]
-        [Route("Edit/{id}")]
-        public async Task<IActionResult> Edit(ChangeRolesEmailViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            bool client = model.IsClient;
-
-            var user = await _userHelper.GetUserByIdAsync(model.UserWithRoles.User.Id);
-
-            if (model.IsAdmin && !await _userHelper.IsUserInRoleAsync(user, "Admin"))
-            {
-                await _userHelper.AddUserToRoleAsync(user, "Admin");
-            }
-            else if (!model.IsAdmin && await _userHelper.IsUserInRoleAsync(user, "Admin"))
-            {
-                if (user.Email != _configuration["Admin:Email"])
-                {
-                    await _userHelper.RemoveUserFromRoleAsync(user, "Admin");
-                }
-            }
-
-            if (model.IsEmployee && !await _userHelper.IsUserInRoleAsync(user, "Employee"))
-            {
-                await _userHelper.AddUserToRoleAsync(user, "Employee");
-            }
-            else if (!model.IsEmployee && await _userHelper.IsUserInRoleAsync(user, "Employee"))
-            {
-                await _userHelper.RemoveUserFromRoleAsync(user, "Employee");
-            }
-
-            if (model.IsClient && !await _userHelper.IsUserInRoleAsync(user, "Client"))
-            {
-                await _userHelper.AddUserToRoleAsync(user, "Client");
-            }
-            else if (!model.IsClient && await _userHelper.IsUserInRoleAsync(user, "Client"))
-            {
-                await _userHelper.RemoveUserFromRoleAsync(user, "Client");
-            }
-
-            await _userHelper.UpdateUserEmailAndUsernameAsync(user, model.Email);
-
-            return RedirectToAction(nameof(Index));
-        }
-
-
-
-        // GET: Account/Details/userId
-        [HttpGet]
-        [Route("Details/{id}")]
-        public async Task<IActionResult> Details(string id)
-        {
-            if (string.IsNullOrEmpty(id))
-            {
-                return UserNotFound();
-            }
-
-            UserWithRolesViewModel userModel = await _userHelper.GetUserByIdIncludeRoleAsync(id);
-
-            if (userModel == null)
-            {
-                return UserNotFound();
-            }
-            return View(userModel);
         }
 
         public IActionResult Login()
@@ -167,7 +61,8 @@ namespace AIS.Controllers
         // GET: Account/Delete/userid
         public async Task<IActionResult> Delete(string id)
         {
-            if (string.IsNullOrEmpty(id))
+            User userExists = await _userHelper.GetUserByIdAsync(id);
+            if (string.IsNullOrEmpty(id) || userExists == null)
             {
                 return UserNotFound();
             }
@@ -179,7 +74,18 @@ namespace AIS.Controllers
             if (user.Id == currentAdmin.Id) // Dont allow the current account to delete itself
             {
                 ViewBag.ShowMsg = true;
-                ViewBag.Message = "An User (Admin) is not allowed to delete itself!";
+                ViewBag.Message = "You are not allowed to delete yourself!";
+                ViewBag.State = "disabled";
+
+                return View(userModel);
+            }
+
+            User userMasterAdmin = await _userHelper.GetUserByEmailAsync(_configuration["Admin:Email"]);
+
+            if (user.Id == userMasterAdmin.Id) // Or to delete the master admin
+            {
+                ViewBag.ShowMsg = true;
+                ViewBag.Message = "You are not allowed to delete the Master Admin!";
                 ViewBag.State = "disabled";
 
                 return View(userModel);
@@ -188,15 +94,10 @@ namespace AIS.Controllers
             ViewBag.ShowMsg = await _userHelper.UserInEntities(await _userHelper.GetUserByIdAsync(id));
             ViewBag.Message = "This User is registered in current entities!";
 
-            if (userModel == null)
-            {
-                return UserNotFound();
-            }
-
             return View(userModel);
         }
 
-        // POST: Aircrafts/Delete/5
+        // POST: Account/Delete/userid
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
@@ -228,6 +129,7 @@ namespace AIS.Controllers
 
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (ModelState.IsValid)
@@ -276,6 +178,7 @@ namespace AIS.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterNewUserViewModel model)
         {
             if (ModelState.IsValid)
@@ -295,13 +198,13 @@ namespace AIS.Controllers
 
                     var result = await _userHelper.AddUserAsync(user, model.Password);
 
-                    await _userHelper.AddUserToRoleAsync(user, "Client");
-
                     if (result != IdentityResult.Success)
                     {
                         ModelState.AddModelError(string.Empty, "User registration failed!");
                         return View(model);
                     }
+
+                    await _userHelper.AddUserToRoleAsync(user, "Client");
 
                     string myToken = await _userHelper.GenerateEmailConfirmationTokenAsync(user);
                     string tokenLink = Url.Action("EmailConfirmation", "Account", new
@@ -310,105 +213,17 @@ namespace AIS.Controllers
                         token = myToken,
                     }, protocol: HttpContext.Request.Scheme);
 
-                    #region Email Body
-
-                    string emailBody = $@"<body class=""body"" style=""background-color:#005a9c;margin:0;padding:0;-webkit-text-size-adjust:none;text-size-adjust:none"">
-                        <table class=""nl-container"" width=""100%"" border=""0"" cellpadding=""0"" cellspacing=""0"" role=""presentation"" style=""mso-table-lspace:0;mso-table-rspace:0;background-color:#005a9c"">
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <table class=""row row-2"" align=""center"" width=""100%"" border=""0"" cellpadding=""0"" cellspacing=""0"" role=""presentation"" style=""mso-table-lspace:0;mso-table-rspace:0"">
-                                            <tbody>
-                                                <tr>
-                                                    <td>
-                                                        <table class=""row-content stack"" align=""center"" border=""0"" cellpadding=""0"" cellspacing=""0"" role=""presentation"" style=""mso-table-lspace:0;mso-table-rspace:0;background-color:#fff;color:#000;width:510px;margin:0 auto"" width=""510"">
-                                                            <tbody>
-                                                                <tr>
-                                                                    <td class=""column column-1"" width=""100%"" style=""mso-table-lspace:0;mso-table-rspace:0;font-weight:400;text-align:left;padding-bottom:30px;padding-left:30px;padding-right:30px;padding-top:30px;vertical-align:top;border-top:0;border-right:0;border-bottom:0;border-left:0"">
-                                                                        <table class=""image_block block-1"" width=""100%"" border=""0"" cellpadding=""0"" cellspacing=""0"" role=""presentation"" style=""mso-table-lspace:0;mso-table-rspace:0"">
-                                                                            <tr>
-                                                                                <td class=""pad"" style=""padding-bottom:30px;padding-top:25px;width:100%;padding-right:0;padding-left:0"">
-                                                                                    <div class=""alignment"" align=""center"" style=""line-height:10px"">
-                                                                                        <div style=""max-width:158px"">
-                                                                                            <img src=""https://d15k2d11r6t6rl.cloudfront.net/pub/r388/l239mmxz/ia0/otr/bc8/AIS-logo.png"" style=""display:block;height:auto;border:0;width:100%"" width=""158"" alt=""Alternate text"" title=""Alternate text"" height=""auto"">
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </td>
-                                                                            </tr>
-                                                                        </table>
-                                                                        <table class=""text_block block-2"" width=""100%"" border=""0"" cellpadding=""10"" cellspacing=""0"" role=""presentation"" style=""mso-table-lspace:0;mso-table-rspace:0;word-break:break-word"">
-                                                                            <tr>
-                                                                                <td class=""pad"">
-                                                                                    <div style=""font-family:sans-serif"">
-                                                                                        <div class style=""font-size:12px;font-family:Tahoma,Verdana,Segoe,sans-serif;mso-line-height-alt:14.399999999999999px;color:#000;line-height:1.2"">
-                                                                                            <p style=""margin:0;font-size:14px;text-align:center;mso-line-height-alt:16.8px"">
-                                                                                                <span style=""word-break: break-word; font-size: 26px;"">Complete your account activation!</span>
-                                                                                            </p>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </td>
-                                                                            </tr>
-                                                                        </table>
-                                                                        <table class=""text_block block-3"" width=""100%"" border=""0"" cellpadding=""0"" cellspacing=""0"" role=""presentation"" style=""mso-table-lspace:0;mso-table-rspace:0;word-break:break-word"">
-                                                                            <tr>
-                                                                                <td class=""pad"" style=""padding-bottom:25px;padding-left:10px;padding-right:10px;padding-top:20px"">
-                                                                                    <div style=""font-family:sans-serif"">
-                                                                                        <div class style=""font-size:12px;font-family:Tahoma,Verdana,Segoe,sans-serif;mso-line-height-alt:14.399999999999999px;color:#8c8c8c;line-height:1.2"">
-                                                                                            <p style=""margin:0;font-size:14px;text-align:center;mso-line-height-alt:16.8px"">
-                                                                                                <span style=""word-break: break-word; font-size: 17px;"">Click the button below to<strong> confirm your email</strong>:</span>
-                                                                                            </p>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </td>
-                                                                            </tr>
-                                                                        </table>
-                                                                        <table class=""button_block block-4"" width=""100%"" border=""0"" cellpadding=""10"" cellspacing=""0"" role=""presentation"" style=""mso-table-lspace:0;mso-table-rspace:0"">
-                                                                            <tr>
-                                                                                <td class=""pad"">
-                                                                                    <div class=""alignment"" align=""center"">
-                                                                                        <div style=""background-color:#005a9c;border-bottom:0 solid transparent;border-left:0 solid transparent;border-radius:50px;border-right:0 solid transparent;border-top:0 solid transparent;color:#fff;display:block;font-family:Tahoma,Verdana,Segoe,sans-serif;font-size:18px;font-weight:700;mso-border-alt:none;padding-bottom:10px;padding-top:10px;text-align:center;text-decoration:none;width:35%;word-break:keep-all"">
-                                                                                            <span style=""word-break: break-word; padding-left: 20px; padding-right: 20px; font-size: 18px; display: inline-block; letter-spacing: normal;""><span style=""word-break: break-word; line-height: 36px;""><strong><a href=""{tokenLink}"" style=""color:#fff;text-decoration:none;"">Confirm</a></strong></span></span>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </td>
-                                                                            </tr>
-                                                                        </table>
-                                                                        <table class=""social_block block-5"" width=""100%"" border=""0"" cellpadding=""0"" cellspacing=""0"" role=""presentation"" style=""mso-table-lspace:0;mso-table-rspace:0"">
-                                                                            <tr>
-                                                                                <td class=""pad"" style=""padding-bottom:10px;padding-left:10px;padding-right:10px;padding-top:25px;text-align:center"">
-                                                                                    <div class=""alignment"" align=""center"">
-                                                                                        <table class=""social-table"" width=""108px"" border=""0"" cellpadding=""0"" cellspacing=""0"" role=""presentation"" style=""mso-table-lspace:0;mso-table-rspace:0;display:inline-block"">
-                                                                                            <tr>
-                                                                                                <td style=""padding:0 2px 0 2px""><a href=""https://www.facebook.com/"" target=""_blank""><img src=""https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-only-logo-default-gray/facebook@2x.png"" width=""32"" height=""auto"" alt=""Facebook"" title=""Facebook"" style=""display:block;height:auto;border:0""></a></td>
-                                                                                                <td style=""padding:0 2px 0 2px""><a href=""https://twitter.com/"" target=""_blank""><img src=""https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-only-logo-default-gray/twitter@2x.png"" width=""32"" height=""auto"" alt=""Twitter"" title=""Twitter"" style=""display:block;height:auto;border:0""></a></td>
-                                                                                                <td style=""padding:0 2px 0 2px""><a href=""https://instagram.com/"" target=""_blank""><img src=""https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-only-logo-default-gray/instagram@2x.png"" width=""32"" height=""auto"" alt=""Instagram"" title=""Instagram"" style=""display:block;height:auto;border:0""></a></td>
-                                                                                            </tr>
-                                                                                        </table>
-                                                                                    </div>
-                                                                                </td>
-                                                                            </tr>
-                                                                        </table>
-                                                                    </td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </body>";
-
-                    #endregion
+                    string emailBody = _mailHelper.GetHtmlTemplate("Complete your account activation", "confirm your email", "Confirm", tokenLink);
 
                     Response response = _mailHelper.SendEmail(model.Username, "Email Confirmation!", emailBody);
 
                     if (response.IsSuccess)
                     {
-                        return ConfirmEmail("Confirm Email", "The instructions to activate your account have been sent to your email!");
+                        return DisplayMessage("Email Confirmation", "The instructions to activate your account have been sent to your email!");
+                    }
+                    else
+                    {
+                        return DisplayMessage("Email not sent", "Did he miss his flight?");
                     }
                 }
                 else
@@ -441,6 +256,7 @@ namespace AIS.Controllers
 
         [HttpPost]
         [Authorize]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangeUser(ChangeUserViewModel model)
         {
             if (ModelState.IsValid)
@@ -515,6 +331,7 @@ namespace AIS.Controllers
 
         [HttpPost]
         [Authorize]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
             if (ModelState.IsValid)
@@ -548,7 +365,6 @@ namespace AIS.Controllers
                     }
                 }
             }
-
             return View(model);
         }
 
@@ -594,43 +410,297 @@ namespace AIS.Controllers
             return BadRequest();
         }
 
+        // GET: Account/Create
+        public IActionResult Create()
+        {
+            CreateUserViewModel model = new CreateUserViewModel();
+
+            return View(model);
+        }
+
+        // POST: Account/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(CreateUserViewModel model)
+        {
+            if (model.RoleName != "Admin" && model.RoleName != "Client" && model.RoleName != "Employee")
+            {
+                ModelState.AddModelError("RoleName", "Select a valid Role!");
+            }
+
+            if (ModelState.IsValid)
+            {
+                User userExists = await _userHelper.GetUserByEmailAsync(model.Email);
+
+                if (userExists == null)
+                {
+                    User user = _converterHelper.ToUser(model);
+
+                    string password = "";
+                    const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                    var random = new Random();
+
+                    for (int i = 0; i < 6; i++)
+                    {
+                        password += chars[random.Next(chars.Length)];
+                    }
+
+                    var result = await _userHelper.AddUserAsync(user, password);
+
+                    if (result != IdentityResult.Success)
+                    {
+                        ModelState.AddModelError(string.Empty, "User registration failed!");
+                        return View(model);
+                    }
+
+                    await _userHelper.AddUserToRoleAsync(user, model.RoleName);
+
+                    // Automatically confirm the email
+                    string userToken = await _userHelper.GenerateEmailConfirmationTokenAsync(user);
+                    await _userHelper.ConfirmEmailAsync(user, userToken);
+
+                    // Start password reset proccess so the user can set his own password through his email
+                    string passwordResetToken = await _userHelper.GeneratePasswordResetTokenAsync(user);
+                    string tokenLink = Url.Action("PasswordReset", "Account", new
+                    {
+                        userid = user.Id,
+                        token = passwordResetToken,
+                    }, protocol: HttpContext.Request.Scheme);
+
+                    string emailBody = _mailHelper.GetHtmlTemplate("Configure your account password", "set your password", "Password", tokenLink);
+
+                    Response response = _mailHelper.SendEmail(model.Email, "Password Configuration!", emailBody);
+
+                    if (!response.IsSuccess)
+                    {
+                        return DisplayMessage("Email not sent", "Did he miss his flight?");
+                    }
+
+                    return RedirectToAction(nameof(Index));
+                }
+
+                ViewBag.MsgId = "msg_error";
+                ViewBag.Severity = Severity.Error;
+                ViewBag.RegisterMessage = "There is already an account with this Email!";
+            }
+            return View(new CreateUserViewModel { FirstName = model.FirstName, LastName = model.LastName, PhoneNumber = model.PhoneNumber });
+        }
+
+        // GET: Account/Edit/userid
+        [HttpGet]
+        [Route("Edit/{id}")]
+        public async Task<IActionResult> Edit(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return UserNotFound();
+            }
+
+            User user = await _userHelper.GetUserByIdAsync(id);
+            EditUserViewModel model = new EditUserViewModel
+            {
+                Email = user.Email,
+                UserId = user.Id,
+            };
+
+            if (model == null)
+            {
+                return UserNotFound();
+            }
+
+            if (model.Email == _configuration["Admin:Email"])
+            {
+                ViewBag.Message = "The Master Admin's email can not be changed!";
+
+                return View(model);
+            }
+
+            return View(model);
+        }
+
+        // GET: Account/Edit/userid
+        [HttpPost]
+        [Route("Edit/{id}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(EditUserViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            User user = await _userHelper.GetUserByIdAsync(model.UserId);
+
+            if (user.Email != _configuration["Admin:Email"])
+            {
+                await _userHelper.UpdateUserEmailAndUsernameAsync(user, model.Email);
+                return RedirectToAction(nameof(Index));
+            }
+
+            return RedirectToAction("Edit", "Account");
+        }
+
+        // GET: Account/Details/userId
+        [HttpGet]
+        [Route("Details/{id}")]
+        public async Task<IActionResult> Details(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return UserNotFound();
+            }
+
+            UserWithRolesViewModel userModel = await _userHelper.GetUserByIdIncludeRoleAsync(id);
+
+            if (userModel == null)
+            {
+                return UserNotFound();
+            }
+            return View(userModel);
+        }
+
+        public IActionResult ForgotPassword()
+        {
+            // Ensure no active user session is affecting this operation
+            if (User.Identity.IsAuthenticated)
+            {
+                return NotAuthorized();
+            }
+
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            // Ensure no active user session is affecting this operation
+            if (User.Identity.IsAuthenticated)
+            {
+                return NotAuthorized();
+            }
+
+            if (ModelState.IsValid)
+            {
+                User user = await _userHelper.GetUserByEmailAsync(model.Email);
+
+                if (user != null)
+                {
+                    // Start password reset proccess so the user can recover his password trough his email
+                    string passwordResetToken = await _userHelper.GeneratePasswordResetTokenAsync(user);
+                    string tokenLink = Url.Action("PasswordReset", "Account", new
+                    {
+                        userid = user.Id,
+                        token = passwordResetToken,
+                    }, protocol: HttpContext.Request.Scheme);
+
+                    string emailBody = _mailHelper.GetHtmlTemplate("Recover your account password", "recover your password", "Password", tokenLink);
+
+                    Response response = _mailHelper.SendEmail(model.Email, "Password Recovery!", emailBody);
+
+                    if (!response.IsSuccess)
+                    {
+                        return DisplayMessage("Email not sent", "Did he miss his flight?");
+                    }
+                    return DisplayMessage("Password Recovery", "The instructions to recover your password have been sent to your email!");
+                }
+            }
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult PasswordReset(string userId, string token)
+        {
+            // Ensure no active user session is affecting this operation
+            if (User.Identity.IsAuthenticated)
+            {
+                return NotAuthorized();
+            }
+
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
+            {
+                return UserNotFound();
+            }
+
+            var model = new ResetPasswordViewModel
+            {
+                UserId = userId,
+                Token = token
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PasswordReset(ResetPasswordViewModel model)
+        {
+            // Ensure no active user session is affecting this operation
+            if (User.Identity.IsAuthenticated)
+            {
+                return NotAuthorized();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await _userHelper.GetUserByIdAsync(model.UserId);
+
+            if (user == null)
+            {
+                return UserNotFound();
+            }
+
+            var result = await _userHelper.ResetPasswordAsync(user, model.Token, model.Password);
+
+            if (result.Succeeded)
+            {
+                return DisplayMessage("Password Set", "Your account password has been successfully set. You can now log in!");
+            }
+
+            return DisplayMessage("Password configuration failed", "Your password configuration has failed! Try again.");
+        }
+
         public async Task<IActionResult> EmailConfirmation(string userId, string token)
         {
             if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
             {
-                RedirectToAction("PageNotFound", "Home");
+                return UserNotFound();
             }
 
             var user = await _userHelper.GetUserByIdAsync(userId);
 
             if (user == null)
             {
-                RedirectToAction("PageNotFound", "Home");
+                return UserNotFound();
             }
 
             var result = await _userHelper.ConfirmEmailAsync(user, token);
 
             if (!result.Succeeded)
             {
-                RedirectToAction("PageNotFound", "Home");
+                return DisplayMessage("Email confirmation failure", "Your account activation has failed! Try again.");
             }
-
-            return ConfirmEmail("Email Confirmed", "Your account activation is complete! You can now log in.");
-        }
-
-        public IActionResult NotAuthorized()
-        {
-            return View("Error", new ErrorViewModel { ErrorMessage = "User not authorized!", RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return DisplayMessage("Email confirmed", "Your account activation was succesfully completed! You can now log in.");
         }
 
         public IActionResult UserNotFound()
         {
-            return View("Error", new ErrorViewModel { ErrorMessage = "User not found!", RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View("DisplayMessage", new DisplayMessageViewModel { Title = "User not found", Message = "Maybe he jumped from the plane?" });
         }
 
-        public IActionResult ConfirmEmail(string title, string message)
+        public IActionResult NotAuthorized()
         {
-            return View("ConfirmEmail", new EmailConfirmationViewModel { Title = title, Message = message });
+            return View("DisplayMessage", new DisplayMessageViewModel { Title = "Not authorized", Message = $"Restricted airspace!" });
+        }
+
+        public IActionResult DisplayMessage(string title, string message)
+        {
+            return View("DisplayMessage", new DisplayMessageViewModel { Title = $"{title}", Message = $"{message}" });
         }
     }
 }

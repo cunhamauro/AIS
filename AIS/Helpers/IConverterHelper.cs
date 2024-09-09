@@ -7,6 +7,7 @@ namespace AIS.Helpers
 {
     public interface IConverterHelper
     {
+        User ToUser(CreateUserViewModel model);
         Aircraft ToAircraft(AircraftViewModel model, string path, bool isNew);
 
         AircraftViewModel ToAircraftViewModel(Aircraft aircraft);

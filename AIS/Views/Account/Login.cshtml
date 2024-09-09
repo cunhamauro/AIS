@@ -4,12 +4,8 @@
     ViewData["Title"] = "Login";
 }
 
-<div style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 1rem; margin-bottom: 4vh; margin-top: 3.5vh">
-    <!-- Heading centered -->
-    <h2 class="text-muted" style="flex: 1; text-align: center; font-weight: bolder; margin: 0">
-        Login
-    </h2>
-</div>
+<h2 class="text-muted" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Login</h2>
+<hr />
 
 <div class="row">
     <div class="col-md-4 offset-md-4">
@@ -37,6 +33,9 @@
                     <i class="fa-solid fa-right-to-bracket mr-2"></i>Login
                 </button>
                 <a asp-action="Register" class="btn btn-primary"><i class="fa-solid fa-user-plus mr-2"></i>Register</a>
+                <div class="mt-1">
+                    <a asp-action="ForgotPassword">Forgot your password?</a>
+                </div>
             </div>
 
             @if (ViewBag.LoginMessage != null)

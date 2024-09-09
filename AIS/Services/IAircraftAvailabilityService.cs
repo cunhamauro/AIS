@@ -10,5 +10,7 @@ namespace AIS.Services
         Task<List<Aircraft>> AvailableAircrafts(DateTime departure, DateTime arrival, Airport origin);
 
         Task<bool> AircraftAvailableOnDate(Aircraft aircraft, DateTime checkDateDeparture, DateTime checkDateArrival, Airport origin);
+
+        Task<bool> AircraftEditAvailableOnDate(Aircraft currentAircraft, DateTime departure, DateTime arrival, Flight flightToEdit);
     }
 }

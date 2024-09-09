@@ -22,13 +22,14 @@ namespace AIS.Data.Repositories
         /// </summary>
         /// <param name="id">Flight ID</param>
         /// <returns>Flight</returns>
-        public async Task<Flight> GetFlightIncludeByIdAsync(int id)
+        public async Task<Flight> GetFlightTrackIncludeByIdAsync(int id)
         {
             return await _context.Flights
                 //.Include(f => f.User) // No staff user data needed (Even for the API Get it is unnecessary)
                 .Include(f => f.Aircraft)
                 .Include(f => f.Origin)
                 .Include(f => f.Destination)
+                .Include(f => f.TicketList)
                 .FirstOrDefaultAsync(f => f.Id == id);
         }
 
@@ -36,7 +37,7 @@ namespace AIS.Data.Repositories
         /// Get all Flights including nested Entities
         /// </summary>
         /// <returns>List of Flights</returns>
-        public async Task<List<Flight>> GetFlightsIncludeAsync()
+        public async Task<List<Flight>> GetFlightsTrackIncludeAsync()
         {
             return await _context.Flights
             .Include(f => f.Aircraft)

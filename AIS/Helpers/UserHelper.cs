@@ -3,7 +3,6 @@ using AIS.Data.Repositories;
 using AIS.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -29,6 +28,17 @@ namespace AIS.Helpers
             _aircraftRepository = aircraftRepository;
             _flightRepository = flightRepository;
         }
+
+        public async Task<IdentityResult> ResetPasswordAsync(User user, string token, string newPassword)
+        {
+            return await _userManager.ResetPasswordAsync(user, token, newPassword);
+        }
+
+        public async Task<string> GeneratePasswordResetTokenAsync(User user)
+        {
+            return await _userManager.GeneratePasswordResetTokenAsync(user);
+        }
+
 
         /// <summary>
         /// Check if an User is registered in any of the Entities
@@ -143,21 +153,9 @@ namespace AIS.Helpers
             return userWithRoles;
         }
 
-        /// <summary>
-        /// Get the profile image of an User
-        /// </summary>
-        /// <param name="userClaims">Claims of User</param>
-        /// <returns>Profile image</returns>
-        public async Task<string> GetUserProfileImageAsync(ClaimsPrincipal userClaims)
+        public async Task<User> GetUserAsync(ClaimsPrincipal identity)
         {
-            var userId = _userManager.GetUserId(userClaims);
-            var user = await _userManager.FindByIdAsync(userId);
-            return user.ImageDisplay;
-        }
-
-        public async Task<User> GetUserAsync(ClaimsPrincipal userClaims)
-        {
-            return await _userManager.GetUserAsync(userClaims);
+            return await _userManager.GetUserAsync(identity);
         }
 
         public async Task<IdentityResult> AddUserAsync(User user, string password)
