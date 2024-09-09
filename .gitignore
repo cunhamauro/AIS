@@ -14,8 +14,6 @@
 appsettings.json
 
 # Images
-wwwroot/images/users/*
-wwwroot/images/aircrafts/*
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
