@@ -1,0 +1,74 @@
+﻿@model AIS.Models.TicketViewModel
+
+<dt class="col-sm-4">
+    @Html.DisplayNameFor(model => model.FlightNumber)
+</dt>
+<dd class="col-sm-8">
+    @Html.DisplayFor(model => model.FlightNumber)
+</dd>
+<dt class="col-sm-4">
+    @Html.DisplayNameFor(model => model.OriginCityCountry)
+</dt>
+<dd class="col-sm-8">
+    @Html.DisplayFor(model => model.OriginCityCountry)<img src="@Url.Content(Model.Flight.Origin.ImageUrl)" class="ml-2" alt="Country Flag Image" style="height:2vh; border:solid; border-color: lightgray; border-width: 0.5px" />
+</dd>
+<dt class="col-sm-4">
+    @Html.DisplayNameFor(model => model.DestinationCityCountry)
+</dt>
+<dd class="col-sm-8">
+    @Html.DisplayFor(model => model.DestinationCityCountry)<img src="@Url.Content(Model.Flight.Destination.ImageUrl)" class="ml-2" alt="Country Flag Image" style="height:2vh; border:solid; border-color: lightgray; border-width: 0.5px" />
+</dd>
+<dt class="col-sm-4">
+    @Html.DisplayNameFor(model => model.DepartureDate)
+</dt>
+<dd class="col-sm-8">
+    @Html.DisplayFor(model => model.DepartureDate)
+</dd>
+<dt class="col-sm-4">
+    @Html.DisplayNameFor(model => model.ArrivalDate)
+</dt>
+<dd class="col-sm-8">
+    @Html.DisplayFor(model => model.ArrivalDate)
+</dd>
+<dt class="col-sm-4">
+    @Html.DisplayNameFor(model => model.Seat)
+</dt>
+<dd class="col-sm-8">
+    @Html.DisplayFor(model => model.Seat)
+</dd>
+<dt class="col-sm-4">
+    @Html.DisplayNameFor(model => model.FullName)
+</dt>
+<dd class="col-sm-8">
+    @Model.Title @Model.FullName
+</dd>
+<dt class="col-sm-4">
+    @Html.DisplayNameFor(model => model.IdNumber)
+</dt>
+<dd class="col-sm-8">
+    @Html.DisplayFor(model => model.IdNumber)
+</dd>
+<dt class="col-sm-4">
+    @Html.DisplayNameFor(model => model.DateOfBirth)
+</dt>
+<dd class="col-sm-8">
+    @Model.DateOfBirth.ToString("dd/MM/yyyy")
+</dd>
+<dt class="col-sm-4">
+    @Html.DisplayNameFor(model => model.PhoneNumber)
+</dt>
+<dd class="col-sm-8">
+    @Html.DisplayFor(model => model.PhoneNumber)
+</dd>
+<dt class="col-sm-4">
+    @Html.DisplayNameFor(model => model.Email)
+</dt>
+<dd class="col-sm-8">
+    @Html.DisplayFor(model => model.Email)
+</dd>
+<dt class="col-sm-4">
+    @Html.DisplayNameFor(model => model.Price)
+</dt>
+<dd class="col-sm-8">
+    @Model.Price.ToString("C")
+</dd>

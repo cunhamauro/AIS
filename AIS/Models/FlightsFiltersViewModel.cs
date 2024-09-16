@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AIS.Models
 {
-    public class FlightsFiltersModelView
+    public class FlightsFiltersViewModel
     {
         public List<Flight> Flights {  get; set; }
 

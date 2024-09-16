@@ -35,6 +35,10 @@ namespace AIS.Data
                        .IsUnique()
                        .HasDatabaseName("IX_Airports_IATA");
 
+            modelBuilder.Entity<Ticket>()
+                       .Property(t => t.Price)
+                       .HasColumnType("decimal(18,2)");
+
             // Convert Lists to Json to save in database:
             // Converter
             var valueConverter = new ValueConverter<List<string>, string>(

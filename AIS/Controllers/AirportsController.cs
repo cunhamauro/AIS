@@ -7,6 +7,7 @@ using AIS.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -137,7 +138,30 @@ namespace AIS.Controllers
             var currentUser = await _userHelper.GetUserAsync(User);
 
             // Get the image flag url
-            string imageUrl = listCountriesAPI.FirstOrDefault(c => c.Name.Common == airport.Country).Flags.Png;
+
+            string imageUrl = "";
+
+            // Triple logic to match airport country name to API country name for flag image:
+            // 1st: exact country name match;
+            // 2nd: airport country contains API country name (Ex.: 'Russian Federation' contains 'Russia' -> Russian Federation will get Russia flag);
+            // 3rd: default missing image assigned
+            try
+            {
+                var country = listCountriesAPI.FirstOrDefault(c => c.Name.Common == airport.Country) ?? listCountriesAPI.FirstOrDefault(c => airport.Country.Contains(c.Name.Common));
+
+                if (country != null)
+                {
+                    imageUrl = country.Flags.Png;
+                }
+                else
+                {
+                    imageUrl = @"~/images/noimage.jpg"; // Fallback if no country is found
+                }
+            }
+            catch (Exception)
+            {
+                imageUrl = @"~/images/noimage.jpg"; // Fallback for unexpected exceptions
+            }
 
             airport.User = currentUser; // Assign the current user to the aircraft
             airport.ImageUrl = imageUrl;

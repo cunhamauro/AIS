@@ -6,6 +6,8 @@ namespace AIS.Data.Repositories
 {
     public interface ITicketRepository : IGenericRepository<Ticket>
     {
-        Task<List<Ticket>> GetTicketsByUser(string id);
+        Task<Ticket> GetTicketIncludeFlightAirportsAsync(int id);
+
+        Task<List<Ticket>> GetTicketsByUserIncludeFlightAirportsAsync(string id);
     }
 }

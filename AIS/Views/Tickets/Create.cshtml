@@ -1,4 +1,4 @@
-﻿@model AIS.Models.BuyTicketViewModel
+﻿@model AIS.Models.TicketViewModel
 
 @{
     ViewData["Title"] = "Purchase Ticket";
@@ -12,6 +12,8 @@
         <form asp-action="Create" id="payTicketForm">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="FlightId" />
+            <input type="hidden" asp-for="Price" />
+
 
             <div class="form-group">
                 <label for="flightNumber" class="form-label">Flight Number</label>
@@ -76,9 +78,9 @@
                 <span asp-validation-for="DateOfBirth" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="ContactNumber" class="control-label"></label>
-                <input asp-for="ContactNumber" class="form-control" />
-                <span asp-validation-for="ContactNumber" class="text-danger"></span>
+                <label asp-for="PhoneNumber" class="control-label"></label>
+                <input asp-for="PhoneNumber" class="form-control" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Email" class="control-label">Email</label><small style="float: right" class="text-muted">* Where Ticket is to be sent</small>
@@ -86,65 +88,19 @@
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <button type="submit" id="btnPurchaseTicket" class="btn btn-success mr-2">
+                <button type="submit" @ViewBag.State id="btnPurchaseTicket" class="btn btn-success mr-2">
                     <i class="fa-solid fa-cart-shopping mr-2"></i>Purchase Ticket
                 </button>
                 <a asp-controller="Home" asp-action="Index" class="btn btn-secondary"><i class="fa-solid fa-chevron-left mr-2"></i>Back</a>
             </div>
+            <div>
+                @if (ViewBag.ShowMsg == true)
+                {
+                    <ejs-message id="msg_warning" severity="Warning" content="@ViewBag.Message" style="margin-top: 1.2vh; border-radius: 5px;"></ejs-message>
+                }
+            </div>
         </form>
     </div>
-
-    <style>
-        #planeContainer dd {
-            margin-bottom: 0;
-        }
-
-        #planeContainer {
-            position: -webkit-sticky; /* For Safari */
-            position: sticky;
-            top: 0;
-            z-index: 1000; /* Optional: Ensure it stays on top of other content */
-        }
-
-        #planeContainer img {
-            opacity: 0.1;
-        }
-
-        /* Sticky wrapper to make airplane always show and follow on scroll */
-        .sticky-wrapper {
-            position: -webkit-sticky; /* For Safari */
-            position: sticky;
-            top: 0;
-            z-index: 1000; /* Optional: ensure it stays on top */
-        }
-
-        /* Container for plane content */
-        #planeContainer {
-            display: flex; /* Use flexbox for alignment */
-            flex-direction: row; /* Align children in a row */
-            align-items: flex-start; /* Align items to the start */
-            justify-content: space-between; /* Space items evenly */
-            width: 100%; /* Ensure full width */
-            box-sizing: border-box; /* Include padding in width calculation */
-        }
-
-        /* Columns inside planeContainer */
-        #planeContainer .col-md-3, #planeContainer .col-md-6 {
-            flex: 1; /* Allow columns to grow equally */
-        }
-
-        /* Ensure images do not exceed column width */
-        #planeContainer img {
-            max-width: 100%;
-            height: auto; /* Maintain aspect ratio */
-        }
-
-        /* Ensure textarea fits within its container */
-        #planeContainer textarea {
-            width: 100%; /* Full width */
-            box-sizing: border-box; /* Include padding and border in width */
-        }
-    </style>
 
     <div class="col-md-4">
         <div class="sticky-wrapper">
@@ -207,7 +163,7 @@
                     </div>
                     <div class="row mb-3">
                         <label for="amount" class="form-label">Amount</label>
-                        <input type="text" id="amount" class="form-control" value="@Model.TicketPrice.ToString("C")" readonly>
+                        <input type="text" id="amount" class="form-control" value="@Model.Price.ToString("C")" readonly>
                     </div>
                 </div>
             </div>

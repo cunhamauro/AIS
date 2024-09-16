@@ -14,7 +14,7 @@ namespace AIS
             host.Run();
         }
 
-        private static async void RunSeeding(IHost host)
+        private static void RunSeeding(IHost host)
         {
             var scopeFactory = host.Services.GetService<IServiceScopeFactory>();
             using (var scope = scopeFactory.CreateScope())

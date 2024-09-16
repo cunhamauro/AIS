@@ -69,15 +69,18 @@ namespace AIS.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> Index(FlightsFiltersModelView model)
+        public async Task<IActionResult> Index(FlightsFiltersViewModel model)
         {
             // Get all flights initially
             var flights = await _flightRepository.GetFlightsTrackIncludeAsync();
 
-            // Get only the flights with seats available
-            flights = flights.Where(f => f.AvailableSeats.Count > 0).ToList(); // TODO CHECK IF FLIGHT ONLY WITH SEATS FILTER FUNCTIONS HOME CONTROLLER INDEX
+            DateTime now = DateTime.UtcNow.AddMinutes(30);
 
-            FlightsFiltersModelView flightsModel = new FlightsFiltersModelView();
+            // Get only the flights with seats available and that have a departure date with at least 30min left
+            flights = flights.Where(f => f.AvailableSeats.Count > 0).Where(f => f.Departure > now).ToList();
+
+
+            FlightsFiltersViewModel flightsModel = new FlightsFiltersViewModel();
 
             if (flights != null && flights.Any())
             {

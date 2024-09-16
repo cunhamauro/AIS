@@ -8,11 +8,62 @@
     <h2 class="text-muted" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Delete Flight</h2>
     <hr />
     <partial name="_DetailsDelete" />
-    <form asp-action="Delete">
+    <form asp-action="Delete" id="cancelForm">
         <input type="hidden" asp-for="Id" />
-        <button type="submit" class="btn btn-danger mr-2">
+        <button type="submit" id="btnCancelFlight" class="btn btn-danger mr-2">
             <i class="fa-solid fa-trash-can mr-2"></i>Delete
         </button>
         <a asp-action="Index" class="btn btn-secondary"><i class="fa-solid fa-chevron-left mr-2"></i>Back</a>
     </form>
+        <div class="row">
+            <div class="col-sm-8" style="margin-top: 1.2vh">
+                @if (ViewBag.ShowMsg == true)
+                {
+                    <ejs-message id="msg_warning" severity="Warning" content="This Flight has tickets allocated!" style=" border-radius: 5px;"></ejs-message>
+                }
+            </div>
+        </div>
 </div>
+
+
+<div id="cancelDialog" class="modal fade">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Confirm Flight cancellation</h4>
+                <button type="button" class="close" data-dismiss="modal"><i class="fa fa-window-close"></i></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to cancel this flight?</p>
+                @if (ViewBag.ShowMsg)
+                {
+                    <p>This Flight has tickets allocated.</p>
+                    <p>By removing this Flight all tickets will be cancelled!</p>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="btnCancelYes">Yes</button>
+                <button type="button" class="btn btn-danger" id="btnCancelNo">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#btnCancelFlight").click(function (e) {
+                e.preventDefault(); // Prevent the form from being submitted immediately
+                $("#cancelDialog").modal("show"); // Show the modal
+            });
+
+            $("#btnCancelYes").click(function () {
+                $("#cancelForm").submit(); // Submit the form
+            });
+
+            $("#btnCancelNo").click(function () {
+                $("#cancelDialog").modal("hide"); // Hide the modal
+            });
+        });
+    </script>
+}

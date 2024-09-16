@@ -1,0 +1,74 @@
+﻿/* Moving airplane seats container */
+
+#planeContainer dd {
+    margin-bottom: 0;
+}
+
+#planeContainer {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 1000; 
+}
+
+#planeContainer img {
+    opacity: 0.1;
+}
+
+/* Sticky wrapper to make airplane always show and follow on scroll */
+.sticky-wrapper {
+    position: -webkit-sticky; 
+    position: sticky;
+    top: 0;
+    z-index: 1000; 
+}
+
+/* Container for plane content */
+#planeContainer {
+    display: flex; /* Use flexbox for alignment */
+    flex-direction: row; /* Align children in a row */
+    align-items: flex-start; /* Align items to the start */
+    justify-content: space-between; /* Space items evenly */
+    width: 100%; /* Ensure full width */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+/* Columns inside planeContainer */
+#planeContainer .col-md-3, #planeContainer .col-md-6 {
+    flex: 1; /* Allow columns to grow equally */
+}
+
+/* Ensure images do not exceed column width */
+#planeContainer img {
+    max-width: 100%;
+    height: auto; /* Maintain aspect ratio */
+}
+
+/* Ensure textarea fits within its container */
+#planeContainer textarea {
+    width: 100%; /* Full width */
+    box-sizing: border-box; /* Include padding and border in width */
+}
+
+/* Caroussel style */
+
+#carouselControl {
+    width: 100%;
+    height: 65vh;
+    margin: auto;
+    overflow: hidden;
+}
+
+#carouselControl .carousel-inner {
+    height: 100%;
+}
+
+#carouselControl .carousel-item {
+    height: 100%;
+}
+
+#carouselControl .carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

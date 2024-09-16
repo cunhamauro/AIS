@@ -80,6 +80,8 @@ namespace AIS.Data.Entities
                 return string.Empty;
             }
 
+            AvailableSeats = AvailableSeats.OrderBy(s => s).ToList();
+
             var seatsFormatted = new StringBuilder();
             string currentRow = string.Empty; // Start with an empty string
 

@@ -4,68 +4,75 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<div style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 1rem; margin-bottom: 4vh; margin-top: 3.5vh">
+    <!-- Heading centered -->
+    <h2 class="text-muted" style="flex: 1; text-align: center; font-weight: bolder; margin: 0; padding-right: 10vh">
+        Your Tickets
+    </h2>
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
 <table class="table">
     <thead>
         <tr>
             <th>
+                Flight
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Flight.Origin)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Flight.Destination)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Flight.Departure)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Flight.Arrival)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Seat)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FullName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IdNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ContactNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DateOfBirth)
+                Name
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Seat)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FullName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IdNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ContactNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DateOfBirth)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Flight.FlightNumber)
+                </td>
+                <td>
+                    @item.Flight.Origin.City, @item.Flight.Origin.Country
+                    <br />
+                    <img src="@Url.Content(item.Flight.Origin.ImageUrl)" class="mt-2" alt="Country Flag Image" style="height:5vh; border:solid; border-color: lightgray; border-width: 0.5px" />
+                </td>
+                <td>
+                    @item.Flight.Destination.City, @item.Flight.Destination.Country
+                    <br />
+                    <img src="@Url.Content(item.Flight.Destination.ImageUrl)" class="mt-2" alt="Country Flag Image" style="height:5vh; border:solid; border-color: lightgray; border-width: 0.5px" />
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Flight.Departure)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Flight.Arrival)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Seat)
+                </td>
+                <td>
+                    @item.Title @item.FullName
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning mb-2"><i class="fa-solid fa-pen mr-2"></i>Update</a>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info mb-2"><i class="fa-solid fa-list mr-2"></i>Details</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger"><i class="fa-solid fa-trash-can mr-2"></i>Cancel</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

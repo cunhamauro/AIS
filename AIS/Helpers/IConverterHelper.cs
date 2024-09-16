@@ -1,6 +1,8 @@
 ﻿using AIS.Data.Entities;
 using AIS.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace AIS.Helpers
@@ -17,5 +19,7 @@ namespace AIS.Helpers
         Flight ToFlight(Aircraft aircraft, Airport origin, Airport destination, FlightViewModel model, bool isNew);
 
         FlightViewModel ToFlightViewModel(Flight flight);
+
+        TicketViewModel ToTicketViewModel(Ticket ticket, Flight flight, List<SelectListItem> listSeats);
     }
 }

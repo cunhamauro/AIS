@@ -20,7 +20,12 @@ namespace AIS.Data.Repositories
             _userHelper = userHelper;
         }
 
-        public async Task<List<Ticket>> GetTicketsByUser(string id)
+        public async Task<Ticket> GetTicketIncludeFlightAirportsAsync(int id)
+        {
+            return await _context.Tickets.Include(f => f.Flight).ThenInclude(a => a.Origin).Include(f => f.Flight).ThenInclude(a => a.Destination).FirstOrDefaultAsync(t => t.Id == id);
+        } 
+
+        public async Task<List<Ticket>> GetTicketsByUserIncludeFlightAirportsAsync(string id)
         {
             User user = await _userHelper.GetUserByIdAsync(id);
 
@@ -29,7 +34,7 @@ namespace AIS.Data.Repositories
                 return new List<Ticket>();
             }
 
-            return await _context.Tickets.Where(t => t.User.Id == id).ToListAsync();
+            return await _context.Tickets.Where(t => t.User.Id == id).Include(f => f.Flight).ThenInclude(a => a.Origin).Include(f => f.Flight).ThenInclude(a => a.Destination).ToListAsync();
         }
     }
 }

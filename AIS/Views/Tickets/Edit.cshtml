@@ -1,26 +1,71 @@
-﻿@model AIS.Data.Entities.Ticket
+﻿@model AIS.Models.TicketViewModel
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Purchase Ticket";
 }
 
-<h1>Edit</h1>
-
-<h4>Ticket</h4>
+<h2 class="text-muted" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Update Ticket</h2>
 <hr />
+
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-4 offset-md-4">
+
+        <div class="mb-3">
+            @if (ViewBag.ShowMsgFlight == true)
+            {
+                <ejs-message id="msg_warning_flight" severity="Warning" content="This Ticket cannot be updated anymore!" style="margin-top: 1.2vh; border-radius: 5px;"></ejs-message>
+            }
+        </div>
+
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="FlightId" />
+
             <div class="form-group">
-                <label asp-for="Seat" class="control-label"></label>
-                <input asp-for="Seat" class="form-control" />
-                <span asp-validation-for="Seat" class="text-danger"></span>
+                <label for="flightNumber" class="form-label">Flight Number</label>
+                <input type="text" class="form-control" value="@Model.FlightNumber" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="origin" class="form-label">Origin</label>
+                <input type="text" class="form-control" value="@Model.OriginCityCountry" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="destination" class="form-label">Destination</label>
+                <input type="text" class="form-control" value="@Model.DestinationCityCountry" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="departure" class="form-label">Departure</label>
+                <input type="text" class="form-control" value="@Model.DepartureDate.ToString("d MMMM yyyy, HH:mm")" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="arrival" class="form-label">Arrival</label>
+                <input type="text" class="form-control" value="@Model.ArrivalDate.ToString("d MMMM yyyy, HH:mm")" readonly>
             </div>
             <div class="form-group">
+                <label asp-for="Seat" class="control-label"></label>
+                <select asp-for="Seat" asp-items="Model.SeatsList" class="form-control">
+                    <option value="">Select a Seat</option>
+                </select>
+                <span asp-validation-for="Seat" class="text-danger"></span>
+                @if (ViewBag.ShowMsgSeat == true)
+                {
+                    <ejs-message id="msg_warning_seats" severity="Warning" content="The selected Seat is no longer available!" style="margin-top: 1.2vh; border-radius: 5px;"></ejs-message>
+                }
+            </div>
+
+            <hr />
+            <h5 class="text-muted mt-2" style="text-align: center;">Ticket Holder</h5>
+            <hr />
+
+            <div class="form-group">
                 <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
+                <select asp-for="Title" asp-items="Model.TitlesList" class="form-control">
+                    <option value="">Select a Title</option>
+                </select>
                 <span asp-validation-for="Title" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -34,28 +79,53 @@
                 <span asp-validation-for="IdNumber" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="ContactNumber" class="control-label"></label>
-                <input asp-for="ContactNumber" class="form-control" />
-                <span asp-validation-for="ContactNumber" class="text-danger"></span>
+                <label asp-for="DateOfBirth" class="control-label"></label>
+                <input asp-for="DateOfBirth" class="form-control" type="date" />
+                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
+                <label asp-for="PhoneNumber" class="control-label"></label>
+                <input asp-for="PhoneNumber" class="form-control" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label">Email</label><small style="float: right" class="text-muted">* Where Ticket is to be sent</small>
                 <input asp-for="Email" class="form-control" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="DateOfBirth" class="control-label"></label>
-                <input asp-for="DateOfBirth" class="form-control" />
-                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <button type="submit" @ViewBag.State class="btn btn-success mr-2">
+                    <i class="fa-solid fa-save mr-2"></i>Save
+                </button>
+                <a asp-controller="Tickets" asp-action="Index" class="btn btn-secondary"><i class="fa-solid fa-chevron-left mr-2"></i>Back</a>
             </div>
         </form>
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+    <div class="col-md-4">
+        <div class="sticky-wrapper">
+            <div id="planeContainer">
+                <div class="row">
+                    <div class="col-md-3" style="padding-right: 0;">
+                    </div>
+                    <!-- Right: Seats -->
+                    <div class="col-md-6" style="padding-left: 0; padding-right: 0">
+                        <dl class="row mt-4">
+                            <dd class="col-sm-12">
+                                <img class="img-fluid" src="~/images/airplane-front.png" alt="Front of airplane" />
+                            </dd>
+                            <dd class="col-sm-12" style="height: 40vh">
+                                <textarea nowrap="off" id="seatTextArea" readonly style="resize: none; width: 100%; height: 100%; overflow: auto; font-family: consolas;">@Model.Flight.FormatAvailableSeats()</textarea>
+                            </dd>
+                            <dd class="col-sm-12">
+                                <img class="img-fluid" src="~/images/airplane-tail.png" alt="Tail of airplane" />
+                            </dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-3" style="padding-left: 0;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-

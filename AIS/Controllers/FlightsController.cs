@@ -269,6 +269,11 @@ namespace AIS.Controllers
                 return FlightNotFound();
             }
 
+            if (flight.TicketList.Any())
+            {
+                ViewBag.ShowMsg = true;
+            }
+
             return View(flight);
         }
 

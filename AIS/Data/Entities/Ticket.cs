@@ -34,7 +34,7 @@ namespace AIS.Data.Entities
         [Required]
         [Phone]
         [StringLength(15, MinimumLength = 8, ErrorMessage = "Invalid Phone Number!")]
-        public string ContactNumber { get; set; } // CHANGE TO PHONENUMBER
+        public string PhoneNumber { get; set; }
 
         [Required]
         [EmailAddress]
@@ -43,5 +43,7 @@ namespace AIS.Data.Entities
         [Required]
         [Display(Name = "Date of Birth")]
         public DateTime DateOfBirth { get; set; }
+
+        public decimal Price { get; set; }
     }
 }

@@ -49,16 +49,14 @@
                 <dd class="col-sm-8">
                     @if (Model.Roles.Any())
                     {
-                        <ul>
-                            @foreach (var role in Model.Roles)
-                            {
-                                <li>@role</li>
-                            }
-                        </ul>
+                        @foreach (var role in Model.Roles)
+                        {
+                            @role
+                        }
                     }
                     else
                     {
-                        <p>No Roles assigned</p>
+                        <p>No Role assigned</p>
                     }
                 </dd>
             </dl>
@@ -68,16 +66,16 @@
                     buttonState = ViewBag.State;
                 }
                 <form asp-action="Delete" method="post" id="deleteForm">
-@*                     <input type="hidden" name="id" id="userId" value="@Model.User.Id" />
- *@                    <input type="hidden" asp-for="@Model.User.Id" />
+                    @*                     <input type="hidden" name="id" id="userId" value="@Model.User.Id" />
+                    *@                    <input type="hidden" asp-for="@Model.User.Id" />
                     <button type="button" class="btn btn-danger mr-2" id="btnDeleteUser" @buttonState>
                         <i class="fa-solid fa-trash-can mr-2"></i>Delete
                     </button>
-                  <a asp-action="Index" class="btn btn-secondary"><i class="fa-solid fa-chevron-left mr-2"></i>Back</a>
+                    <a asp-action="Index" class="btn btn-secondary"><i class="fa-solid fa-chevron-left mr-2"></i>Back</a>
                 </form>
             </div>
             <div>
-                @if (ViewBag.ShowMsg != null && ViewBag.ShowMsg )
+                @if (ViewBag.ShowMsg == true)
                 {
                     <ejs-message id="msg_warning_get" severity="Warning" content="@ViewBag.Message" style="margin-top: 1.2vh; border-radius: 5px;"></ejs-message>
                 }

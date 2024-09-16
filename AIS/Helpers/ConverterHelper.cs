@@ -1,6 +1,8 @@
 ﻿using AIS.Data.Entities;
 using AIS.Data.Repositories;
 using AIS.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace AIS.Helpers
@@ -96,6 +98,31 @@ namespace AIS.Helpers
                 Destination = flight.Destination,
                 OriginId = flight.Origin.Id,
                 DestinationId = flight.Destination.Id,
+            };
+        }
+
+        public TicketViewModel ToTicketViewModel(Ticket ticket, Flight flight, List<SelectListItem> listSeats)
+        {
+            return new TicketViewModel
+            {
+                FlightNumber = flight.FlightNumber,
+                OriginCityCountry = $"{flight.Origin.City}, {flight.Origin.Country}",
+                DestinationCityCountry = $"{flight.Destination.City}, {flight.Destination.Country}",
+                DepartureDate = flight.Departure,
+                ArrivalDate = flight.Arrival,
+                Id = ticket.Id,
+                SeatsList = listSeats,
+                FullName = ticket.FullName,
+                Email = ticket.Email,
+                IdNumber = ticket.IdNumber,
+                PhoneNumber = ticket.PhoneNumber,
+                DateOfBirth = ticket.DateOfBirth,
+                Seat = ticket.Seat,
+                Title = ticket.Title,
+                Flight = flight,
+                FlightId = flight.Id,
+                Price = ticket.Price,
+
             };
         }
     }
