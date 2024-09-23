@@ -1,5 +1,4 @@
-﻿using Syncfusion.EJ2.Spreadsheet;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -40,7 +39,7 @@ namespace AIS.Data.Entities
         public Airport Destination { get; set; }
 
         [Required]
-        public DateTime Departure {  get; set; }
+        public DateTime Departure { get; set; }
 
         [Required]
         public DateTime Arrival { get; set; }
@@ -48,13 +47,11 @@ namespace AIS.Data.Entities
         public TimeSpan Duration => Arrival - Departure;
 
         [Display(Name = "Flight Number")]
-        public string FlightNumber {  get; set; }
+        public string FlightNumber { get; set; }
 
         public User User { get; set; }
 
         public List<Ticket> TicketList { get; set; } = new List<Ticket>();
-
-        public int PassengerCount { get; set; }
 
         #endregion
 
@@ -123,7 +120,7 @@ namespace AIS.Data.Entities
                 AvailableSeats.Add(seat);
             }
 
-            UpdatePassengerCount();
+            AvailableSeats.OrderBy(s => s);
         }
 
         /// <summary>
@@ -161,14 +158,6 @@ namespace AIS.Data.Entities
             decimal price = basePrice + (basePrice * (1 - availableSeatsPercent)) * 3;
 
             return price;
-        }
-
-        /// <summary>
-        /// Update the passenger count property
-        /// </summary>
-        private void UpdatePassengerCount()
-        {
-            PassengerCount = TicketList.Count;
         }
 
         #endregion

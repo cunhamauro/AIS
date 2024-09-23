@@ -4,14 +4,16 @@ using AIS.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AIS.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240922092640_flightRecordsV2")]
+    partial class flightRecordsV2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -139,6 +141,49 @@ namespace AIS.Migrations
                     b.ToTable("Flights");
                 });
 
+            modelBuilder.Entity("AIS.Data.Entities.FlightRecord", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AircraftId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Arrival")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("Canceled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("Departure")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DestinationCity")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DestinationCountry")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DestinationFlagImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FlightNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OriginCity")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OriginCountry")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OriginFlagImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FlightRecords");
+                });
+
             modelBuilder.Entity("AIS.Data.Entities.Ticket", b =>
                 {
                     b.Property<int>("Id")
@@ -191,58 +236,6 @@ namespace AIS.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Tickets");
-                });
-
-            modelBuilder.Entity("AIS.Data.Entities.TicketFlightRecord", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("Arrival")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("Canceled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("Departure")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DestinationCity")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DestinationCountry")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DestinationFlagImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FlightNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("HolderIdNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OriginCity")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OriginCountry")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OriginFlagImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Seat")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("TicketPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TicketFlightRecords");
                 });
 
             modelBuilder.Entity("AIS.Data.Entities.User", b =>

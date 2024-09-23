@@ -1,16 +1,15 @@
-﻿using AIS.Data;
+﻿using AIS.Data.Classes;
 using AIS.Data.Entities;
 using AIS.Data.Repositories;
 using AIS.Helpers;
 using AIS.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -23,15 +22,23 @@ namespace AIS.Controllers
         private readonly ITicketRepository _ticketRepository;
         private readonly IConfiguration _configuration;
         private readonly IConverterHelper _converterHelper;
+        private readonly IMailHelper _mailHelper;
+        private readonly IPdfHelper _pdfHelper;
+        private readonly IQrCodeHelper _qrCodeHelper;
+        private readonly IFlightRecordRepository _flightRecordRepository;
         private readonly int marginTicketCancelation;
 
-        public TicketsController(IFlightRepository flightRepository, IUserHelper userHelper, ITicketRepository ticketRepository, IConfiguration configuration, IConverterHelper converterHelper)
+        public TicketsController(IFlightRepository flightRepository, IUserHelper userHelper, ITicketRepository ticketRepository, IConfiguration configuration, IConverterHelper converterHelper, IMailHelper mailHelper, IPdfHelper pdfHelper, IQrCodeHelper qrCodeHelper, IFlightRecordRepository flightRecordRepository)
         {
             _flightRepository = flightRepository;
             _userHelper = userHelper;
             _ticketRepository = ticketRepository;
             _configuration = configuration;
             _converterHelper = converterHelper;
+            _mailHelper = mailHelper;
+            _pdfHelper = pdfHelper;
+            _qrCodeHelper = qrCodeHelper;
+            _flightRecordRepository = flightRecordRepository;
             marginTicketCancelation = int.Parse(_configuration["AppSettings:TicketCancelationMarginHours"]);
         }
 
@@ -40,7 +47,7 @@ namespace AIS.Controllers
         {
             User currentUser = await _userHelper.GetUserAsync(this.User);
             List<Ticket> userTickets = await _ticketRepository.GetTicketsByUserIncludeFlightAirportsAsync(currentUser.Id);
-                
+
             return View(userTickets);
         }
 
@@ -82,7 +89,7 @@ namespace AIS.Controllers
             {
                 return RedirectToAction("FlightNotFound", "Flights");
             }
-            
+
             if (flight.AvailableSeats.Count == 0) //TODO TESTAR SEM LUGARES
             {
                 ViewBag.ShowMsg = true;
@@ -141,9 +148,11 @@ namespace AIS.Controllers
 
             if (ModelState.IsValid)
             {
+                User user = await _userHelper.GetUserAsync(this.User);
+
                 Ticket newTicket = new Ticket
                 {
-                    User = await _userHelper.GetUserAsync(this.User),
+                    User = user,
                     PhoneNumber = model.PhoneNumber,
                     Email = model.Email,
                     DateOfBirth = model.DateOfBirth,
@@ -168,6 +177,48 @@ namespace AIS.Controllers
 
                         // Update the flight in the database
                         await _flightRepository.UpdateAsync(flight);
+
+                        TicketFlightRecord record = new TicketFlightRecord
+                        {
+                            Id = newTicket.Id,
+                            UserId = user.Id,
+                            Seat = newTicket.Seat,
+                            TicketPrice = newTicket.Price,
+                            FlightNumber = flight.FlightNumber,
+                            OriginCity = flight.Origin.City,
+                            OriginCountry = flight.Origin.Country,
+                            OriginFlagImageUrl = flight.Origin.ImageUrl,
+                            DestinationCity = flight.Destination.City,
+                            DestinationCountry = flight.Destination.Country,
+                            DestinationFlagImageUrl = flight.Destination.ImageUrl,
+                            Departure = flight.Departure,
+                            Arrival = flight.Arrival,
+                            Canceled = false,
+                            HolderIdNumber = model.IdNumber,
+                        };
+
+                        await _flightRecordRepository.CreateAsync(record);
+
+                        // Send ticket invoice to the email of user that bought the ticket
+                        string emailBodyInvoice = _mailHelper.GetHtmlTemplateInvoice($"{user.FirstName} {user.LastName}", flight.FlightNumber, model.Price);
+                        MemoryStream pdfInvoice = _pdfHelper.GenerateInvoicePdf($"{user.FirstName} {user.LastName}", flight.FlightNumber, model.Price, false, false);
+                        Response responseInvoice = _mailHelper.SendEmail(user.Email, $"Invoice Ticket ID-{newTicket.Id}", emailBodyInvoice, pdfInvoice, $"ticket_invoice_flight_{flight.FlightNumber}_{user.FirstName}_{user.LastName}.pdf", null);
+
+                        if (!responseInvoice.IsSuccess)
+                        {
+                            return DisplayMessage("Invoice Mailing Error", $"The invoice for the ticket failed to send to: {user.Email}!");
+                        }
+
+                        // Send the ticket itself to the email of the ticket holder that was inserted when buying the ticket
+                        MemoryStream qrCode = _qrCodeHelper.GenerateQrCode($"VALID TICKET: Flight {flight.FlightNumber} - Passenger {model.Title} {model.FullName} - Identification Number: {model.IdNumber}");
+                        string emailBodyTicket = _mailHelper.GetHtmlTemplateTicket("Ticket", $"{model.Title} {model.FullName}", model.IdNumber, flight.FlightNumber, $"{flight.Origin.City}, {flight.Origin.Country}", $"{flight.Destination.City}, {flight.Destination.Country}", model.Seat, flight.Departure, flight.Arrival, false);
+                        MemoryStream pdfTicket = _pdfHelper.GenerateTicketPdf($"{model.Title} {model.FullName}", model.IdNumber, flight.FlightNumber, $"{flight.Origin.City}, {flight.Origin.Country}", $"{flight.Destination.City}, {flight.Destination.Country}", model.Seat, flight.Departure, flight.Arrival, qrCode);
+                        Response responseTicket = _mailHelper.SendEmail(model.Email, $"Ticket ID-{newTicket.Id}", emailBodyTicket, pdfTicket, $"ticket_flight_{flight.FlightNumber}_{model.IdNumber}.pdf", qrCode);
+
+                        if (!responseTicket.IsSuccess)
+                        {
+                            return DisplayMessage("Ticket Mailing Error", $"The ticket failed to send to: {user.Email}!");
+                        }
 
                         return RedirectToAction("Create", new { id = flight.Id });
                     }
@@ -305,6 +356,24 @@ namespace AIS.Controllers
                         // Update the flight in the database
                         await _flightRepository.UpdateAsync(flight);
 
+                        // Update the flight record
+                        TicketFlightRecord record = await _flightRecordRepository.GetByIdAsync(ticket.Id);
+                        record.Seat = model.Seat;
+                        record.HolderIdNumber = model.IdNumber;
+
+                        await _flightRecordRepository.UpdateAsync(record);
+
+                        // Send the ticket itself to the email of the ticket holder that was inserted when buying the ticket
+                        MemoryStream qrCode = _qrCodeHelper.GenerateQrCode($"VALID TICKET: Flight {flight.FlightNumber} - Passenger {model.Title} {model.FullName} - Identification Number: {model.IdNumber}");
+                        string emailBodyTicket = _mailHelper.GetHtmlTemplateTicket("Ticket Update", $"{model.Title} {model.FullName}", model.IdNumber, flight.FlightNumber, $"{flight.Origin.City}, {flight.Origin.Country}", $"{flight.Destination.City}, {flight.Destination.Country}", model.Seat, flight.Departure, flight.Arrival, false);
+                        MemoryStream pdfTicket = _pdfHelper.GenerateTicketPdf($"{model.Title} {model.FullName}", model.IdNumber, flight.FlightNumber, $"{flight.Origin.City}, {flight.Origin.Country}", $"{flight.Destination.City}, {flight.Destination.Country}", model.Seat, flight.Departure, flight.Arrival, qrCode);
+                        Response responseTicket = _mailHelper.SendEmail(model.Email, $"Update Ticket ID-{ticket.Id}", emailBodyTicket, pdfTicket, $"updated_ticket_flight_{flight.FlightNumber}_{model.IdNumber}.pdf", qrCode);
+
+                        if (!responseTicket.IsSuccess)
+                        {
+                            return DisplayMessage("Ticket Mailing Error", $"The updated ticket failed to send to: {model.Email}!");
+                        }
+
                         return RedirectToAction("Index");
                     }
                 }
@@ -405,12 +474,36 @@ namespace AIS.Controllers
             // Update the flight in the database
             await _flightRepository.UpdateAsync(flight);
 
+            // Also delete the flight record for this ticket
+            TicketFlightRecord record = await _flightRecordRepository.GetByIdAsync(id);
+            await _flightRecordRepository.DeleteAsync(record);
+
+            // Email and PDF for ticket cancel/refund (25% back)
+            User user = await _userHelper.GetUserAsync(this.User);
+
+            string emailBodyTicket = _mailHelper.GetHtmlTemplateTicket("Ticket Cancel", $"{ticket.Title} {ticket.FullName}", ticket.IdNumber, flight.FlightNumber, $"{flight.Origin.City}, {flight.Origin.Country}", $"{flight.Destination.City}, {flight.Destination.Country}", ticket.Seat, flight.Departure, flight.Arrival, true);
+            MemoryStream pdfInvoice = _pdfHelper.GenerateInvoicePdf($"{user.FirstName} {user.LastName}", flight.FlightNumber, ticket.Price, true, false);
+
+            // Makes sense to send an email to both ticket holder and ticket buyer, because one uses the ticket and the other buys it
+            Response responseTicketHolder = _mailHelper.SendEmail(ticket.Email, $"Cancel Ticket ID-{id}", emailBodyTicket, pdfInvoice, $"ticket_cancel_{flight.FlightNumber}_{ticket.IdNumber}.pdf", null);
+            Response responseTicketBuyer = _mailHelper.SendEmail(user.Email, $"Cancel Ticket ID-{id}", emailBodyTicket, pdfInvoice, $"ticket_cancel_{flight.FlightNumber}_{ticket.IdNumber}.pdf", null);
+
+            if (!responseTicketHolder.IsSuccess && !responseTicketBuyer.IsSuccess)
+            {
+                return DisplayMessage("Refund Mailing Error", $"The refund info failed to send to: {user.Email} & {ticket.Email}!");
+            }
+
             return RedirectToAction(nameof(Index));
         }
 
         public IActionResult TicketNotFound()
         {
             return View("DisplayMessage", new DisplayMessageViewModel { Title = "Ticket not found", Message = $"Maybe search in your baggage!" });
+        }
+
+        public IActionResult DisplayMessage(string title, string message)
+        {
+            return View("DisplayMessage", new DisplayMessageViewModel { Title = $"{title}", Message = $"{message}" });
         }
     }
 }

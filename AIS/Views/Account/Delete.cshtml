@@ -66,8 +66,7 @@
                     buttonState = ViewBag.State;
                 }
                 <form asp-action="Delete" method="post" id="deleteForm">
-                    @*                     <input type="hidden" name="id" id="userId" value="@Model.User.Id" />
-                    *@                    <input type="hidden" asp-for="@Model.User.Id" />
+                <input type="hidden" asp-for="@Model.User.Id" />
                     <button type="button" class="btn btn-danger mr-2" id="btnDeleteUser" @buttonState>
                         <i class="fa-solid fa-trash-can mr-2"></i>Delete
                     </button>

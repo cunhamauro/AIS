@@ -35,7 +35,7 @@
             </div>
             <div class="modal-body">
                 <p>Are you sure you want to cancel this flight?</p>
-                @if (ViewBag.ShowMsg)
+                @if (ViewBag.ShowMsg == true)
                 {
                     <p>This Flight has tickets allocated.</p>
                     <p>By removing this Flight all tickets will be cancelled!</p>

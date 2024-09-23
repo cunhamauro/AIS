@@ -86,12 +86,15 @@ namespace AIS
             services.AddScoped<IAirportRepository, AirportRepository>();
             services.AddScoped<IFlightRepository, FlightRepository>();
             services.AddScoped<ITicketRepository, TicketRepository>();
+            services.AddScoped<IFlightRecordRepository, FlightRecordRepository>();
 
             // Helpers
             services.AddScoped<IUserHelper, UserHelper>();
             services.AddScoped<IImageHelper, ImageHelper>();
             services.AddScoped<IConverterHelper, ConverterHelper>();
             services.AddScoped<IMailHelper, MailHelper>();
+            services.AddScoped<IPdfHelper, PdfHelper>();
+            services.AddScoped<IQrCodeHelper, QrCodeHelper>();
 
             string syncfusionLicenseKey = Configuration["Syncfusion:LicenseKey"];
             SyncfusionLicenseProvider.RegisterLicense(syncfusionLicenseKey);
@@ -100,6 +103,21 @@ namespace AIS
             {
                 //options.LoginPath = "/Account/NotAuthorized";
                 options.AccessDeniedPath = "/Account/NotAuthorized";
+
+                // Check the users security stamp
+                options.Events.OnValidatePrincipal = async context =>
+                {
+                    var userManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<User>>();
+                    var signInManager = context.HttpContext.RequestServices.GetRequiredService<SignInManager<User>>();
+                    var user = await userManager.GetUserAsync(context.Principal);
+
+                    if (user == null)
+                    {
+                        // And logout that user if its no longer valid
+                        await signInManager.SignOutAsync();
+                        context.RejectPrincipal();
+                    }
+                };
             });
 
             services.AddControllersWithViews();

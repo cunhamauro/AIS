@@ -7,7 +7,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace AIS.Data
 {
@@ -19,7 +18,7 @@ namespace AIS.Data
 
         public DbSet<Flight> Flights { get; set; }
 
-        //public DbSet<FlightRecord> FlightRecords { get; set; }
+        public DbSet<TicketFlightRecord> TicketFlightRecords { get; set; }
 
         public DbSet<Ticket> Tickets { get; set; }
 
@@ -30,14 +29,26 @@ namespace AIS.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Make IATA unique
             modelBuilder.Entity<Airport>()
                        .HasIndex(a => a.IATA)
                        .IsUnique()
                        .HasDatabaseName("IX_Airports_IATA");
 
+            // Make price with two decimals
             modelBuilder.Entity<Ticket>()
                        .Property(t => t.Price)
                        .HasColumnType("decimal(18,2)");
+
+            // Make price with two decimals
+            modelBuilder.Entity<TicketFlightRecord>()
+                       .Property(t => t.TicketPrice)
+                       .HasColumnType("decimal(18,2)");
+
+            // Make database not generate IDs for flight records
+            modelBuilder.Entity<TicketFlightRecord>()
+                       .Property(e => e.Id)
+                       .ValueGeneratedNever();
 
             // Convert Lists to Json to save in database:
             // Converter

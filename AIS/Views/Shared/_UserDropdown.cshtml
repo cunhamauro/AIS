@@ -1,4 +1,5 @@
-﻿@using Syncfusion.EJ2
+﻿@using AIS.Helpers
+@using Syncfusion.EJ2
 
 @* Style [icon size] override *@
 <style>
@@ -7,13 +8,30 @@
     }
 </style>
 
+@inject IUserHelper userHelper
 @{
-    var itemsUser = new List<object>
+    List<object> itemsUser;
+
+    if (await userHelper.IsUserInRoleAsync(await userHelper.GetUserAsync(this.User), "Client"))
+    {
+    itemsUser = new List<object>
+                            {
+                            new { text = "My Flights", url = Url.Action("UserFlights", "Flights"), iconCss = "fa-solid fa-plane-arrival" },
+                            new { text = "Update info", url = Url.Action("ChangeUser", "Account"), iconCss = "fa-solid fa-user-pen" },
+                            new { text = "Change password", url = Url.Action("ChangePassword", "Account"), iconCss = "fa-solid fa-key" },
+                            new { text = "Logout", url = Url.Action("Logout", "Account"), iconCss = "fa-solid fa-right-from-bracket" },
+                            };
+    }
+    else
+    {
+        itemsUser = new List<object>
                             {
                             new { text = "Update info", url = Url.Action("ChangeUser", "Account"), iconCss = "fa-solid fa-user-pen" },
                             new { text = "Change password", url = Url.Action("ChangePassword", "Account"), iconCss = "fa-solid fa-key" },
-                            new { text = "Logout", url = Url.Action("Logout", "Account"), iconCss = "fa-solid fa-right-from-bracket" }
+                            new { text = "Logout", url = Url.Action("Logout", "Account"), iconCss = "fa-solid fa-right-from-bracket" },
                             };
+    }
+
+    <ejs-dropdownbutton id="icontextbtnUser" content="@this.User.Identity.Name" items="itemsUser" iconCss="fa-solid fa-user" style="border-radius: 5px;"></ejs-dropdownbutton>
 }
-<ejs-dropdownbutton id="icontextbtnUser" content="@this.User.Identity.Name" items="itemsUser" iconCss="fa-solid fa-user" style="border-radius: 5px;"></ejs-dropdownbutton>
 

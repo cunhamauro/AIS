@@ -1,6 +1,8 @@
-﻿using AIS.Data.Entities;
+﻿using AIS.Data.Classes;
+using AIS.Data.Entities;
 using AIS.Data.Repositories;
 using AIS.Helpers;
+using AIS.Migrations;
 using AIS.Models;
 using AIS.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -24,9 +26,13 @@ namespace AIS.Controllers
         private readonly IUserHelper _userHelper;
         private readonly IAircraftAvailabilityService _aircraftAvailabilityService;
         private readonly IConfiguration _configuration;
+        private readonly IMailHelper _mailHelper;
+        private readonly IPdfHelper _pdfHelper;
+        private readonly IFlightRecordRepository _flightRecordRepository;
+        private readonly ITicketRepository _ticketRepository;
         private readonly int marginBetweenFlights;
 
-        public FlightsController(IAirportRepository airportRepository, IAircraftRepository aircraftRepository, IFlightRepository flightRepository, IConverterHelper converterHelper, IUserHelper userHelper, IAircraftAvailabilityService aircraftAvailabilityService, IConfiguration configuration)
+        public FlightsController(IAirportRepository airportRepository, IAircraftRepository aircraftRepository, IFlightRepository flightRepository, IConverterHelper converterHelper, IUserHelper userHelper, IAircraftAvailabilityService aircraftAvailabilityService, IConfiguration configuration, IMailHelper mailHelper, IPdfHelper pdfHelper, IFlightRecordRepository flightRecordRepository, ITicketRepository ticketRepository)
         {
             _airportRepository = airportRepository;
             _aircraftRepository = aircraftRepository;
@@ -35,7 +41,10 @@ namespace AIS.Controllers
             _userHelper = userHelper;
             _aircraftAvailabilityService = aircraftAvailabilityService;
             _configuration = configuration;
-
+            _mailHelper = mailHelper;
+            _pdfHelper = pdfHelper;
+            _flightRecordRepository = flightRecordRepository;
+            _ticketRepository = ticketRepository;
             marginBetweenFlights = int.Parse(_configuration["AppSettings:MarginMinutesBetweenFlights"]);
         }
 
@@ -43,6 +52,18 @@ namespace AIS.Controllers
         public IActionResult Index()
         {
             return View(_flightRepository.GetAll().Include(o => o.Origin).Include(d => d.Destination).Include(a => a.Aircraft)); // Show all Flights and nested Entities
+        }
+
+        // GET: Flights/UserFlights
+        public async Task<IActionResult> UserFlights()
+        {
+            List<TicketFlightRecord> flightRecords = await _flightRecordRepository.GetAll().ToListAsync();
+
+            User user = await _userHelper.GetUserAsync(this.User);
+
+            flightRecords = flightRecords.Where(f => f.UserId == user.Id).ToList();
+
+            return View(flightRecords);
         }
 
         // GET: Flights/FlightInformation/5
@@ -238,6 +259,19 @@ namespace AIS.Controllers
             try
             {
                 await _flightRepository.UpdateAsync(flight);
+
+                // Update all flight records related to this flight
+                List<TicketFlightRecord> flightRecords = await _flightRecordRepository.GetAll().ToListAsync();
+                foreach (TicketFlightRecord record in flightRecords)
+                {
+                    if (record.FlightNumber == flight.FlightNumber)
+                    {
+                        record.Departure = model.Departure;
+                        record.Arrival = model.Arrival;
+
+                        await _flightRecordRepository.UpdateAsync(record);
+                    }
+                }
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -282,7 +316,46 @@ namespace AIS.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            Flight flight = await _flightRepository.GetByIdAsync(id);
+            Flight flight = await _flightRepository.GetFlightTrackIncludeByIdAsync(id);
+
+            // Update flight records to canceled
+            List<TicketFlightRecord> flightRecords = await _flightRecordRepository.GetAll().ToListAsync();
+            foreach (TicketFlightRecord record in flightRecords)
+            {
+                record.Canceled = true;
+                await _flightRecordRepository.UpdateAsync(record);
+            }
+
+            // Email and PDF for flight cancel/refund (100% back)
+            User user = await _userHelper.GetUserAsync(this.User);
+
+            // Flight will be canceled so all tickets should be fully refunded
+            foreach (var ticket in flight.TicketList)
+            {
+                string emailBodyTicket = _mailHelper.GetHtmlTemplateTicket("Flight Cancel", $"{ticket.Title} {ticket.FullName}", ticket.IdNumber, flight.FlightNumber, $"{flight.Origin.City}, {flight.Origin.Country}", $"{flight.Destination.City}, {flight.Destination.Country}", ticket.Seat, flight.Departure, flight.Arrival, true);
+                MemoryStream pdfInvoice = _pdfHelper.GenerateInvoicePdf($"{user.FirstName} {user.LastName}", flight.FlightNumber, ticket.Price, false, true);
+
+                // Makes sense to send an email to both ticket holder and ticket buyer, because one uses the ticket and the other buys it
+                Response responseTicketHolder = _mailHelper.SendEmail(ticket.Email, $"Cancel Flight ID-{id}", emailBodyTicket, pdfInvoice, $"flight_cancel_{flight.FlightNumber}_{ticket.IdNumber}.pdf", null);
+                Response responseTicketBuyer = _mailHelper.SendEmail(user.Email, $"Cancel Flight ID-{id}", emailBodyTicket, pdfInvoice, $"flight_cancel_{flight.FlightNumber}_{ticket.IdNumber}.pdf", null);
+
+                if (!responseTicketHolder.IsSuccess && !responseTicketBuyer.IsSuccess)
+                {
+                    return DisplayMessage("Refund Mailing Error", $"The refund info failed to send to: {user.Email} & {ticket.Email}!");
+                }
+            }
+
+            // Create a list of tickets to delete
+            var ticketsToDelete = flight.TicketList.ToList();
+
+            // Delete the Tickets
+            if (ticketsToDelete.Any())
+            {
+                foreach (Ticket ticketCancel in ticketsToDelete)
+                {
+                    await _ticketRepository.DeleteAsync(ticketCancel);
+                }
+            }
 
             await _flightRepository.DeleteAsync(flight);
 
@@ -346,6 +419,11 @@ namespace AIS.Controllers
                 }
             }
             return Json(new List<Aircraft>());
+        }
+
+        public IActionResult DisplayMessage(string title, string message)
+        {
+            return View("DisplayMessage", new DisplayMessageViewModel { Title = $"{title}", Message = $"{message}" });
         }
 
         public IActionResult FlightNotFound()

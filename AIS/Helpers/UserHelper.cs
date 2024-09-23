@@ -39,7 +39,6 @@ namespace AIS.Helpers
             return await _userManager.GeneratePasswordResetTokenAsync(user);
         }
 
-
         /// <summary>
         /// Check if an User is registered in any of the Entities
         /// </summary>

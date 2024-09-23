@@ -1,4 +1,4 @@
-﻿namespace AIS.Helpers
+﻿namespace AIS.Data.Classes
 {
     public class Response
     {

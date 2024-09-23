@@ -1,4 +1,5 @@
-﻿using AIS.Data.Entities;
+﻿using AIS.Data.Classes;
+using AIS.Data.Entities;
 using AIS.Data.Repositories;
 using AIS.Helpers;
 using AIS.Models;
@@ -213,9 +214,9 @@ namespace AIS.Controllers
                         token = myToken,
                     }, protocol: HttpContext.Request.Scheme);
 
-                    string emailBody = _mailHelper.GetHtmlTemplate("Complete your account activation", "confirm your email", "Confirm", tokenLink);
+                    string emailBody = _mailHelper.GetHtmlTemplateTokenLink("Complete your account activation", "confirm your email", "Confirm", tokenLink);
 
-                    Response response = _mailHelper.SendEmail(model.Username, "Email Confirmation!", emailBody);
+                    Response response = _mailHelper.SendEmail(model.Username, "Email Confirmation!", emailBody, null, null, null);
 
                     if (response.IsSuccess)
                     {
@@ -469,9 +470,9 @@ namespace AIS.Controllers
                         token = passwordResetToken,
                     }, protocol: HttpContext.Request.Scheme);
 
-                    string emailBody = _mailHelper.GetHtmlTemplate("Configure your account password", "set your password", "Password", tokenLink);
+                    string emailBody = _mailHelper.GetHtmlTemplateTokenLink("Configure your account password", "set your password", "Password", tokenLink);
 
-                    Response response = _mailHelper.SendEmail(model.Email, "Password Configuration!", emailBody);
+                    Response response = _mailHelper.SendEmail(model.Email, "Password Configuration!", emailBody, null, null, null);
 
                     if (!response.IsSuccess)
                     {
@@ -512,7 +513,7 @@ namespace AIS.Controllers
 
             if (model.Email == _configuration["Admin:Email"])
             {
-                ViewBag.Message = "The Master Admin's email can not be changed!";
+                ViewBag.Message = "The Master Admin's email cannot be changed!";
 
                 return View(model);
             }
@@ -596,9 +597,9 @@ namespace AIS.Controllers
                         token = passwordResetToken,
                     }, protocol: HttpContext.Request.Scheme);
 
-                    string emailBody = _mailHelper.GetHtmlTemplate("Recover your account password", "recover your password", "Password", tokenLink);
+                    string emailBody = _mailHelper.GetHtmlTemplateTokenLink("Recover your account password", "recover your password", "Password", tokenLink);
 
-                    Response response = _mailHelper.SendEmail(model.Email, "Password Recovery!", emailBody);
+                    Response response = _mailHelper.SendEmail(model.Email, "Password Recovery!", emailBody, null, null, null);
 
                     if (!response.IsSuccess)
                     {
