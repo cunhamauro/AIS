@@ -18,7 +18,9 @@ namespace AIS.Data
 
         public DbSet<Flight> Flights { get; set; }
 
-        public DbSet<TicketFlightRecord> TicketFlightRecords { get; set; }
+        public DbSet<TicketRecord> TicketRecords { get; set; }
+
+        public DbSet<FlightRecord> FlightRecords { get; set; }
 
         public DbSet<Ticket> Tickets { get; set; }
 
@@ -41,12 +43,17 @@ namespace AIS.Data
                        .HasColumnType("decimal(18,2)");
 
             // Make price with two decimals
-            modelBuilder.Entity<TicketFlightRecord>()
+            modelBuilder.Entity<TicketRecord>()
                        .Property(t => t.TicketPrice)
                        .HasColumnType("decimal(18,2)");
 
+            // Make database not generate IDs for ticket records
+            modelBuilder.Entity<TicketRecord>()
+                       .Property(e => e.Id)
+                       .ValueGeneratedNever();
+
             // Make database not generate IDs for flight records
-            modelBuilder.Entity<TicketFlightRecord>()
+            modelBuilder.Entity<FlightRecord>()
                        .Property(e => e.Id)
                        .ValueGeneratedNever();
 
@@ -78,86 +85,5 @@ namespace AIS.Data
 
             base.OnModelCreating(modelBuilder);
         }
-
-        //public async Task CreateOrUpdateStoredProcedureAsync()
-        //{
-        //    var sql = @"
-        //                IF NOT EXISTS (SELECT * FROM sys.procedures WHERE name = N'StoredProcedureUpdateFlightRecords')
-        //                BEGIN
-        //                    EXEC sp_executesql N'CREATE PROCEDURE StoredProcedureUpdateFlightRecords
-        //                        @FlightId INT,
-        //                        @AircraftId INT,
-        //                        @OriginId INT,
-        //                        @DestinationId INT,
-        //                        @Departure DATETIME,
-        //                        @Arrival DATETIME,
-        //                        @FlightNumber NVARCHAR(50),
-        //                        @PassengerCount INT
-        //                    AS
-        //                    BEGIN
-        //                        -- Check if a record already exists
-        //                        IF EXISTS (SELECT 1 FROM FlightRecords WHERE Id = @FlightId)
-        //                        BEGIN
-        //                            -- Update the existing record
-        //                            UPDATE FlightRecords
-        //                            SET OriginId = @OriginId,
-        //                                DestinationId = @DestinationId,
-        //                                Departure = @Departure,
-        //                                Arrival = @Arrival,
-        //                                FlightNumber = @FlightNumber,
-        //                                PassengerCount = @PassengerCount
-        //                            WHERE Id = @FlightId;
-        //                        END
-        //                        ELSE
-        //                        BEGIN
-        //                            -- Enable IDENTITY_INSERT for explicit ID insertion
-        //                            SET IDENTITY_INSERT FlightRecords ON;
-
-        //                            -- Insert a new record
-        //                            INSERT INTO FlightRecords (Id, AircraftId, OriginId, DestinationId, Departure, Arrival, FlightNumber, PassengerCount)
-        //                            VALUES (@FlightId, @AircraftId, @OriginId, @DestinationId, @Departure, @Arrival, @FlightNumber, @PassengerCount);
-
-        //                            -- Disable IDENTITY_INSERT after the insertion
-        //                            SET IDENTITY_INSERT FlightRecords OFF;
-        //                        END
-        //                    END';
-        //                END";
-
-        //    await this.Database.ExecuteSqlRawAsync(sql);
-        //}
-
-        //public async Task CreateTriggerAsync()
-        //{
-        //    var sql = @"
-        //                IF NOT EXISTS (SELECT * FROM sys.triggers WHERE name = N'TriggerUpdateFlightRecords')
-        //                BEGIN
-        //                    EXEC sp_executesql N'CREATE TRIGGER TriggerUpdateFlightRecords
-        //                        ON Flights
-        //                        AFTER INSERT, UPDATE
-        //                        AS
-        //                        BEGIN
-        //                            -- Declare variables to hold the flight data
-        //                            DECLARE @FlightId INT, @AircraftId INT, @OriginId INT, @DestinationId INT,
-        //                                    @Departure DATETIME, @Arrival DATETIME, @FlightNumber NVARCHAR(50),
-        //                                    @PassengerCount INT;
-
-        //                            -- Extract data from the inserted or updated flight
-        //                            SELECT @FlightId = inserted.Id,
-        //                                   @AircraftId = inserted.AircraftId,  
-        //                                   @OriginId = inserted.OriginId,      
-        //                                   @DestinationId = inserted.DestinationId,
-        //                                   @Departure = inserted.Departure,
-        //                                   @Arrival = inserted.Arrival,
-        //                                   @FlightNumber = inserted.FlightNumber,
-        //                                   @PassengerCount = inserted.PassengerCount
-        //                            FROM inserted;
-
-        //                            -- Call the stored procedure to upsert the flight record
-        //                            EXEC StoredProcedureUpdateFlightRecords @FlightId, @AircraftId, @OriginId, @DestinationId, @Departure, @Arrival, @FlightNumber, @PassengerCount;
-        //                        END';
-        //                END";
-
-        //    await this.Database.ExecuteSqlRawAsync(sql);
-        //}
     }
 }

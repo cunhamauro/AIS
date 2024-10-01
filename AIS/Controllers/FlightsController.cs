@@ -28,11 +28,13 @@ namespace AIS.Controllers
         private readonly IConfiguration _configuration;
         private readonly IMailHelper _mailHelper;
         private readonly IPdfHelper _pdfHelper;
-        private readonly IFlightRecordRepository _flightRecordRepository;
+        private readonly ITicketRecordRepository _ticketRecordRepository;
         private readonly ITicketRepository _ticketRepository;
+        private readonly IFlightRecordRepository _flightRecordRepository;
+
         private readonly int marginBetweenFlights;
 
-        public FlightsController(IAirportRepository airportRepository, IAircraftRepository aircraftRepository, IFlightRepository flightRepository, IConverterHelper converterHelper, IUserHelper userHelper, IAircraftAvailabilityService aircraftAvailabilityService, IConfiguration configuration, IMailHelper mailHelper, IPdfHelper pdfHelper, IFlightRecordRepository flightRecordRepository, ITicketRepository ticketRepository)
+        public FlightsController(IAirportRepository airportRepository, IAircraftRepository aircraftRepository, IFlightRepository flightRepository, IConverterHelper converterHelper, IUserHelper userHelper, IAircraftAvailabilityService aircraftAvailabilityService, IConfiguration configuration, IMailHelper mailHelper, IPdfHelper pdfHelper, ITicketRecordRepository ticketRecordRepository, ITicketRepository ticketRepository, IFlightRecordRepository flightRecordRepository)
         {
             _airportRepository = airportRepository;
             _aircraftRepository = aircraftRepository;
@@ -43,8 +45,10 @@ namespace AIS.Controllers
             _configuration = configuration;
             _mailHelper = mailHelper;
             _pdfHelper = pdfHelper;
-            _flightRecordRepository = flightRecordRepository;
+            _ticketRecordRepository = ticketRecordRepository;
             _ticketRepository = ticketRepository;
+            _flightRecordRepository = flightRecordRepository;
+
             marginBetweenFlights = int.Parse(_configuration["AppSettings:MarginMinutesBetweenFlights"]);
         }
 
@@ -57,11 +61,19 @@ namespace AIS.Controllers
         // GET: Flights/UserFlights
         public async Task<IActionResult> UserFlights()
         {
-            List<TicketFlightRecord> flightRecords = await _flightRecordRepository.GetAll().ToListAsync();
+            List<TicketRecord> ticketRecords = await _ticketRecordRepository.GetAll().ToListAsync();
 
             User user = await _userHelper.GetUserAsync(this.User);
 
-            flightRecords = flightRecords.Where(f => f.UserId == user.Id).ToList();
+            ticketRecords = ticketRecords.Where(f => f.UserId == user.Id).ToList();
+
+            return View(ticketRecords);
+        }
+
+        // GET: Flights/FlightRecords
+        public async Task<IActionResult> FlightRecords()
+        {
+            List<FlightRecord> flightRecords = await _flightRecordRepository.GetAll().ToListAsync();
 
             return View(flightRecords);
         }
@@ -177,6 +189,23 @@ namespace AIS.Controllers
             // Update it to save the flight number
             await _flightRepository.UpdateAsync(flight);
 
+            // Create a flight record
+            FlightRecord flightRecord = new FlightRecord
+            {
+                Id = savedFlightId,
+                FlightNumber = flight.FlightNumber,
+                OriginCity = flight.Origin.City,
+                OriginCountry = flight.Origin.Country,
+                OriginFlagImageUrl = flight.Origin.ImageUrl,
+                DestinationCity = flight.Destination.City,
+                DestinationCountry = flight.Destination.Country,
+                DestinationFlagImageUrl = flight.Destination.ImageUrl,
+                Departure = flight.Departure,
+                Arrival = flight.Arrival,
+                Canceled = false,
+            };
+            await _flightRecordRepository.CreateAsync(flightRecord);
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -260,16 +289,21 @@ namespace AIS.Controllers
             {
                 await _flightRepository.UpdateAsync(flight);
 
-                // Update all flight records related to this flight
-                List<TicketFlightRecord> flightRecords = await _flightRecordRepository.GetAll().ToListAsync();
-                foreach (TicketFlightRecord record in flightRecords)
+                // Update the corresponding flight record
+                FlightRecord flightRecord = await _flightRecordRepository.GetByIdAsync(flight.Id);
+                flightRecord.Departure = model.Departure;
+                flightRecord.Arrival = model.Arrival;
+                await _flightRecordRepository.UpdateAsync(flightRecord);
+
+                // Update all ticket records flights related to this flight
+                List<TicketRecord> ticketRecords = await _ticketRecordRepository.GetAll().ToListAsync();
+                foreach (TicketRecord record in ticketRecords)
                 {
                     if (record.FlightNumber == flight.FlightNumber)
                     {
                         record.Departure = model.Departure;
                         record.Arrival = model.Arrival;
-
-                        await _flightRecordRepository.UpdateAsync(record);
+                        await _ticketRecordRepository.UpdateAsync(record);
                     }
                 }
             }
@@ -318,12 +352,17 @@ namespace AIS.Controllers
         {
             Flight flight = await _flightRepository.GetFlightTrackIncludeByIdAsync(id);
 
-            // Update flight records to canceled
-            List<TicketFlightRecord> flightRecords = await _flightRecordRepository.GetAll().ToListAsync();
-            foreach (TicketFlightRecord record in flightRecords)
+            // Update the flight record to canceled
+            FlightRecord flightRecord = await _flightRecordRepository.GetByIdAsync(id);
+            flightRecord.Canceled = true;
+            await _flightRecordRepository.UpdateAsync(flightRecord);
+
+            // Update ticket records flights to canceled
+            List<TicketRecord> ticketRecords = await _ticketRecordRepository.GetAll().ToListAsync();
+            foreach (TicketRecord record in ticketRecords)
             {
                 record.Canceled = true;
-                await _flightRecordRepository.UpdateAsync(record);
+                await _ticketRecordRepository.UpdateAsync(record);
             }
 
             // Email and PDF for flight cancel/refund (100% back)
