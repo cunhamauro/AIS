@@ -25,10 +25,10 @@ namespace AIS.Controllers
         private readonly IMailHelper _mailHelper;
         private readonly IPdfHelper _pdfHelper;
         private readonly IQrCodeHelper _qrCodeHelper;
-        private readonly IFlightRecordRepository _flightRecordRepository;
+        private readonly ITicketRecordRepository _flightRecordRepository;
         private readonly int marginTicketCancelation;
 
-        public TicketsController(IFlightRepository flightRepository, IUserHelper userHelper, ITicketRepository ticketRepository, IConfiguration configuration, IConverterHelper converterHelper, IMailHelper mailHelper, IPdfHelper pdfHelper, IQrCodeHelper qrCodeHelper, IFlightRecordRepository flightRecordRepository)
+        public TicketsController(IFlightRepository flightRepository, IUserHelper userHelper, ITicketRepository ticketRepository, IConfiguration configuration, IConverterHelper converterHelper, IMailHelper mailHelper, IPdfHelper pdfHelper, IQrCodeHelper qrCodeHelper, ITicketRecordRepository flightRecordRepository)
         {
             _flightRepository = flightRepository;
             _userHelper = userHelper;
@@ -178,7 +178,7 @@ namespace AIS.Controllers
                         // Update the flight in the database
                         await _flightRepository.UpdateAsync(flight);
 
-                        TicketFlightRecord record = new TicketFlightRecord
+                        TicketRecord record = new TicketRecord
                         {
                             Id = newTicket.Id,
                             UserId = user.Id,
@@ -357,7 +357,7 @@ namespace AIS.Controllers
                         await _flightRepository.UpdateAsync(flight);
 
                         // Update the flight record
-                        TicketFlightRecord record = await _flightRecordRepository.GetByIdAsync(ticket.Id);
+                        TicketRecord record = await _flightRecordRepository.GetByIdAsync(ticket.Id);
                         record.Seat = model.Seat;
                         record.HolderIdNumber = model.IdNumber;
 
@@ -475,7 +475,7 @@ namespace AIS.Controllers
             await _flightRepository.UpdateAsync(flight);
 
             // Also delete the flight record for this ticket
-            TicketFlightRecord record = await _flightRecordRepository.GetByIdAsync(id);
+            TicketRecord record = await _flightRecordRepository.GetByIdAsync(id);
             await _flightRecordRepository.DeleteAsync(record);
 
             // Email and PDF for ticket cancel/refund (25% back)

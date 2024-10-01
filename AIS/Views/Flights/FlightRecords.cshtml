@@ -1,12 +1,12 @@
-﻿@model IEnumerable<AIS.Data.Entities.TicketRecord>
+﻿@model IEnumerable<AIS.Data.Entities.FlightRecord>
 
 @{
-    ViewData["Title"] = "My Flights";
+    ViewData["Title"] = "Flight Records";
 }
 
 <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 1rem; margin-bottom: 4vh; margin-top: 3.5vh">
     <h2 class="text-muted" style="flex: 1; text-align: center; font-weight: bolder; margin: 0; padding-right: 10vh">
-        MyFlights
+        Flight Records
     </h2>
 </div>
 
@@ -27,15 +27,6 @@
             </th>
             <th>
                 Arrival
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TicketPrice)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Seat)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.HolderIdNumber)
             </th>
             <th>
                 Status
@@ -61,15 +52,6 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Arrival)
-                </td>
-                <td>
-                    @item.TicketPrice.ToString("C2")
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Seat)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.HolderIdNumber)
                 </td>
                 <td>
                     @if (item.Canceled)
