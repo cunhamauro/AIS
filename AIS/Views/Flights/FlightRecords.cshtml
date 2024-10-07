@@ -4,14 +4,11 @@
     ViewData["Title"] = "Flight Records";
 }
 
-<div style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 1rem; margin-bottom: 4vh; margin-top: 3.5vh">
-    <h2 class="title-text" style="flex: 1; text-align: center; font-weight: bolder; margin: 0; padding-right: 10vh">
-        Flight Records
-    </h2>
-</div>
+<h2 class="title-text" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Flight Records</h2>
 
 @if (!Model.Any())
 {
+    <hr />
     <h4 class="no-items-list">There are no Flight Records!</h4>
 }
 else {
