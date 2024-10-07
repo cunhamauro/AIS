@@ -58,7 +58,7 @@ namespace AIS.Data.Entities
             {
                 if (string.IsNullOrEmpty(ImageUrl))
                 {
-                    return $"/images/noimage.jpg";
+                    return $"/images/noimage.png";
                 }
                 else
                 {

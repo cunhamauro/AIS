@@ -148,7 +148,7 @@ namespace AIS.Controllers
 
                 await _aircraftRepository.UpdateAsync(aircraft);
 
-                if (path != oldPath && oldPath != @"~/images/noimage.jpg") // Dont delete if its the no image
+                if (path != oldPath && oldPath != @"~/images/noimage.png") // Dont delete if its the no image
                 {
                     // Delete old image when it is different from the new one (updated)
                     if (!string.IsNullOrEmpty(oldPath))
@@ -203,7 +203,7 @@ namespace AIS.Controllers
             }
 
             // Delete image when Aircraft is also deleted
-            if (!string.IsNullOrEmpty(aircraft.ImageUrl) && aircraft.ImageUrl != @"~/images/noimage.jpg") // Dont delete if its the no image
+            if (!string.IsNullOrEmpty(aircraft.ImageUrl) && aircraft.ImageUrl != @"~/images/noimage.png") // Dont delete if its the no image
             {
                 _imageHelper.DeleteImage(aircraft.ImageUrl);
             }

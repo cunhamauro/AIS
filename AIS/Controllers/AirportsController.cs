@@ -155,12 +155,12 @@ namespace AIS.Controllers
                 }
                 else
                 {
-                    imageUrl = @"~/images/noimage.jpg"; // Fallback if no country is found
+                    imageUrl = @"~/images/noimage.png"; // Fallback if no country is found
                 }
             }
             catch (Exception)
             {
-                imageUrl = @"~/images/noimage.jpg"; // Fallback for unexpected exceptions
+                imageUrl = @"~/images/noimage.png"; // Fallback for unexpected exceptions
             }
 
             airport.User = currentUser; // Assign the current user to the aircraft
