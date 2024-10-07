@@ -51,7 +51,7 @@ namespace AIS.Helpers
             DateTime boardingTime = departure.AddMinutes(-30);
 
             // Draw flight information text
-            gfx.DrawString($"TICKET FOR FLIGHT: {flightNumber}", fontHeader, XBrushes.DodgerBlue, new XRect(50, 120, page.Width - 100, 40), XStringFormats.TopLeft);
+            gfx.DrawString($"TICKET > FLIGHT [{flightNumber}]", fontHeader, XBrushes.DodgerBlue, new XRect(50, 120, page.Width - 100, 40), XStringFormats.TopLeft);
             gfx.DrawString($"NAME: {nameWithTitle}", fontText, XBrushes.Black, new XRect(50, 160, page.Width - 100, 40), XStringFormats.TopLeft);
             gfx.DrawString($"IDENTIFICATION NUMBER: {idNumber}", fontText, XBrushes.Black, new XRect(50, 200, page.Width - 100, 40), XStringFormats.TopLeft);
             gfx.DrawString($"ORIGIN: {originCityCountry}", fontText, XBrushes.Black, new XRect(50, 240, page.Width - 100, 40), XStringFormats.TopLeft);
@@ -124,15 +124,15 @@ namespace AIS.Helpers
             if (userCancel)
             {
                 // Draw information text
-                gfx.DrawString($"TICKET CANCELED: {flightNumber}", fontHeader, XBrushes.DodgerBlue, new XRect(50, 120, page.Width - 100, 40), XStringFormats.TopLeft);
+                gfx.DrawString($"TICKET CANCELED: [{flightNumber}]", fontHeader, XBrushes.DodgerBlue, new XRect(50, 120, page.Width - 100, 40), XStringFormats.TopLeft);
             }
             else if (flightCancel)
             {
-                gfx.DrawString($"FLIGHT CANCELED: {flightNumber}", fontHeader, XBrushes.DodgerBlue, new XRect(50, 120, page.Width - 100, 40), XStringFormats.TopLeft);
+                gfx.DrawString($"FLIGHT CANCELED: [{flightNumber}]", fontHeader, XBrushes.DodgerBlue, new XRect(50, 120, page.Width - 100, 40), XStringFormats.TopLeft);
             }
             else
             {
-                gfx.DrawString($"INVOICE FOR TICKET OF FLIGHT: {flightNumber}", fontHeader, XBrushes.DodgerBlue, new XRect(50, 120, page.Width - 100, 40), XStringFormats.TopLeft);
+                gfx.DrawString($"INVOICE: TICKET > FLIGHT [{flightNumber}]", fontHeader, XBrushes.DodgerBlue, new XRect(50, 120, page.Width - 100, 40), XStringFormats.TopLeft);
             }
 
             // Draw a line to separate

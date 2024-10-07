@@ -3,10 +3,12 @@ using AIS.Data.Entities;
 using AIS.Data.Repositories;
 using AIS.Helpers;
 using AIS.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Syncfusion.EJ2.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,6 +17,7 @@ using System.Threading.Tasks;
 
 namespace AIS.Controllers
 {
+    [Authorize(Roles = "Client")]
     public class TicketsController : Controller
     {
         private readonly IFlightRepository _flightRepository;
@@ -47,6 +50,8 @@ namespace AIS.Controllers
         {
             User currentUser = await _userHelper.GetUserAsync(this.User);
             List<Ticket> userTickets = await _ticketRepository.GetTicketsByUserIncludeFlightAirportsAsync(currentUser.Id);
+
+            userTickets = userTickets.Where(t => t.Flight.Departure > DateTime.UtcNow).ToList();
 
             return View(userTickets);
         }
@@ -108,6 +113,8 @@ namespace AIS.Controllers
                 Value = s,
                 Text = s,
             });
+
+            model.SeatsList = model.SeatsList.OrderBy(s => s.Text).ToList();
 
             // Set date time picker to 18 years old birthday (UX)
             var adultAge = DateTime.UtcNow.AddYears(-18);
@@ -202,7 +209,7 @@ namespace AIS.Controllers
                         // Send ticket invoice to the email of user that bought the ticket
                         string emailBodyInvoice = _mailHelper.GetHtmlTemplateInvoice($"{user.FirstName} {user.LastName}", flight.FlightNumber, model.Price);
                         MemoryStream pdfInvoice = _pdfHelper.GenerateInvoicePdf($"{user.FirstName} {user.LastName}", flight.FlightNumber, model.Price, false, false);
-                        Response responseInvoice = _mailHelper.SendEmail(user.Email, $"Invoice Ticket ID-{newTicket.Id}", emailBodyInvoice, pdfInvoice, $"ticket_invoice_flight_{flight.FlightNumber}_{user.FirstName}_{user.LastName}.pdf", null);
+                        Response responseInvoice = await _mailHelper.SendEmailAsync(user.Email, $"Invoice Ticket ID-{newTicket.Id}", emailBodyInvoice, pdfInvoice, $"ticket_invoice_flight_{flight.FlightNumber}_{user.FirstName}_{user.LastName}.pdf", null);
 
                         if (!responseInvoice.IsSuccess)
                         {
@@ -213,7 +220,7 @@ namespace AIS.Controllers
                         MemoryStream qrCode = _qrCodeHelper.GenerateQrCode($"VALID TICKET: Flight {flight.FlightNumber} - Passenger {model.Title} {model.FullName} - Identification Number: {model.IdNumber}");
                         string emailBodyTicket = _mailHelper.GetHtmlTemplateTicket("Ticket", $"{model.Title} {model.FullName}", model.IdNumber, flight.FlightNumber, $"{flight.Origin.City}, {flight.Origin.Country}", $"{flight.Destination.City}, {flight.Destination.Country}", model.Seat, flight.Departure, flight.Arrival, false);
                         MemoryStream pdfTicket = _pdfHelper.GenerateTicketPdf($"{model.Title} {model.FullName}", model.IdNumber, flight.FlightNumber, $"{flight.Origin.City}, {flight.Origin.Country}", $"{flight.Destination.City}, {flight.Destination.Country}", model.Seat, flight.Departure, flight.Arrival, qrCode);
-                        Response responseTicket = _mailHelper.SendEmail(model.Email, $"Ticket ID-{newTicket.Id}", emailBodyTicket, pdfTicket, $"ticket_flight_{flight.FlightNumber}_{model.IdNumber}.pdf", qrCode);
+                        Response responseTicket = await _mailHelper.SendEmailAsync(model.Email, $"Ticket ID-{newTicket.Id}", emailBodyTicket, pdfTicket, $"ticket_flight_{flight.FlightNumber}_{model.IdNumber}.pdf", qrCode);
 
                         if (!responseTicket.IsSuccess)
                         {
@@ -227,6 +234,7 @@ namespace AIS.Controllers
                 {
                     // Pass to next
                 }
+
             }
 
             // Default these properties for next view load
@@ -283,15 +291,17 @@ namespace AIS.Controllers
             {
                 Value = s,
                 Text = s,
-            });
-
+            }).ToList();
+            
             SelectListItem takenSeat = new SelectListItem
             {
                 Value = ticket.Seat,
                 Text = ticket.Seat,
             };
 
-            listSeats.ToList().Add(takenSeat);
+            listSeats.Add(takenSeat);
+
+            listSeats = listSeats.OrderBy(s => s.Text).ToList();
 
             TicketViewModel model = _converterHelper.ToTicketViewModel(ticket, flight, listSeats.ToList());
 
@@ -367,7 +377,7 @@ namespace AIS.Controllers
                         MemoryStream qrCode = _qrCodeHelper.GenerateQrCode($"VALID TICKET: Flight {flight.FlightNumber} - Passenger {model.Title} {model.FullName} - Identification Number: {model.IdNumber}");
                         string emailBodyTicket = _mailHelper.GetHtmlTemplateTicket("Ticket Update", $"{model.Title} {model.FullName}", model.IdNumber, flight.FlightNumber, $"{flight.Origin.City}, {flight.Origin.Country}", $"{flight.Destination.City}, {flight.Destination.Country}", model.Seat, flight.Departure, flight.Arrival, false);
                         MemoryStream pdfTicket = _pdfHelper.GenerateTicketPdf($"{model.Title} {model.FullName}", model.IdNumber, flight.FlightNumber, $"{flight.Origin.City}, {flight.Origin.Country}", $"{flight.Destination.City}, {flight.Destination.Country}", model.Seat, flight.Departure, flight.Arrival, qrCode);
-                        Response responseTicket = _mailHelper.SendEmail(model.Email, $"Update Ticket ID-{ticket.Id}", emailBodyTicket, pdfTicket, $"updated_ticket_flight_{flight.FlightNumber}_{model.IdNumber}.pdf", qrCode);
+                        Response responseTicket = await _mailHelper.SendEmailAsync(model.Email, $"Update Ticket ID-{ticket.Id}", emailBodyTicket, pdfTicket, $"updated_ticket_flight_{flight.FlightNumber}_{model.IdNumber}.pdf", qrCode);
 
                         if (!responseTicket.IsSuccess)
                         {
@@ -485,8 +495,8 @@ namespace AIS.Controllers
             MemoryStream pdfInvoice = _pdfHelper.GenerateInvoicePdf($"{user.FirstName} {user.LastName}", flight.FlightNumber, ticket.Price, true, false);
 
             // Makes sense to send an email to both ticket holder and ticket buyer, because one uses the ticket and the other buys it
-            Response responseTicketHolder = _mailHelper.SendEmail(ticket.Email, $"Cancel Ticket ID-{id}", emailBodyTicket, pdfInvoice, $"ticket_cancel_{flight.FlightNumber}_{ticket.IdNumber}.pdf", null);
-            Response responseTicketBuyer = _mailHelper.SendEmail(user.Email, $"Cancel Ticket ID-{id}", emailBodyTicket, pdfInvoice, $"ticket_cancel_{flight.FlightNumber}_{ticket.IdNumber}.pdf", null);
+            Response responseTicketHolder = await _mailHelper.SendEmailAsync(ticket.Email, $"Cancel Ticket ID-{id}", emailBodyTicket, pdfInvoice, $"ticket_cancel_{flight.FlightNumber}_{ticket.IdNumber}.pdf", null);
+            Response responseTicketBuyer = await _mailHelper.SendEmailAsync(user.Email, $"Cancel Ticket ID-{id}", emailBodyTicket, pdfInvoice, $"ticket_cancel_{flight.FlightNumber}_{ticket.IdNumber}.pdf", null);
 
             if (!responseTicketHolder.IsSuccess && !responseTicketBuyer.IsSuccess)
             {

@@ -5,7 +5,7 @@
 }
 
 <div>
-    <h2 class="text-muted" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Delete Flight</h2>
+    <h2 class="title-text" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Delete Flight</h2>
     <hr />
     <partial name="_DetailsDelete" />
     <form asp-action="Delete" id="cancelForm">
@@ -15,14 +15,14 @@
         </button>
         <a asp-action="Index" class="btn btn-secondary"><i class="fa-solid fa-chevron-left mr-2"></i>Back</a>
     </form>
-        <div class="row">
-            <div class="col-sm-8" style="margin-top: 1.2vh">
-                @if (ViewBag.ShowMsg == true)
-                {
-                    <ejs-message id="msg_warning" severity="Warning" content="This Flight has tickets allocated!" style=" border-radius: 5px;"></ejs-message>
-                }
-            </div>
+    <div class="row">
+        <div class="col-sm-8" style="margin-top: 1.2vh">
+            @if (ViewBag.ShowMsg == true)
+            {
+                <ejs-message id="msg_warning" severity="Warning" content="This Flight has tickets allocated!" style=" border-radius: 5px;"></ejs-message>
+            }
         </div>
+    </div>
 </div>
 
 
@@ -42,8 +42,8 @@
                 }
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" id="btnCancelYes">Yes</button>
-                <button type="button" class="btn btn-danger" id="btnCancelNo">No</button>
+                <button type="button" class="btn btn-success" id="btnCancelYes"><i class="fa-solid fa-check mr-2"></i>Yes</button>
+                <button type="button" class="btn btn-danger" id="btnCancelNo"><i class="fa-solid fa-xmark mr-2"></i>No</button>
             </div>
         </div>
     </div>

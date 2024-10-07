@@ -13,6 +13,8 @@ namespace AIS.Helpers
 
         Task<string> GeneratePasswordResetTokenAsync(User user);
 
+        //Task<bool> ClientHasTickets(User user);
+
         Task<bool> UserInEntities(User user);
 
         Task RemoveUserFromEntities(User user, ClaimsPrincipal admin);

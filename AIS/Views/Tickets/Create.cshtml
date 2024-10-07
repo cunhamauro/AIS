@@ -4,7 +4,7 @@
     ViewData["Title"] = "Purchase Ticket";
 }
 
-<h2 class="text-muted" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Purchase Ticket</h2>
+<h2 class="title-text" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Purchase Ticket</h2>
 <hr />
 
 <div class="row">
@@ -168,8 +168,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" id="btnPayYes">Purchase</button>
-                <button type="button" class="btn btn-danger" id="btnPayNo">Cancel</button>
+                <button type="button" class="btn btn-success" id="btnPayYes"><i class="fa-solid fa-check mr-2"></i>Purchase</button>
+                <button type="button" class="btn btn-danger" id="btnPayNo"><i class="fa-solid fa-xmark mr-2"></i>Cancel</button>
             </div>
         </div>
     </div>
@@ -186,7 +186,7 @@
 
                 var form = $("#payTicketForm");
 
-                // Trigget ASP.Net validation before showing modal
+                // Trigger ASP.Net validation before showing modal
                 if (form.valid()) {
                     $("#payDialog").modal("show"); // Show the modal if all the ASP.Net validations pass
                 }

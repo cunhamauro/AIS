@@ -1,12 +1,13 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using AIS.Data.Classes;
 
 namespace AIS.Helpers
 {
     public interface IMailHelper
     {
-        Response SendEmail(string to, string subject, string body, MemoryStream pdfStream, string pdfName, MemoryStream qrCodeStream);
+        Task<Response> SendEmailAsync(string to, string subject, string body, MemoryStream pdfStream, string pdfName, MemoryStream qrCodeStream);
 
         string GetHtmlTemplateTokenLink(string title, string subtitle, string button, string tokenLink);
 

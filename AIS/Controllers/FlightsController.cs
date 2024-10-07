@@ -5,6 +5,7 @@ using AIS.Helpers;
 using AIS.Migrations;
 using AIS.Models;
 using AIS.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -53,24 +54,25 @@ namespace AIS.Controllers
         }
 
         // GET: Flights
+        [Authorize(Roles = "Employee")]
         public IActionResult Index()
         {
             return View(_flightRepository.GetAll().Include(o => o.Origin).Include(d => d.Destination).Include(a => a.Aircraft)); // Show all Flights and nested Entities
         }
 
         // GET: Flights/UserFlights
+        [Authorize(Roles = "Client")]
         public async Task<IActionResult> UserFlights()
         {
             List<TicketRecord> ticketRecords = await _ticketRecordRepository.GetAll().ToListAsync();
-
             User user = await _userHelper.GetUserAsync(this.User);
-
             ticketRecords = ticketRecords.Where(f => f.UserId == user.Id).ToList();
 
             return View(ticketRecords);
         }
 
         // GET: Flights/FlightRecords
+        [Authorize(Roles = "Employee")]
         public async Task<IActionResult> FlightRecords()
         {
             List<FlightRecord> flightRecords = await _flightRecordRepository.GetAll().ToListAsync();
@@ -105,6 +107,7 @@ namespace AIS.Controllers
         }
 
         // GET: Flights/Details/5
+        [Authorize(Roles = "Employee")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -123,6 +126,7 @@ namespace AIS.Controllers
         }
 
         // GET: Flights/Create
+        [Authorize(Roles = "Employee")]
         public async Task<IActionResult> Create()
         {
             // Return the model with a select list of aircrafts, list of airports for origin and destination)
@@ -137,6 +141,7 @@ namespace AIS.Controllers
         // POST: Flights/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "Employee")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(FlightViewModel model) // Receive the filled model (will only have INT IDs for the entities it needs)
@@ -210,6 +215,7 @@ namespace AIS.Controllers
         }
 
         // GET: Flights/Edit/5
+        [Authorize(Roles = "Employee")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -222,6 +228,11 @@ namespace AIS.Controllers
             if (flight == null)
             {
                 return FlightNotFound();
+            }
+
+            if (flight.Departure.AddHours(24) < DateTime.UtcNow)
+            {
+                return DisplayMessage("Flight Update Disabled", "Flight can only be updated minimum 24 hours before departure!");
             }
 
             FlightViewModel model = _converterHelper.ToFlightViewModel(flight);
@@ -240,6 +251,7 @@ namespace AIS.Controllers
         // POST: Flights/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "Employee")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(FlightViewModel model)
@@ -323,6 +335,7 @@ namespace AIS.Controllers
         }
 
         // GET: Flights/Delete/5
+        [Authorize(Roles = "Employee")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -346,43 +359,50 @@ namespace AIS.Controllers
         }
 
         // POST: Flights/Delete/5
+        [Authorize(Roles = "Employee")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             Flight flight = await _flightRepository.GetFlightTrackIncludeByIdAsync(id);
 
-            // Update the flight record to canceled
-            FlightRecord flightRecord = await _flightRecordRepository.GetByIdAsync(id);
-            flightRecord.Canceled = true;
-            await _flightRecordRepository.UpdateAsync(flightRecord);
-
-            // Update ticket records flights to canceled
-            List<TicketRecord> ticketRecords = await _ticketRecordRepository.GetAll().ToListAsync();
-            foreach (TicketRecord record in ticketRecords)
+            // If the flight is being canceled before it could be completed:
+            if (flight.Departure > DateTime.UtcNow)
             {
-                record.Canceled = true;
-                await _ticketRecordRepository.UpdateAsync(record);
-            }
+                // Update the flight record to canceled
+                FlightRecord flightRecord = await _flightRecordRepository.GetByIdAsync(id);
+                flightRecord.Canceled = true;
+                await _flightRecordRepository.UpdateAsync(flightRecord);
 
-            // Email and PDF for flight cancel/refund (100% back)
-            User user = await _userHelper.GetUserAsync(this.User);
-
-            // Flight will be canceled so all tickets should be fully refunded
-            foreach (var ticket in flight.TicketList)
-            {
-                string emailBodyTicket = _mailHelper.GetHtmlTemplateTicket("Flight Cancel", $"{ticket.Title} {ticket.FullName}", ticket.IdNumber, flight.FlightNumber, $"{flight.Origin.City}, {flight.Origin.Country}", $"{flight.Destination.City}, {flight.Destination.Country}", ticket.Seat, flight.Departure, flight.Arrival, true);
-                MemoryStream pdfInvoice = _pdfHelper.GenerateInvoicePdf($"{user.FirstName} {user.LastName}", flight.FlightNumber, ticket.Price, false, true);
-
-                // Makes sense to send an email to both ticket holder and ticket buyer, because one uses the ticket and the other buys it
-                Response responseTicketHolder = _mailHelper.SendEmail(ticket.Email, $"Cancel Flight ID-{id}", emailBodyTicket, pdfInvoice, $"flight_cancel_{flight.FlightNumber}_{ticket.IdNumber}.pdf", null);
-                Response responseTicketBuyer = _mailHelper.SendEmail(user.Email, $"Cancel Flight ID-{id}", emailBodyTicket, pdfInvoice, $"flight_cancel_{flight.FlightNumber}_{ticket.IdNumber}.pdf", null);
-
-                if (!responseTicketHolder.IsSuccess && !responseTicketBuyer.IsSuccess)
+                // Update ticket records flights to canceled
+                List<TicketRecord> ticketRecords = await _ticketRecordRepository.GetAll().ToListAsync();
+                foreach (TicketRecord record in ticketRecords)
                 {
-                    return DisplayMessage("Refund Mailing Error", $"The refund info failed to send to: {user.Email} & {ticket.Email}!");
+                    record.Canceled = true;
+                    await _ticketRecordRepository.UpdateAsync(record);
                 }
+
+                // Email and PDF for flight cancel/refund (100% back)
+                User user = await _userHelper.GetUserAsync(this.User);
+
+                // Flight will be canceled so all tickets should be fully refunded
+                foreach (var ticket in flight.TicketList)
+                {
+                    string emailBodyTicket = _mailHelper.GetHtmlTemplateTicket("Flight Cancel", $"{ticket.Title} {ticket.FullName}", ticket.IdNumber, flight.FlightNumber, $"{flight.Origin.City}, {flight.Origin.Country}", $"{flight.Destination.City}, {flight.Destination.Country}", ticket.Seat, flight.Departure, flight.Arrival, true);
+                    MemoryStream pdfInvoice = _pdfHelper.GenerateInvoicePdf($"{user.FirstName} {user.LastName}", flight.FlightNumber, ticket.Price, false, true);
+
+                    // Makes sense to send an email to both ticket holder and ticket buyer, because one uses the ticket and the other buys it
+                    Response responseTicketHolder = await _mailHelper.SendEmailAsync(ticket.Email, $"Cancel Flight ID-{id}", emailBodyTicket, pdfInvoice, $"flight_cancel_{flight.FlightNumber}_{ticket.IdNumber}.pdf", null);
+                    Response responseTicketBuyer = await _mailHelper.SendEmailAsync(user.Email, $"Cancel Flight ID-{id}", emailBodyTicket, pdfInvoice, $"flight_cancel_{flight.FlightNumber}_{ticket.IdNumber}.pdf", null);
+
+                    if (!responseTicketHolder.IsSuccess && !responseTicketBuyer.IsSuccess)
+                    {
+                        return DisplayMessage("Refund Mailing Error", $"The refund info failed to send to: {user.Email} & {ticket.Email}!");
+                    }
+                }
+
             }
+            // If the flight is not being canceled, was completed, and is being deleted:
 
             // Create a list of tickets to delete
             var ticketsToDelete = flight.TicketList.ToList();

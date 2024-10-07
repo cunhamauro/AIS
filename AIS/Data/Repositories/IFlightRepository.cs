@@ -7,6 +7,8 @@ namespace AIS.Data.Repositories
 {
     public interface IFlightRepository : IGenericRepository<Flight>
     {
+        Task DeleteOldFlightsAsync();
+
         Task<Flight> GetFlightTrackIncludeByIdAsync(int id);
 
         Task<List<Flight>> GetFlightsTrackIncludeAsync();

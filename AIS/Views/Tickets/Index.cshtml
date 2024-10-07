@@ -4,13 +4,14 @@
     ViewData["Title"] = "Index";
 }
 
-<div style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 1rem; margin-bottom: 4vh; margin-top: 3.5vh">
-    <!-- Heading centered -->
-    <h2 class="text-muted" style="flex: 1; text-align: center; font-weight: bolder; margin: 0; padding-right: 10vh">
-        Your Tickets
-    </h2>
-</div>
+<h2 class="title-text" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Your Tickets</h2>
 
+
+@if (!Model.Any())
+{
+    <h4 class="no-items-list">You have no Tickets!</h4>
+}
+else {
 <table class="table">
     <thead>
         <tr>
@@ -67,7 +68,8 @@
                 <td>
                     @item.Title @item.FullName
                 </td>
-                <td>
+
+                <td class="td-buttons">
                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning mb-2"><i class="fa-solid fa-pen mr-2"></i>Update</a>
                     <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info mb-2"><i class="fa-solid fa-list mr-2"></i>Details</a>
                     <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger"><i class="fa-solid fa-trash-can mr-2"></i>Cancel</a>
@@ -76,3 +78,4 @@
         }
     </tbody>
 </table>
+}

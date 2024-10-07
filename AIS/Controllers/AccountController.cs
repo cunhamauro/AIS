@@ -27,9 +27,10 @@ namespace AIS.Controllers
         private readonly IAirportRepository _airportRepository;
         private readonly IAircraftRepository _aircraftRepository;
         private readonly IFlightRepository _flightRepository;
+        private readonly ITicketRepository _ticketRepository;
         private readonly IConverterHelper _converterHelper;
 
-        public AccountController(IUserHelper userHelper, IConfiguration configuration, IMailHelper mailHelper, IImageHelper imageHelper, IAirportRepository airportRepository, IAircraftRepository aircraftRepository, IFlightRepository flightRepository, IConverterHelper converterHelper)
+        public AccountController(IUserHelper userHelper, IConfiguration configuration, IMailHelper mailHelper, IImageHelper imageHelper, IAirportRepository airportRepository, IAircraftRepository aircraftRepository, IFlightRepository flightRepository, ITicketRepository ticketRepository, IConverterHelper converterHelper)
         {
             _userHelper = userHelper;
             _configuration = configuration;
@@ -38,10 +39,12 @@ namespace AIS.Controllers
             _airportRepository = airportRepository;
             _aircraftRepository = aircraftRepository;
             _flightRepository = flightRepository;
+            _ticketRepository = ticketRepository;
             _converterHelper = converterHelper;
         }
 
         // GET: Users
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index()
         {
             var listUsersIncludeRole = await _userHelper.GetUsersIncludeRolesAsync();
@@ -59,7 +62,52 @@ namespace AIS.Controllers
             return View();
         }
 
+        [Authorize(Roles = "Client")]
+        [HttpGet]
+        public async Task<IActionResult> DeleteAccount()
+        {
+            User user = await _userHelper.GetUserAsync(this.User);
+
+            if (await _ticketRepository.ClientHasTickets(user.Id))
+            {
+                ViewBag.ShowMsg = true;
+                ViewBag.State = "disabled";
+            }
+
+            return View(new DeleteAccountViewModel());
+        }
+
+        [Authorize(Roles = "Client")]
+        [HttpPost]
+        public async Task<IActionResult> DeleteAccount(DeleteAccountViewModel model)
+        {
+            User user = await _userHelper.GetUserAsync(this.User);
+
+            if (await _ticketRepository.ClientHasTickets(user.Id))
+            {
+                return View();
+            }
+
+            var validation = await _userHelper.ValidatePasswordAsync(user, model.Password);
+
+            if (!validation.Succeeded)
+            {
+                ModelState.AddModelError("Password", "Incorrect Password!");
+            }
+
+            if (ModelState.IsValid)
+            {
+                await _userHelper.DeleteUserAsync(user);
+                await _userHelper.LogoutAsync();
+
+                return RedirectToAction("Index", "Home");
+            }
+
+            return View();
+        }
+
         // GET: Account/Delete/userid
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(string id)
         {
             User userExists = await _userHelper.GetUserByIdAsync(id);
@@ -99,6 +147,7 @@ namespace AIS.Controllers
         }
 
         // POST: Account/Delete/userid
+        [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
@@ -216,7 +265,7 @@ namespace AIS.Controllers
 
                     string emailBody = _mailHelper.GetHtmlTemplateTokenLink("Complete your account activation", "confirm your email", "Confirm", tokenLink);
 
-                    Response response = _mailHelper.SendEmail(model.Username, "Email Confirmation!", emailBody, null, null, null);
+                    Response response = await _mailHelper.SendEmailAsync(model.Username, "Email Confirmation!", emailBody, null, null, null);
 
                     if (response.IsSuccess)
                     {
@@ -412,6 +461,7 @@ namespace AIS.Controllers
         }
 
         // GET: Account/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             CreateUserViewModel model = new CreateUserViewModel();
@@ -422,6 +472,7 @@ namespace AIS.Controllers
         // POST: Account/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateUserViewModel model)
@@ -472,7 +523,7 @@ namespace AIS.Controllers
 
                     string emailBody = _mailHelper.GetHtmlTemplateTokenLink("Configure your account password", "set your password", "Password", tokenLink);
 
-                    Response response = _mailHelper.SendEmail(model.Email, "Password Configuration!", emailBody, null, null, null);
+                    Response response = await _mailHelper.SendEmailAsync(model.Email, "Password Configuration!", emailBody, null, null, null);
 
                     if (!response.IsSuccess)
                     {
@@ -490,6 +541,7 @@ namespace AIS.Controllers
         }
 
         // GET: Account/Edit/userid
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         [Route("Edit/{id}")]
         public async Task<IActionResult> Edit(string id)
@@ -522,6 +574,7 @@ namespace AIS.Controllers
         }
 
         // GET: Account/Edit/userid
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [Route("Edit/{id}")]
         [ValidateAntiForgeryToken]
@@ -544,6 +597,7 @@ namespace AIS.Controllers
         }
 
         // GET: Account/Details/userId
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         [Route("Details/{id}")]
         public async Task<IActionResult> Details(string id)
@@ -599,7 +653,7 @@ namespace AIS.Controllers
 
                     string emailBody = _mailHelper.GetHtmlTemplateTokenLink("Recover your account password", "recover your password", "Password", tokenLink);
 
-                    Response response = _mailHelper.SendEmail(model.Email, "Password Recovery!", emailBody, null, null, null);
+                    Response response = await _mailHelper.SendEmailAsync(model.Email, "Password Recovery!", emailBody, null, null, null);
 
                     if (!response.IsSuccess)
                     {

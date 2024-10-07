@@ -11,11 +11,16 @@
     </a>
 
     <!-- Heading centered -->
-    <h2 class="text-muted" style="flex: 1; text-align: center; font-weight: bolder; margin: 0; padding-right: 10vh">
+    <h2 class="title-text" style="flex: 1; text-align: center; font-weight: bolder; margin: 0; padding-right: 10vh">
         List of Airports
     </h2>
 </div>
 
+@if (!Model.Any())
+{
+    <h4 class="no-items-list">There are no Airports!</h4>
+}
+else {
 <table class="table">
     <thead>
         <tr>
@@ -58,3 +63,4 @@
         }
     </tbody>
 </table>
+}

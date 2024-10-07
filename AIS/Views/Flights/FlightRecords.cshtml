@@ -5,11 +5,16 @@
 }
 
 <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 1rem; margin-bottom: 4vh; margin-top: 3.5vh">
-    <h2 class="text-muted" style="flex: 1; text-align: center; font-weight: bolder; margin: 0; padding-right: 10vh">
+    <h2 class="title-text" style="flex: 1; text-align: center; font-weight: bolder; margin: 0; padding-right: 10vh">
         Flight Records
     </h2>
 </div>
 
+@if (!Model.Any())
+{
+    <h4 class="no-items-list">There are no Flight Records!</h4>
+}
+else {
 <table class="table">
     <thead>
         <tr>
@@ -64,13 +69,19 @@
                         {
                             <p>Scheduled</p>
                         }
-                        else
+                        else if (item.Departure <= DateTime.UtcNow && item.Arrival > DateTime.UtcNow)
                         {
                             <p>Departed</p>
                         }
+                        else
+                        {
+                            <p>Completed</p>
+                        }
                     }
                 </td>
+                <td></td>
             </tr>
         }
     </tbody>
 </table>
+}

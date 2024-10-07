@@ -80,6 +80,7 @@ namespace AIS
             services.AddScoped<IAirportsAPIService, AirportsAPIService>();
             services.AddScoped<IAircraftAvailabilityService, AircraftAvailabilityService>();
             services.AddScoped<IImagesAPIService, ImagesAPIService>();
+            services.AddHostedService<FlightCleanupService>();
 
             // Repositories
             services.AddScoped<IAircraftRepository, AircraftRepository>();
@@ -88,7 +89,6 @@ namespace AIS
             services.AddScoped<ITicketRepository, TicketRepository>();
             services.AddScoped<ITicketRecordRepository, TicketRecordRepository>();
             services.AddScoped<IFlightRecordRepository, FlightRecordRepository>();
-
 
             // Helpers
             services.AddScoped<IUserHelper, UserHelper>();

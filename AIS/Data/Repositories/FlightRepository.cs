@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Syncfusion.EJ2.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,6 +19,39 @@ namespace AIS.Data.Repositories
         }
 
         /// <summary>
+        /// Clean all flights (and its tickets) that have already departed
+        /// </summary>
+        /// <returns>Task</returns>
+        public async Task DeleteOldFlightsAsync()
+        {
+            List<Flight> oldFlights = await _context.Flights.Include(t => t.TicketList).Where(f => f.Departure < DateTime.UtcNow).ToListAsync();
+            List<Ticket> oldTickets = new List<Ticket>();
+
+            foreach (var flight in oldFlights)
+            {
+                if (flight.TicketList.Any())
+                {
+                    oldTickets.AddRange(flight.TicketList);
+                }
+            }
+
+            if (oldTickets.Any())
+            {
+                _context.Tickets.RemoveRange(oldTickets);
+            }
+
+            if (oldFlights.Any())
+            {
+                _context.Flights.RemoveRange(oldFlights);
+            }
+
+            if (oldFlights.Any() || oldTickets.Any())
+            {
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        /// <summary>
         /// Get a Flight by ID including nested Entities
         /// </summary>
         /// <param name="id">Flight ID</param>
@@ -25,7 +59,6 @@ namespace AIS.Data.Repositories
         public async Task<Flight> GetFlightTrackIncludeByIdAsync(int id)
         {
             return await _context.Flights
-                //.Include(f => f.User) // No staff user data needed (Even for the API Get it is unnecessary)
                 .Include(f => f.Aircraft)
                 .Include(f => f.Origin)
                 .Include(f => f.Destination)

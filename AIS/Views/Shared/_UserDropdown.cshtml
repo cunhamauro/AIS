@@ -17,8 +17,9 @@
     itemsUser = new List<object>
                             {
                             new { text = "My Flights", url = Url.Action("UserFlights", "Flights"), iconCss = "fa-solid fa-plane-arrival" },
-                            new { text = "Update info", url = Url.Action("ChangeUser", "Account"), iconCss = "fa-solid fa-user-pen" },
+                            new { text = "Update account", url = Url.Action("ChangeUser", "Account"), iconCss = "fa-solid fa-user-pen" },
                             new { text = "Change password", url = Url.Action("ChangePassword", "Account"), iconCss = "fa-solid fa-key" },
+                            new { text = "Delete account", url = Url.Action("DeleteAccount", "Account"), iconCss = "fa-solid fa-trash-can" },
                             new { text = "Logout", url = Url.Action("Logout", "Account"), iconCss = "fa-solid fa-right-from-bracket" },
                             };
     }
@@ -26,7 +27,7 @@
     {
         itemsUser = new List<object>
                             {
-                            new { text = "Update info", url = Url.Action("ChangeUser", "Account"), iconCss = "fa-solid fa-user-pen" },
+                            new { text = "Update account", url = Url.Action("ChangeUser", "Account"), iconCss = "fa-solid fa-user-pen" },
                             new { text = "Change password", url = Url.Action("ChangePassword", "Account"), iconCss = "fa-solid fa-key" },
                             new { text = "Logout", url = Url.Action("Logout", "Account"), iconCss = "fa-solid fa-right-from-bracket" },
                             };

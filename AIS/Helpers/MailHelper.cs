@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using MimeKit;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace AIS.Helpers
 {
@@ -189,7 +190,7 @@ namespace AIS.Helpers
                                                                               <span style=""font-size:17px;word-break:break-word"">{originCityCountry} ⇨ {destinationCityCountry}</span>
                                                                             </p>
                                                                             <p style=""margin:0;font-size:14px;text-align:center;color:#8c8c8c"">
-                                                                              <span style=""font-size:17px;word-break:break-word"">{arrival.ToString("dd MMM HH:mm:ss")} ⇨ {departure.ToString("dd MMM HH:mm:ss")}</span>
+                                                                              <span style=""font-size:17px;word-break:break-word"">{departure.ToString("dd MMM HH:mm:ss")} ⇨ {arrival.ToString("dd MMM HH:mm:ss")}</span>
                                                                             </p>
                                                                             <p style=""margin:0;font-size:14px;text-align:center;color:#8c8c8c"">
                                                                               <span style=""font-size:17px;word-break:break-word"">Seat {seat}</span>
@@ -307,7 +308,7 @@ namespace AIS.Helpers
                     </body>";
         }
 
-        public Response SendEmail(string to, string subject, string body, MemoryStream pdfStream, string pdfName, MemoryStream qrCodeStream)
+        public async Task<Response> SendEmailAsync(string to, string subject, string body, MemoryStream pdfStream, string pdfName, MemoryStream qrCodeStream)
         {
             var nameFrom = _configuration["Mail:NameFrom"];
             var from = _configuration["Mail:From"];
@@ -347,7 +348,7 @@ namespace AIS.Helpers
                 {
                     client.Connect(smtp, int.Parse(port), MailKit.Security.SecureSocketOptions.StartTls);
                     client.Authenticate(from, password);
-                    client.Send(message);
+                    await client.SendAsync(message);
                     client.Disconnect(true);
                 }
             }

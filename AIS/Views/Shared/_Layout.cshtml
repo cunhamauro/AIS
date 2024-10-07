@@ -40,20 +40,29 @@
                         <li class="nav-item">
                             <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        @if (this.User.Identity.IsAuthenticated && this.User.IsInRole("Admin"))
+                        @if (this.User.Identity.IsAuthenticated)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-light" asp-area="" asp-controller="Tickets" asp-action="Index">Tickets</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-light" asp-area="" asp-controller="Flights" asp-action="Index">Flights</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-light" asp-area="" asp-controller="Aircrafts" asp-action="Index">Aircrafts</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-light" asp-area="" asp-controller="Airports" asp-action="Index">Airports</a>
-                            </li>
+                            if (this.User.IsInRole("Client"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-light" asp-area="" asp-controller="Tickets" asp-action="Index">Tickets</a>
+                                </li>
+                            }
+                            if (this.User.IsInRole("Employee"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-light" asp-area="" asp-controller="Flights" asp-action="Index">Flights</a>
+                                </li>
+                            }
+                            if (this.User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-light" asp-area="" asp-controller="Aircrafts" asp-action="Index">Aircrafts</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-light" asp-area="" asp-controller="Airports" asp-action="Index">Airports</a>
+                                </li>
+                            }
                         }
                         <li class="nav-item">
                             <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
@@ -69,9 +78,12 @@
 
                     @if (this.User.Identity.IsAuthenticated)
                     {
-                        <ul class="nav navbar-nav navbar-right mr-3">
-                            <a class="nav-link text-light" asp-area="" asp-controller="Flights" asp-action="FlightRecords">Flight Records</a>
-                        </ul>
+                        if (this.User.IsInRole("Employee"))
+                        {
+                            <ul class="nav navbar-nav navbar-right mr-3">
+                                <a class="nav-link text-light" asp-area="" asp-controller="Flights" asp-action="FlightRecords">Flight Records</a>
+                            </ul>
+                        }
                         <ul class="nav navbar-nav navbar-right mr-3">
                             <partial name="_UserDropdown" />
                         </ul>
@@ -101,6 +113,7 @@
             </div>
         </nav>
     </header>
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
@@ -125,3 +138,5 @@
     <ejs-scripts></ejs-scripts>
 </body>
 </html>
+
+

@@ -5,24 +5,13 @@
     ViewData["Title"] = "Home";
 }
 
-<style>
-    .filter-header {
-        font-size: 1.4rem;
-        font-weight: bolder;
-    }
-
-    .filter-text {
-        font-size: 0.9rem;
-    }
-</style>
-
 <form asp-action="Index">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="container">
         <div class="row">
             <div class="col">
                 <div class="form-group">
-                    <label asp-for="OriginId" class="control-label filter-header text-muted"></label>
+                    <label asp-for="OriginId" class="control-label filter-header"></label>
                     <select id="originSelect" asp-for="OriginId" asp-items="Model.OriginList" class="form-control">
                         <option value="0">Select an Origin</option>
                     </select>
@@ -35,7 +24,7 @@
             </div>
             <div class="col">
                 <div class="form-group">
-                    <label asp-for="DestinationId" class="control-label filter-header text-muted"></label>
+                    <label asp-for="DestinationId" class="control-label filter-header"></label>
                     <select id="destinationSelect" asp-for="DestinationId" asp-items="Model.DestinationList" class="form-control">
                         <option value="0">Select a Destination</option>
                     </select>
@@ -48,7 +37,7 @@
             </div>
             <div class="col">
                 <div class="form-group">
-                    <label asp-for="Departure" class="control-label filter-header text-muted"></label>
+                    <label asp-for="Departure" class="control-label filter-header"></label>
                     <input id="departureDate" asp-for="Departure" class="form-control" type="datetime-local" value="@Model.Departure.ToString("yyyy-MM-ddTHH:mm")" />
                     <span asp-validation-for="Departure" class="text-danger"></span>
                 </div>
@@ -60,7 +49,7 @@
             </div>
             <div class="col">
                 <div class="form-group">
-                    <label asp-for="Arrival" class="control-label filter-header text-muted"></label>
+                    <label asp-for="Arrival" class="control-label filter-header"></label>
                     <input id="arrivalDate" asp-for="Arrival" class="form-control" type="datetime-local" value="@Model.Arrival.ToString("yyyy-MM-ddTHH:mm")" />
                     <span asp-validation-for="Arrival" class="text-danger"></span>
                 </div>
@@ -79,6 +68,11 @@
     </div>
 </form>
 
+@if (Model.Flights == null || !Model.Flights.Any())
+{
+    <h4 class="no-items-list" style="margin-top: 22%">No Flights were found!</h4>
+}
+else {
 <table class="table mt-1">
     <thead>
         <tr>
@@ -129,7 +123,7 @@
         }
     </tbody>
 </table>
-
+}
 
 @section Scripts {
     @{

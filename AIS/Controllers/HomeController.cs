@@ -79,15 +79,15 @@ namespace AIS.Controllers
             // Get only the flights with seats available and that have a departure date with at least 30min left
             flights = flights.Where(f => f.AvailableSeats.Count > 0).Where(f => f.Departure > now).ToList();
 
-
             FlightsFiltersViewModel flightsModel = new FlightsFiltersViewModel();
 
-            if (flights != null && flights.Any())
-            {
                 // Get the current time if times are not filtered in the view
                 flightsModel.Departure = DateTime.Now;
                 flightsModel.Arrival = DateTime.Now.AddHours(1);
 
+
+            if (flights != null && flights.Any())
+            {
                 // Apply filters if selected
                 if (model.FilterByOrigin && model.OriginId > 0)
                 {

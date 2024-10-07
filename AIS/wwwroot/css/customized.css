@@ -1,5 +1,62 @@
-﻿/* Moving airplane seats container */
+﻿.title-text {
+    color: #9a9a9ad4;
+}
 
+.text-warning {
+    color: red !important;
+}
+
+.table th, .table td {
+    border-top: 2px solid #1e97ff2e !important;
+    border-bottom: 2px solid #1e97ff2e !important;
+}
+
+.no-items-list {
+    text-align: center;
+    margin: 0;
+    color:#1e90ff40;
+    margin-top: 29%;
+    margin-bottom: 2rem;
+}
+
+hr {
+    border-top: 2px solid #1e97ff2e;
+    margin-bottom: 1.4em;
+}
+
+.td-buttons .btn {
+    display: flex;
+    align-items: center;
+}
+
+.filter-header {
+    font-size: 1.2rem;
+    font-weight: bolder;
+    color: #9a9a9ad4;
+}
+
+.filter-text {
+    font-size: 0.9rem;
+}
+
+.table {
+    background-color: #ffffff45;
+}
+
+.table th {
+    background-color: #62b1ed13;
+    color: dodgerblue;
+    font-size: 1.1em
+}
+
+
+body {
+    background-image: url(/images/bg.png);
+    background-size: cover; 
+    background-position: center; 
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
 #planeContainer dd {
     margin-bottom: 0;
 }
@@ -51,7 +108,6 @@
 }
 
 /* Caroussel style */
-
 #carouselControl {
     width: 100%;
     height: 65vh;
