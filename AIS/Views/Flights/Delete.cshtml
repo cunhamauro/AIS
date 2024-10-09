@@ -1,11 +1,11 @@
 ﻿@model AIS.Data.Entities.Flight
 
 @{
-    ViewData["Title"] = "Delete Flight";
+    ViewData["Title"] = "Cancel Flight";
 }
 
 <div>
-    <h2 class="title-text" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Delete Flight</h2>
+    <h2 class="title-text" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Cancel Flight</h2>
     <hr />
     <partial name="_DetailsDelete" />
     <form asp-action="Delete" id="cancelForm">
@@ -25,7 +25,6 @@
     </div>
 </div>
 
-
 <div id="cancelDialog" class="modal fade">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
@@ -42,14 +41,33 @@
                 }
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" id="btnCancelYes"><i class="fa-solid fa-check mr-2"></i>Yes</button>
+                <button type="button" class="btn btn-success" id="btnCancelYes" data-loading-text='<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Processing'>
+                    <i class="fa-solid fa-check mr-2"></i>Yes
+                </button>
                 <button type="button" class="btn btn-danger" id="btnCancelNo"><i class="fa-solid fa-xmark mr-2"></i>No</button>
             </div>
         </div>
     </div>
 </div>
 
+
 @section Scripts {
+
+    <script>
+
+        // Script for button spinner
+        $('#btnCancelYes').on('click', function () {
+                var $this = $(this);
+                var loadingText = $this.data('loading-text');
+
+                if ($this.html() !== loadingText) {
+                    // Change the button to the loading state with Bootstrap spinner and disable it
+                    $this.html(loadingText);
+                }
+            });
+    
+    </script>
+
     <script type="text/javascript">
         $(document).ready(function () {
             $("#btnCancelFlight").click(function (e) {

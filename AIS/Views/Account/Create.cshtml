@@ -39,7 +39,7 @@
                 <span asp-validation-for="RoleName" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <button type="submit" class="btn btn-success mr-2">
+                <button type="submit" class="btn btn-success mr-2" id="btnAddUser" data-loading-text='<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Processing'>
                     <i class="fa-solid fa-check mr-2"></i>Save
                 </button>
                 <a asp-action="Index" class="btn btn-secondary"><i class="fa-solid fa-chevron-left mr-2"></i>Back</a>
@@ -58,7 +58,22 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
 
-        // Scripts for selection UI/UX
+        // Script for button spinner
+        <script>
+
+            $('#btnAddUser').on('click', function () {
+                var $this = $(this);
+                var loadingText = $this.data('loading-text');
+
+                if ($this.html() !== loadingText) {
+                    // Change the button to the loading state with Bootstrap spinner
+                    $this.html(loadingText);
+                }
+            });
+
+        </script>
+
+        // Script for selection UI/UX
         <script>
 
             document.getElementById('roleSelect').addEventListener('click', function () {

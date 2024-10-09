@@ -91,6 +91,7 @@
                 <button type="submit" @ViewBag.State id="btnPurchaseTicket" class="btn btn-success mr-2">
                     <i class="fa-solid fa-cart-shopping mr-2"></i>Purchase Ticket
                 </button>
+
                 <a asp-controller="Home" asp-action="Index" class="btn btn-secondary"><i class="fa-solid fa-chevron-left mr-2"></i>Back</a>
             </div>
             <div>
@@ -133,7 +134,7 @@
 <div id="payDialog" class="modal fade">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header" style="align-items: center">
                 <h4 class="modal-title text-success"><i class="fa-solid fa-shield mr-3"></i>Secure Payment</h4>
                 <button type="button" class="close" data-dismiss="modal"><i class="fa fa-window-close"></i></button>
             </div>
@@ -168,7 +169,9 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" id="btnPayYes"><i class="fa-solid fa-check mr-2"></i>Purchase</button>
+                <button type="button" class="btn btn-success" id="btnPayYes" data-loading-text='<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Processing'>
+                    <i class="fa-solid fa-check mr-2"></i>Purchase
+                </button>
                 <button type="button" class="btn btn-danger" id="btnPayNo"><i class="fa-solid fa-xmark mr-2"></i>Cancel</button>
             </div>
         </div>
@@ -179,7 +182,7 @@
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
 
-    <script type="text/javascript">
+    <script>
         $(document).ready(function () {
             $("#btnPurchaseTicket").click(function (e) {
                 e.preventDefault(); // Prevent the form from being submitted immediately
@@ -188,22 +191,28 @@
 
                 // Trigger ASP.Net validation before showing modal
                 if (form.valid()) {
-                    $("#payDialog").modal("show"); // Show the modal if all the ASP.Net validations pass
-                }
-                else {
-                    // If the form is not valid, display the ASP.Net validation messages
+                    $("#payDialog").modal("show"); // Show the modal if all validations pass
+                } else {
+                    // If the form is not valid, display validation messages
                     form.find("input").each(function () {
-                        $(this).valid(); // Trigger the validation for each input field
+                        $(this).valid(); // Trigger validation for each input field
                     });
                 }
             });
 
-            $("#btnPayYes").off("click").on("click", function () {
+            $("#btnPayYes").on("click", function () {
+                var $this = $(this);
+                var loadingText = $this.data('loading-text');
+
+                // Change the button to the loading state with Bootstrap spinner
+                if ($this.html() !== loadingText) {
+                    $this.html(loadingText);
+                }
 
                 // Perform payment validation
                 var isValid = true;
                 var errors = [];
-                errors.push("🛡️ SECURE PAYMENT VALIDATION ⚠️\n")
+                errors.push("🛡️ SECURE PAYMENT VALIDATION ⚠️\n");
 
                 // Get values from modal inputs
                 var name = $("#holderName").val().trim();
@@ -228,19 +237,18 @@
 
                 // Validate Expiry Date
                 if (!expiry) {
-                    errors.push("Credit Card expiry date is required!")
+                    errors.push("Credit Card expiry date is required!");
                     isValid = false;
                 } else {
-                    var [expiryYear, expiryMonth] = expiry.split('-').map(Number); // Convert the string input type month ("2024-09") to numbers
+                    var [expiryYear, expiryMonth] = expiry.split('-').map(Number); // Convert month to numbers
                     if (isNaN(expiryYear) || isNaN(expiryMonth)) {
-                        errors.push("Enter a valid Credit Card expiry date!")
+                        errors.push("Enter a valid Credit Card expiry date!");
                         isValid = false;
-                    }
-                    else {
-                        var expiryDate = new Date(expiryYear, expiryMonth - 1) // Month index starts at 0
+                    } else {
+                        var expiryDate = new Date(expiryYear, expiryMonth - 1); // Month index starts at 0
                         var currentDate = new Date();
                         if (expiryDate < currentDate) {
-                            errors.push("The Credit Card has already expired!")
+                            errors.push("The Credit Card has already expired!");
                             isValid = false;
                         }
                     }
@@ -258,8 +266,8 @@
                 // Show errors if validation fails
                 if (!isValid) {
                     alert(errors.join("\n"));
-                }
-                else {
+                    $this.html('<i class="fa-solid fa-check mr-2"></i>Purchase'); // Reset button text on error
+                } else {
                     $("#payTicketForm").submit(); // Submit the form
                 }
             });

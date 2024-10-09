@@ -1,7 +1,7 @@
 ﻿@model AIS.Models.TicketViewModel
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Cancel Ticket";
 }
 
 <div>
@@ -40,7 +40,9 @@
                 <p>You will be refunded 25% of paid price!</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" id="btnCancelYes"><i class="fa-solid fa-check mr-2"></i>Yes</button>
+                <button type="button" class="btn btn-success" id="btnCancelYes" data-loading-text='<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Processing'>
+                    <i class="fa-solid fa-check mr-2"></i>Yes
+                </button>
                 <button type="button" class="btn btn-danger" id="btnCancelNo"><i class="fa-solid fa-xmark mr-2"></i>No</button>
             </div>
         </div>
@@ -48,6 +50,22 @@
 </div>
 
 @section Scripts {
+
+    <script>
+
+        // Script for button spinner
+        $('#btnCancelYes').on('click', function () {
+            var $this = $(this);
+            var loadingText = $this.data('loading-text');
+
+            if ($this.html() !== loadingText) {
+                // Change the button to the loading state with Bootstrap spinner
+                $this.html(loadingText);
+            }
+        });
+
+    </script>
+
     <script type="text/javascript">
         $(document).ready(function () {
             $("#btnCancelTicket").click(function (e) {

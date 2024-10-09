@@ -1,7 +1,7 @@
 ﻿@model AIS.Models.TicketViewModel
 
 @{
-    ViewData["Title"] = "Purchase Ticket";
+    ViewData["Title"] = "Update Ticket";
 }
 
 <h2 class="title-text" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Update Ticket</h2>
@@ -94,9 +94,11 @@
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <button type="submit" @ViewBag.State class="btn btn-success mr-2">
+
+                <button type="submit" @ViewBag.State class="btn btn-success mr-2" id="btnUpdateTicket" data-loading-text='<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Processing'>
                     <i class="fa-solid fa-save mr-2"></i>Save
                 </button>
+
                 <a asp-controller="Tickets" asp-action="Index" class="btn btn-secondary"><i class="fa-solid fa-chevron-left mr-2"></i>Back</a>
             </div>
         </form>
@@ -129,3 +131,21 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+
+    <script>
+
+        // Script for button spinner
+        $('#btnUpdateTicket').on('click', function () {
+            var $this = $(this);
+            var loadingText = $this.data('loading-text');
+
+            if ($this.html() !== loadingText) {
+                // Change the button to the loading state with Bootstrap spinner
+                $this.html(loadingText);
+            }
+        });
+
+    </script>
+}
