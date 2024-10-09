@@ -4,9 +4,9 @@
 }
 
 .marquee {
-    white-space: nowrap; /* Prevent text wrapping */
-    overflow: hidden; /* Hide overflow */
-    box-sizing: border-box; /* Include padding in width */
+    white-space: nowrap; 
+    overflow: hidden; 
+    box-sizing: border-box; 
     background-color: #070707;
     color: #b2ff00;
     margin-bottom: 25px;
@@ -16,18 +16,18 @@
 }
 
 .marquee h1 {
-    display: inline-block; /* Inline block for horizontal scrolling */
-    padding-left: 100%; /* Start off-screen */
-    animation: scroll 8s linear infinite; /* Adjust duration for speed */
+    display: inline-block; 
+    padding-left: 100%;
+    animation: scroll 8s linear infinite; 
 }
 
 @keyframes scroll {
     from {
-        transform: translateX(0); /* Start position */
+        transform: translateX(0); 
     }
 
     to {
-        transform: translateX(-100%); /* End position */
+        transform: translateX(-100%);
     }
 }
 
@@ -148,7 +148,7 @@ hr {
 }
 
 body {
-    background-image: url(/images/x.jpg);
+    background-image: url(/images/background.jpg);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -197,22 +197,22 @@ body {
     box-sizing: border-box; /* Include padding in width calculation */
 }
 
-    /* Columns inside planeContainer */
-    #planeContainer .col-md-3, #planeContainer .col-md-6 {
-        flex: 1; /* Allow columns to grow equally */
-    }
+/* Columns inside planeContainer */
+#planeContainer .col-md-3, #planeContainer .col-md-6 {
+    flex: 1; /* Allow columns to grow equally */
+}
 
-    /* Ensure images do not exceed column width */
-    #planeContainer img {
-        max-width: 100%;
-        height: auto; /* Maintain aspect ratio */
-    }
+/* Ensure images do not exceed column width */
+#planeContainer img {
+    max-width: 100%;
+    height: auto; /* Maintain aspect ratio */
+}
 
-    /* Ensure textarea fits within its container */
-    #planeContainer textarea {
-        width: 100%; /* Full width */
-        box-sizing: border-box; /* Include padding and border in width */
-    }
+/* Ensure textarea fits within its container */
+#planeContainer textarea {
+    width: 100%; /* Full width */
+    box-sizing: border-box; /* Include padding and border in width */
+}
 
 /* Caroussel style */
 #carouselControl {
@@ -222,16 +222,16 @@ body {
     overflow: hidden;
 }
 
-    #carouselControl .carousel-inner {
-        height: 100%;
-    }
+#carouselControl .carousel-inner {
+    height: 100%;
+}
 
-    #carouselControl .carousel-item {
-        height: 100%;
-    }
+#carouselControl .carousel-item {
+    height: 100%;
+}
 
-        #carouselControl .carousel-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+#carouselControl .carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
