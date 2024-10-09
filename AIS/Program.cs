@@ -21,10 +21,6 @@ namespace AIS
             {
                 var seeder = scope.ServiceProvider.GetService<SeedDatabase>();
                 seeder.SeedAsync().Wait();
-
-                //var context = scope.ServiceProvider.GetRequiredService<DataContext>();
-                //await context.CreateOrUpdateStoredProcedureAsync();
-                //await context.CreateTriggerAsync();
             }
         }
 
