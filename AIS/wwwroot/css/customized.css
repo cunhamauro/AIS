@@ -4,11 +4,11 @@
 }
 
 .marquee {
-    white-space: nowrap; 
-    overflow: hidden; 
-    box-sizing: border-box; 
-    background-color: #070707;
-    color: #b2ff00;
+    white-space: nowrap;
+    overflow: hidden;
+    box-sizing: border-box;
+    background-color: #07070736;
+    color: #e1ff00e0;
     margin-bottom: 25px;
     border-radius: 12px;
     padding-bottom: 5px;
