@@ -1,0 +1,130 @@
+﻿@model DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<h2 class="title-text" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Dashboard</h2>
+<hr />
+
+@{
+    var destinationDisplay = ViewBag.AvailableDestination == true
+        ? $"{Model.MostPopularDestination.IATA} - {Model.MostPopularDestination.City}, {Model.MostPopularDestination.Country}"
+        : "N/A";
+
+    var destinationImage = ViewBag.AvailableDestination == true
+        ? $"<img src='{Url.Content(Model.MostPopularDestination.ImageUrl)}' alt='Country Flag Image' style='height:2vh; border:solid; border-color: lightgray; border-width: 0.5px' />"
+        : "";
+}
+
+<div class="container mt-5" id="dashboardData">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">@Html.DisplayNameFor(model => model.MostPopularDestination)</h5>
+                    <p class="card-text">@Html.Raw(destinationDisplay) @Html.Raw(destinationImage)</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">@Html.DisplayNameFor(model => model.AirportsCount)</h5>
+                    <p class="card-text">@Model.AirportsCount</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">@Html.DisplayNameFor(model => model.AircraftsCount)</h5>
+                    <p class="card-text">@Model.AircraftsCount</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">@Html.DisplayNameFor(model => model.ClientsCount)</h5>
+                    <p class="card-text">@Model.ClientsCount</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">@Html.DisplayNameFor(model => model.EmployeesCount)</h5>
+                    <p class="card-text">@Model.EmployeesCount</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">@Html.DisplayNameFor(model => model.AdminsCount)</h5>
+                    <p class="card-text">@Model.AdminsCount</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">@Html.DisplayNameFor(model => model.ActiveFlightsCount)</h5>
+                    <p class="card-text">@Model.ActiveFlightsCount</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">@Html.DisplayNameFor(model => model.FlightRecordsCount)</h5>
+                    <p class="card-text">@Model.FlightRecordsCount</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">@Html.DisplayNameFor(model => model.CanceledFlightsCount)</h5>
+                    <p class="card-text">@Model.CanceledFlightsCount</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">@Html.DisplayNameFor(model => model.ActiveTicketsCount)</h5>
+                    <p class="card-text">@Model.ActiveTicketsCount</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">@Html.DisplayNameFor(model => model.TicketRecordsCount)</h5>
+                    <p class="card-text">@Model.TicketRecordsCount</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">@Html.DisplayNameFor(model => model.MoneyTotalTickets)</h5>
+                    <p class="card-text">@Model.MoneyTotalTickets.ToString("C2")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

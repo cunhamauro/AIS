@@ -1,8 +1,10 @@
 ﻿using AIS.Data.Entities;
 using AIS.Data.Repositories;
+using AIS.Helpers;
 using AIS.Models;
 using AIS.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Syncfusion.EJ2.Spreadsheet;
@@ -21,15 +23,26 @@ namespace AIS.Controllers
         private readonly IAirportRepository _airportRepository;
         private readonly IImagesAPIService _imagesAPIService;
         private readonly IConfiguration _configuration;
+        private readonly IUserHelper _userHelper;
+        private readonly ITicketRepository _ticketRepository;
+        private readonly IAircraftRepository _aircraftRepository;
+        private readonly IFlightRecordRepository _flightRecordRepository;
+        private readonly ITicketRecordRepository _ticketRecordRepository;
+
         private readonly int numImagesGallery;
 
-        public HomeController(ILogger<HomeController> logger, IFlightRepository flightRepository, IAirportRepository airportRepository, IImagesAPIService imagesAPIService, IConfiguration configuration)
+        public HomeController(ILogger<HomeController> logger, IFlightRepository flightRepository, IAirportRepository airportRepository, IImagesAPIService imagesAPIService, IConfiguration configuration, IUserHelper userHelper, ITicketRepository ticketRepository, IAircraftRepository aircraftRepository, IFlightRecordRepository flightRecordRepository, ITicketRecordRepository ticketRecordRepository)
         {
             _logger = logger;
             _flightRepository = flightRepository;
             _airportRepository = airportRepository;
             _imagesAPIService = imagesAPIService;
             _configuration = configuration;
+            _userHelper = userHelper;
+            _ticketRepository = ticketRepository;
+            _aircraftRepository = aircraftRepository;
+            _flightRecordRepository = flightRecordRepository;
+            _ticketRecordRepository = ticketRecordRepository;
 
             numImagesGallery = int.Parse(_configuration["AppSettings:NumberImagesGallery"]);
         }
@@ -69,8 +82,118 @@ namespace AIS.Controllers
             return View(model);
         }
 
+        public async Task<IActionResult> Dashboard()
+        {
+            List<Flight> flights = await _flightRepository.GetFlightsTrackIncludeAsync();
+            Dictionary<Airport, int> destinationCounts = new Dictionary<Airport, int>();
+
+            foreach (Flight flight in flights)
+            {
+                if (destinationCounts.ContainsKey(flight.Destination)) // If the airport is already there
+                {
+                    destinationCounts[flight.Destination]++; // Add 1 more
+                }
+                else
+                {
+                    destinationCounts[flight.Destination] = 1; // Start it
+                }
+            }
+
+            Airport popularDestination = new Airport();
+            int maxCount = 0;
+
+            foreach (var kvp in destinationCounts)
+            {
+                if (kvp.Value > maxCount)
+                {
+                    popularDestination = kvp.Key;
+                    maxCount = kvp.Value;
+                }
+            }
+
+            List<UserWithRolesViewModel> users = await _userHelper.GetUsersIncludeRolesAsync();
+
+            int adminsCount = 0;
+            int clientsCount = 0;
+            int employeesCount = 0;
+
+            foreach (var user in users)
+            {
+                if (user.Roles.FirstOrDefault() == "Admin")
+                {
+                    adminsCount++;
+                }
+                else if (user.Roles.FirstOrDefault() == "Client")
+                {
+                    clientsCount++;
+                }
+                else if (user.Roles.FirstOrDefault() == "Employee")
+                {
+                    employeesCount++;
+                }
+            }
+
+            int flightsCount = _flightRepository.GetAll().Count();
+            List<Ticket> tickets = await _ticketRepository.GetAll().ToListAsync();
+            int airportsCount = _airportRepository.GetAll().Count();
+            int aircraftsCount = _aircraftRepository.GetAll().Count();
+            List<FlightRecord> flightRecords = await _flightRecordRepository.GetAll().ToListAsync();
+            List<TicketRecord> ticketRecords = await _ticketRecordRepository.GetAll().ToListAsync();
+
+            decimal moneyTickets = 0;
+            foreach (var ticket in tickets)
+            {
+                moneyTickets += ticket.Price;
+            }
+
+            decimal moneyTotalTickets = 0;
+            foreach (var ticket in ticketRecords)
+            {
+                moneyTotalTickets += ticket.TicketPrice;
+            }
+
+            int canceledFlights = 0;
+            foreach (var record in flightRecords)
+            {
+                if (record.Canceled)
+                {
+                    canceledFlights++;
+                }
+            }
+
+            DashboardViewModel dashboard = new DashboardViewModel
+            {
+                MostPopularDestination = popularDestination,
+                AdminsCount = adminsCount,
+                EmployeesCount = employeesCount,
+                ClientsCount = clientsCount,
+                ActiveFlightsCount = flightsCount,
+                ActiveTicketsCount = tickets.Count,
+                AirportsCount = airportsCount,
+                AircraftsCount = aircraftsCount,
+                MoneyTotalTickets = moneyTotalTickets,
+                TicketRecordsCount = ticketRecords.Count,
+                FlightRecordsCount = flightRecords.Count,
+                CanceledFlightsCount = canceledFlights,
+            };
+
+            if (flights.Count == 0)
+            {
+                ViewBag.AvailableDestination = false;
+            }
+
+            return View(dashboard);
+        }
+
         public async Task<IActionResult> Index(FlightsFiltersViewModel model)
         {
+            User user = await _userHelper.GetUserAsync(this.User);
+
+            if (user == null || await _userHelper.IsUserInRoleAsync(user, "Client"))
+            {
+                ViewBag.IsClient = true;
+            }
+
             // Get all flights initially
             var flights = await _flightRepository.GetFlightsTrackIncludeAsync();
 

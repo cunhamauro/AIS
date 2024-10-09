@@ -36,9 +36,9 @@ namespace AIS
                 cfg.User.RequireUniqueEmail = true;
 
                 // Configure Password settings
-                cfg.Password.RequireDigit = false;
-                cfg.Password.RequireLowercase = false;
-                cfg.Password.RequireUppercase = false;
+                cfg.Password.RequireDigit = true;
+                cfg.Password.RequireLowercase = true;
+                cfg.Password.RequireUppercase = true;
                 cfg.Password.RequiredLength = 6;
                 cfg.Password.RequireNonAlphanumeric = false;
                 cfg.Password.RequiredUniqueChars = 1;

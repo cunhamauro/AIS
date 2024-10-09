@@ -11,91 +11,96 @@
     <hr />
     <h4 class="no-items-list">You have no Flights!</h4>
 }
-else {
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.FlightNumber)
-            </th>
-            <th>
-                Origin
-            </th>
-            <th>
-                Destination
-            </th>
-            <th>
-                Departure
-            </th>
-            <th>
-                Arrival
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TicketPrice)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Seat)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.HolderIdNumber)
-            </th>
-            <th>
-                Status
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.FlightNumber)
-                </td>
-                <td>
-                    @item.OriginCity, @item.OriginCountry <img src="@Url.Content(item.OriginFlagImageUrl)" class="ml-2" alt="Country Flag Image" style="height:2vh; border:solid; border-color: lightgray; border-width: 0.5px" />
-                </td>
-                <td>
-                    @item.DestinationCity, @item.DestinationCountry <img src="@Url.Content(item.DestinationFlagImageUrl)" class="ml-2" alt="Country Flag Image" style="height:2vh; border:solid; border-color: lightgray; border-width: 0.5px" />
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Departure)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Arrival)
-                </td>
-                <td>
-                    @item.TicketPrice.ToString("C2")
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Seat)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.HolderIdNumber)
-                </td>
-                <td>
-                    @if (item.Canceled)
+else
+{
+    <div class="card-container">
+        <div class="card">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.FlightNumber)
+                        </th>
+                        <th>
+                            Origin
+                        </th>
+                        <th>
+                            Destination
+                        </th>
+                        <th>
+                            Departure
+                        </th>
+                        <th>
+                            Arrival
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.TicketPrice)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Seat)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.HolderIdNumber)
+                        </th>
+                        <th>
+                            Status
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
                     {
-                        <p>Canceled</p>
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.FlightNumber)
+                            </td>
+                            <td>
+                                @item.OriginCity, @item.OriginCountry <img src="@Url.Content(item.OriginFlagImageUrl)" class="ml-2" alt="Country Flag Image" style="height:2vh; border:solid; border-color: lightgray; border-width: 0.5px" />
+                            </td>
+                            <td>
+                                @item.DestinationCity, @item.DestinationCountry <img src="@Url.Content(item.DestinationFlagImageUrl)" class="ml-2" alt="Country Flag Image" style="height:2vh; border:solid; border-color: lightgray; border-width: 0.5px" />
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Departure)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Arrival)
+                            </td>
+                            <td>
+                                @item.TicketPrice.ToString("C2")
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Seat)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.HolderIdNumber)
+                            </td>
+                            <td>
+                                @if (item.Canceled)
+                                {
+                                    <p>Canceled</p>
+                                }
+                                else
+                                {
+                                    @if (item.Departure > DateTime.UtcNow)
+                                    {
+                                        <p>Scheduled</p>
+                                    }
+                                    else if (item.Departure <= DateTime.UtcNow && item.Arrival > DateTime.UtcNow)
+                                    {
+                                        <p>Departed</p>
+                                    }
+                                    else
+                                    {
+                                        <p>Completed</p>
+                                    }
+                                }
+                            </td>
+                        </tr>
                     }
-                    else
-                    {
-                        @if (item.Departure > DateTime.UtcNow)
-                        {
-                            <p>Scheduled</p>
-                        }
-                        else if (item.Departure <= DateTime.UtcNow && item.Arrival > DateTime.UtcNow)
-                        {
-                            <p>Departed</p>
-                        }
-                        else
-                        {
-                            <p>Completed</p>
-                        }
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                </tbody>
+            </table>
+        </div>
+    </div>
 }

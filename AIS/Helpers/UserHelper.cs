@@ -3,6 +3,7 @@ using AIS.Data.Repositories;
 using AIS.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Asn1.IsisMtt.X509;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -119,6 +120,7 @@ namespace AIS.Helpers
         public async Task<List<UserWithRolesViewModel>> GetUsersIncludeRolesAsync()
         {
             var users = await _userManager.Users.AsNoTracking().ToListAsync();
+
             var usersWithRoles = new List<UserWithRolesViewModel>();
 
             foreach (var user in users)

@@ -23,7 +23,7 @@
 
                 @if (ViewBag.ShowMsg == true)
                 {
-                    <ejs-message id="msg_error" severity="Error" content="The Aircraft can't be deleted because it has Flights assigned!" style="margin-top: 1.2vh; border-radius: 5px;"></ejs-message>
+                    <ejs-message id="msg_error" severity="Error" content="This Aircraft can't be deleted because it has Flights assigned!" style="margin-top: 1.2vh; border-radius: 5px;"></ejs-message>
                 }
 
             </div>
@@ -31,9 +31,6 @@
         <!-- Right: Image -->
         <div class="col-md-7">
             <dl class="row">
-                <dt class="col-sm-12 mb-2">
-                    Image
-                </dt>
                 <dd class="col-sm-12">
                     <img src="@Url.Content($"{currentUrl}{Model.ImageDisplay}")" alt="Aircraft Image" style="max-width:55%;height:auto" />
                 </dd>

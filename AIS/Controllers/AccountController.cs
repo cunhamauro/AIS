@@ -110,8 +110,8 @@ namespace AIS.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(string id)
         {
-            User userExists = await _userHelper.GetUserByIdAsync(id);
-            if (string.IsNullOrEmpty(id) || userExists == null)
+            User userCheck = await _userHelper.GetUserByIdAsync(id);
+            if (string.IsNullOrEmpty(id) || userCheck == null)
             {
                 return UserNotFound();
             }
@@ -119,6 +119,15 @@ namespace AIS.Controllers
             UserWithRolesViewModel userModel = await _userHelper.GetUserByIdIncludeRoleAsync(id);
             User user = userModel.User;
             User currentAdmin = await _userHelper.GetUserAsync(this.User);
+
+            if (await _ticketRepository.ClientHasTickets(userCheck.Id))
+            {
+                ViewBag.ShowMsg = true;
+                ViewBag.Message = "Account deletion not allowed! This user has tickets for scheduled flights.";
+                ViewBag.State = "disabled";
+
+                return View(userModel);
+            }
 
             if (user.Id == currentAdmin.Id) // Dont allow the current account to delete itself
             {
@@ -153,6 +162,11 @@ namespace AIS.Controllers
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
             User user = await _userHelper.GetUserByIdAsync(id);
+
+            if (await _ticketRepository.ClientHasTickets(id))
+            {
+                return View();
+            }
 
             User currentAdmin = await _userHelper.GetUserAsync(this.User);
 

@@ -28,7 +28,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-xl navbar-toggleable-xl navbar-primary bg-primary border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-xl navbar-toggleable-xl navbar-primary bg-primary box-shadow mb-3">
             <div class="container">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index"><img id="logo-ais" src="~/images/AIS-logo.png" style="height: 2.3rem; filter: brightness(0) invert(1);" /></a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -64,9 +64,6 @@
                                 </li>
                             }
                         }
-                        <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
                     </ul>
 
                     <ul class="nav navbar-nav navbar-right mr-3">
@@ -120,13 +117,14 @@
         </main>
     </div>
 
-    <footer class="border-top text-light footer bg-primary">
+    <footer class="text-light footer bg-primary">
         <div class="container" style="text-align: center; font-size: 0.9rem">
             Aero Info System
             <span class="icon-AIS-logo fa-lg ml-2" style="margin-bottom: 0rem"></span>
             <span class="ml-2">by Mauro Cunha</span>
             <a href="https://www.linkedin.com/in/cunhamauro/"><i class="fa-brands fa-linkedin fa-lg ml-2 text-light"></i></a>
-            <a href="https://github.com/cunhamauro"><i class="fa-brands fa-github fa-lg ml-2 text-light"></i></a>
+            <a href="https://github.com/cunhamauro"><i class="fa-brands fa-github fa-lg ml-2 text-light mr-2"></i></a>
+            - <a style="color:inherit" asp-area="" asp-controller="Home" asp-action="Privacy" class="ml-2">Privacy</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

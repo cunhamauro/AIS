@@ -1,10 +1,102 @@
-﻿/* To remove Somee ads watermarks */
+﻿.card {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+    margin-bottom: 4vh;
+}
+
+.marquee {
+    white-space: nowrap; /* Prevent text wrapping */
+    overflow: hidden; /* Hide overflow */
+    box-sizing: border-box; /* Include padding in width */
+    background-color: #070707;
+    color: #b2ff00;
+    margin-bottom: 25px;
+    border-radius: 12px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+}
+
+.marquee h1 {
+    display: inline-block; /* Inline block for horizontal scrolling */
+    padding-left: 100%; /* Start off-screen */
+    animation: scroll 8s linear infinite; /* Adjust duration for speed */
+}
+
+@keyframes scroll {
+    from {
+        transform: translateX(0); /* Start position */
+    }
+
+    to {
+        transform: translateX(-100%); /* End position */
+    }
+}
+
+select, input {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.e-dropdown-popup ul .e-item .e-menu-icon {
+    font-size: 14px;
+}
+
+#dashboardData .card-body {
+    background-color: #0000006a;
+}
+
+.btn {
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 10px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+table img {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+footer {
+    box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.3);
+}
+
+header {
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgb(51 51 51 / 11%) !important;
+}
+
+.card {
+    border-radius: 15px;
+    overflow: auto;
+    background-color: transparent;
+}
+
+.card tbody {
+    font-size: large;
+}
+
+/* To remove Somee ads watermarks */
 center > a {
     display: none;
 }
 
+.container {
+    color: white;
+}
+
+.table thead th {
+    font-weight: 600;
+    text-wrap: nowrap;
+}
+
 .title-text {
-    color: #9a9a9ad4;
+    color: white;
 }
 
 .text-warning {
@@ -19,7 +111,7 @@ center > a {
 .no-items-list {
     text-align: center;
     margin: 0;
-    color:#1e90ff40;
+    color: #1e90ff40;
     margin-top: 26%;
     margin-bottom: 2rem;
 }
@@ -37,31 +129,32 @@ hr {
 .filter-header {
     font-size: 1.2rem;
     font-weight: bolder;
-    color: #9a9a9ad4;
+    color: white;
 }
 
 .filter-text {
     font-size: 0.9rem;
+    color: white;
+    font-weight: 100 !important;
 }
 
 .table {
-    background-color: #ffffff45;
+    background-color: #ffffffa3;
 }
 
 .table th {
-    background-color: #62b1ed13;
+    background-color: white;
     color: dodgerblue;
-    font-size: 1.1em
 }
 
-
 body {
-    background-image: url(/images/bg.png);
-    background-size: cover; 
-    background-position: center; 
+    background-image: url(/images/x.jpg);
+    background-size: cover;
+    background-position: center;
     background-repeat: no-repeat;
     background-attachment: fixed;
 }
+
 #planeContainer dd {
     margin-bottom: 0;
 }
@@ -70,19 +163,28 @@ body {
     position: -webkit-sticky;
     position: sticky;
     top: 0;
-    z-index: 1000; 
+    z-index: 1000;
 }
 
 #planeContainer img {
-    opacity: 0.1;
+    opacity: 0.3;
+}
+
+.modal-dialog label {
+    color:black;
+    box-shadow: none;
+}
+
+.modal {
+    color: black;
 }
 
 /* Sticky wrapper to make airplane always show and follow on scroll */
 .sticky-wrapper {
-    position: -webkit-sticky; 
+    position: -webkit-sticky;
     position: sticky;
     top: 0;
-    z-index: 1000; 
+    z-index: 1000;
 }
 
 /* Container for plane content */
@@ -95,22 +197,22 @@ body {
     box-sizing: border-box; /* Include padding in width calculation */
 }
 
-/* Columns inside planeContainer */
-#planeContainer .col-md-3, #planeContainer .col-md-6 {
-    flex: 1; /* Allow columns to grow equally */
-}
+    /* Columns inside planeContainer */
+    #planeContainer .col-md-3, #planeContainer .col-md-6 {
+        flex: 1; /* Allow columns to grow equally */
+    }
 
-/* Ensure images do not exceed column width */
-#planeContainer img {
-    max-width: 100%;
-    height: auto; /* Maintain aspect ratio */
-}
+    /* Ensure images do not exceed column width */
+    #planeContainer img {
+        max-width: 100%;
+        height: auto; /* Maintain aspect ratio */
+    }
 
-/* Ensure textarea fits within its container */
-#planeContainer textarea {
-    width: 100%; /* Full width */
-    box-sizing: border-box; /* Include padding and border in width */
-}
+    /* Ensure textarea fits within its container */
+    #planeContainer textarea {
+        width: 100%; /* Full width */
+        box-sizing: border-box; /* Include padding and border in width */
+    }
 
 /* Caroussel style */
 #carouselControl {
@@ -120,16 +222,16 @@ body {
     overflow: hidden;
 }
 
-#carouselControl .carousel-inner {
-    height: 100%;
-}
+    #carouselControl .carousel-inner {
+        height: 100%;
+    }
 
-#carouselControl .carousel-item {
-    height: 100%;
-}
+    #carouselControl .carousel-item {
+        height: 100%;
+    }
 
-#carouselControl .carousel-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+        #carouselControl .carousel-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }

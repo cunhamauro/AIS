@@ -21,54 +21,57 @@
     <hr />
     <h4 class="no-items-list">There are no Aircrafts!</h4>
 }
-else {
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Id)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Model)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Capacity)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Rows)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsActive)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Id)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Model)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Capacity)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Rows)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IsActive)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning mr-2"><i class="fa-solid fa-pen mr-2"></i>Edit</a>
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info mr-2"><i class="fa-solid fa-list mr-2"></i>Details</a>
-                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger"><i class="fa-solid fa-trash-can mr-2"></i>Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+else
+{
+        <div class="card">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Id)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Model)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Capacity)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Rows)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.IsActive)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Id)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Model)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Capacity)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Rows)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.IsActive)
+                            </td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning mr-2"><i class="fa-solid fa-pen mr-2"></i>Edit</a>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info mr-2"><i class="fa-solid fa-list mr-2"></i>Details</a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger"><i class="fa-solid fa-trash-can mr-2"></i>Delete</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
 }

@@ -5,7 +5,27 @@
     ViewData["Title"] = "Home";
 }
 
-<form asp-action="Index">
+@if (ViewBag.IsClient == true)
+{
+    var random = new Random();
+    int mqIx = random.Next(1, 4);
+
+    <div class="marquee">
+        @if (mqIx == 1)
+        {
+            <h1>Your dream destination is just a click away — grab your flight tickets before they’re gone!</h1>
+        }
+        else if (mqIx == 2)
+        {
+            <h1>Book your tickets now and start your adventure — your dream destination awaits!</h1>
+        }
+        else
+        {
+            <h1>Don’t miss out on amazing deals — your perfect getaway is just a click away!</h1>
+        }
+    </div>
+}
+<form asp-action="Index" style="margin-bottom: 20px">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="container">
         <div class="row">
@@ -18,7 +38,7 @@
                 </div>
                 <div class="form-group form-check">
                     <label class="form-check-label filter-text ">
-                        <input class="form-check-input" asp-for="FilterByOrigin" style="margin-top: 0.4rem" /> @Html.DisplayNameFor(model => model.FilterByOrigin)
+                        <input class="form-check-input" asp-for="FilterByOrigin" /> @Html.DisplayNameFor(model => model.FilterByOrigin)
                     </label>
                 </div>
             </div>
@@ -31,36 +51,36 @@
                 </div>
                 <div class="form-group form-check">
                     <label class="form-check-label filter-text ">
-                        <input class="form-check-input" asp-for="FilterByDestination" style="margin-top: 0.4rem" /> @Html.DisplayNameFor(model => model.FilterByDestination)
+                        <input class="form-check-input" asp-for="FilterByDestination" /> @Html.DisplayNameFor(model => model.FilterByDestination)
                     </label>
                 </div>
             </div>
             <div class="col">
                 <div class="form-group">
                     <label asp-for="Departure" class="control-label filter-header"></label>
-                    <input id="departureDate" asp-for="Departure" class="form-control" type="datetime-local" value="@Model.Departure.ToString("yyyy-MM-ddTHH:mm")" />
+                    <input id="departureDate" asp-for="Departure" class="form-control" min="@DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm")" type="datetime-local" value="@Model.Departure.ToString("yyyy-MM-ddTHH:mm")" />
                     <span asp-validation-for="Departure" class="text-danger"></span>
                 </div>
                 <div class="form-group form-check">
                     <label class="form-check-label filter-text ">
-                        <input class="form-check-input" asp-for="FilterByDeparture" style="margin-top: 0.4rem" /> @Html.DisplayNameFor(model => model.FilterByDeparture)
+                        <input class="form-check-input" asp-for="FilterByDeparture" /> @Html.DisplayNameFor(model => model.FilterByDeparture)
                     </label>
                 </div>
             </div>
             <div class="col">
                 <div class="form-group">
                     <label asp-for="Arrival" class="control-label filter-header"></label>
-                    <input id="arrivalDate" asp-for="Arrival" class="form-control" type="datetime-local" value="@Model.Arrival.ToString("yyyy-MM-ddTHH:mm")" />
+                    <input id="arrivalDate" asp-for="Arrival" class="form-control" min="@DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm")" type="datetime-local" value="@Model.Arrival.ToString("yyyy-MM-ddTHH:mm")" />
                     <span asp-validation-for="Arrival" class="text-danger"></span>
                 </div>
                 <div class="form-group form-check">
                     <label class="form-check-label filter-text ">
-                        <input class="form-check-input" asp-for="FilterByArrival" style="margin-top: 0.4rem" /> @Html.DisplayNameFor(model => model.FilterByArrival)
+                        <input class="form-check-input" asp-for="FilterByArrival" /> @Html.DisplayNameFor(model => model.FilterByArrival)
                     </label>
                 </div>
             </div>
             <div class="col">
-                <button type="submit" class="btn btn-success" style="margin-left: 15%; margin-top: 22.6%">
+                <button type="submit" class="btn btn-success" style="margin-left: 15%; margin-top: 20%">
                     <i class="fa-solid fa-magnifying-glass mr-2"></i>Search Flights
                 </button>
             </div>
@@ -70,61 +90,72 @@
 
 @if (Model.Flights == null || !Model.Flights.Any())
 {
-    <h4 class="no-items-list" style="margin-top: 22%">No Flights were found!</h4>
-}
-else {
-<table class="table mt-1">
-    <thead>
-        <tr>
-            <th>
-                Origin
-            </th>
-            <th>
-                Destination
-            </th>
-            <th>
-                Departure
-            </th>
-            <th>
-                Arrival
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Model.Flights != null && Model.Flights.Any())
-        {
-            @foreach (var item in Model.Flights)
-            {
-                <tr>
-                    <td>
-                        @item.Origin.City, @item.Origin.Country
-                        <br />
-                        <img src="@Url.Content(item.Origin.ImageUrl)" class="mt-2" alt="Country Flag Image" style="height:5vh; border:solid; border-color: lightgray; border-width: 0.5px" />
-                    </td>
-                    <td>
-                        @item.Destination.City, @item.Destination.Country
-                        <br />
-                        <img src="@Url.Content(item.Destination.ImageUrl)" class="mt-2" alt="Country Flag Image" style="height:5vh; border:solid; border-color: lightgray; border-width: 0.5px" />
-                    </td>
-                    <td>
-                        @item.Departure.ToString("dd MMMM, yyyy HH:mm'h'")
-                    </td>
-                    <td>
-                        @item.Arrival.ToString("dd MMMM, yyyy HH:mm'h'")
-                    </td>
-                    <td>
-                        <a asp-controller="Tickets" asp-action="Create" asp-route-id="@item.Id" class="btn btn-success mr-2 mb-2"><i class="fa-solid fa-ticket mr-2"></i>Buy Ticket</a><br>
-                        <a asp-controller="Flights" asp-action="FlightInformation" asp-route-id="@item.Id" class="btn btn-info mb-2"><i class="fa-solid fa-circle-info mr-2"></i>Information</a><br>
-                        <a asp-action="Gallery" asp-route-id="@item.Destination.Id" class="btn btn-primary mr-2"><i class="fa-solid fa-camera mr-2"></i>Destination</a>
-                    </td>
-                </tr>
-            }
-        }
-    </tbody>
-</table>
-}
+    int margin = 22;
 
+    if (ViewBag.IsClient == true)
+    {
+        margin = 19;
+    }
+    <h4 class="no-items-list" style="margin-top: @margin%">No Flights were found!</h4>
+}
+else
+{
+    <div class="card">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>
+                        Origin
+                    </th>
+                    <th>
+                        Destination
+                    </th>
+                    <th>
+                        Departure
+                    </th>
+                    <th>
+                        Arrival
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Flights != null && Model.Flights.Any())
+                {
+                    @foreach (var item in Model.Flights)
+                    {
+                        <tr>
+                            <td>
+                                @item.Origin.City, @item.Origin.Country
+                                <br />
+                                <img src="@Url.Content(item.Origin.ImageUrl)" class="mt-2" alt="Country Flag Image" style="height:5vh; border:solid; border-color: lightgray; border-width: 0.5px" />
+                            </td>
+                            <td>
+                                @item.Destination.City, @item.Destination.Country
+                                <br />
+                                <img src="@Url.Content(item.Destination.ImageUrl)" class="mt-2" alt="Country Flag Image" style="height:5vh; border:solid; border-color: lightgray; border-width: 0.5px" />
+                            </td>
+                            <td>
+                                @item.Departure.ToString("dd MMMM, yyyy HH:mm'h'")
+                            </td>
+                            <td>
+                                @item.Arrival.ToString("dd MMMM, yyyy HH:mm'h'")
+                            </td>
+                            <td>
+                                @if (ViewBag.IsClient == true)
+                                {
+                                    <a asp-controller="Tickets" asp-action="Create" asp-route-id="@item.Id" class="btn btn-success mr-2 mb-2"><i class="fa-solid fa-ticket mr-2"></i>Buy Ticket</a><br>
+                                }
+                                <a asp-controller="Flights" asp-action="FlightInformation" asp-route-id="@item.Id" class="btn btn-info mb-2"><i class="fa-solid fa-circle-info mr-2"></i>Information</a><br>
+                                <a asp-action="Gallery" asp-route-id="@item.Destination.Id" class="btn btn-primary mr-2"><i class="fa-solid fa-camera mr-2"></i>Destination</a>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+}
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
@@ -173,6 +204,33 @@ else {
                 options[0].style.color = 'grey';
             });
 
+        </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Get the input field
+                var departureInput = document.getElementById('departureDate');
+                var arrivalInput = document.getElementById('arrivalDate');
+
+                // Default date value
+                var defaultDate = '@DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm")';  // Use the default value from Razor
+
+                // Attach an event listener for changes to the input field
+                departureInput.addEventListener('input', function () {
+                    // If the input is cleared (value is empty), set it back to the default value
+                    if (!departureInput.value) {
+                        departureInput.value = defaultDate;
+                    }
+                });
+
+                // Attach an event listener for changes to the input field
+                arrivalInput.addEventListener('input', function () {
+                    // If the input is cleared (value is empty), set it back to the default value
+                    if (!arrivalInput.value) {
+                        arrivalInput.value = defaultDate;
+                    }
+                });
+            });
         </script>
     }
 }

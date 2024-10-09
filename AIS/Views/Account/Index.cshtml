@@ -16,68 +16,70 @@
     </h2>
 </div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th style="width: 5%;">
-                User ID
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User.FirstName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User.LastName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User.Email)
-            </th>
-            <th>
-                Phone Number
-            </th>
-            <th>
-                Role
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td style="width: 5%;">
-                    @Html.DisplayFor(modelItem => item.User.Id)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.User.FirstName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.User.LastName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.User.Email)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.User.PhoneNumber)
-                </td>
-                <td>
-                    @if (item.Roles.Any())
-                    {
-                        @foreach (var role in item.Roles)
-                        {
-                            @role
-                        }
-                    }
-                    else
-                    {
-                        <p>No Roles assigned</p>
-                    }
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.User.Id" class="btn btn-warning mb-2"><i class="fa-solid fa-pen mr-2"></i>Edit</a><br>
-                    <a asp-action="Details" asp-route-id="@item.User.Id" class="btn btn-info mb-2"><i class="fa-solid fa-list mr-2"></i>Details</a><br>
-                    <a asp-action="Delete" asp-route-id="@item.User.Id" class="btn btn-danger"><i class="fa-solid fa-trash-can mr-2"></i>Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    <div class="card">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th style="width: 5%;">
+                        User ID
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.User.FirstName)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.User.LastName)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.User.Email)
+                    </th>
+                    <th>
+                        Phone Number
+                    </th>
+                    <th>
+                        Role
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td style="width: 5%;">
+                            @Html.DisplayFor(modelItem => item.User.Id)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.User.FirstName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.User.LastName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.User.Email)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.User.PhoneNumber)
+                        </td>
+                        <td>
+                            @if (item.Roles.Any())
+                            {
+                                @foreach (var role in item.Roles)
+                                {
+                                    @role
+                                }
+                            }
+                            else
+                            {
+                                <p>No Roles assigned</p>
+                            }
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.User.Id" class="btn btn-warning mb-2"><i class="fa-solid fa-pen mr-2"></i>Edit</a><br>
+                            <a asp-action="Details" asp-route-id="@item.User.Id" class="btn btn-info mb-2"><i class="fa-solid fa-list mr-2"></i>Details</a><br>
+                            <a asp-action="Delete" asp-route-id="@item.User.Id" class="btn btn-danger"><i class="fa-solid fa-trash-can mr-2"></i>Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
