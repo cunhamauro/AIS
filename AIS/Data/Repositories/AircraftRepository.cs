@@ -23,7 +23,7 @@ namespace AIS.Data.Repositories
         public async Task<List<SelectListItem>> AircraftSelectionList()
         {
             // Clone lists without reference
-            List<Aircraft> listAircrafts = await _context.Aircrafts.AsNoTracking().ToListAsync();
+            List<Aircraft> listAircrafts = await _context.Aircrafts.Where(a => a.IsActive == true).AsNoTracking().ToListAsync();
 
             // Make select item lists
             List<SelectListItem> selectAircraftList = new List<SelectListItem>();

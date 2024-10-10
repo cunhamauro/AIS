@@ -151,6 +151,11 @@ namespace AIS.Controllers
             Airport destination = await _airportRepository.GetByIdTrackAsync(model.DestinationId);
             Aircraft aircraft = await _aircraftRepository.GetByIdTrackAsync(model.AircraftId);
 
+            if (aircraft.IsActive == false)
+            {
+                ModelState.AddModelError("AircraftId", "This aircraft is not available!");
+            }
+
             if (origin.IATA == destination.IATA)
             {
                 ModelState.AddModelError("DestinationId", "Flight origin and destination must be different!");

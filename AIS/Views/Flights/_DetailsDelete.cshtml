@@ -17,14 +17,13 @@
         @Html.DisplayNameFor(model => model.Origin)
     </dt>
     <dd class="col-sm-8">
-        @Model.Origin.IATA - @Model.Origin.City, @Model.Origin.Country<img src="@Url.Content(Model.Origin.ImageUrl)" class="ml-2" alt="Country Flag Image" style="height:2vh; border:solid; border-color: lightgray; border-width: 0.5px" />
-
+        <img src="@Url.Content(Model.Origin.ImageUrl)" class="mr-2" alt="Country Flag Image" style="height:2vh; border:solid; border-color: lightgray; border-width: 0.5px" />@Model.Origin.IATA - @Model.Origin.City, @Model.Origin.Country
     </dd>
     <dt class="col-sm-4">
         @Html.DisplayNameFor(model => model.Destination)
     </dt>
     <dd class="col-sm-8">
-        @Model.Destination.IATA - @Model.Destination.City, @Model.Destination.Country<img src="@Url.Content(Model.Destination.ImageUrl)" class="ml-2" alt="Country Flag Image" style="height:2vh; border:solid; border-color: lightgray; border-width: 0.5px" />
+        <img src="@Url.Content(Model.Destination.ImageUrl)" class="mr-2" alt="Country Flag Image" style="height:2vh; border:solid; border-color: lightgray; border-width: 0.5px" />@Model.Destination.IATA - @Model.Destination.City, @Model.Destination.Country
     </dd>
     <dt class="col-sm-4">
         @Html.DisplayNameFor(model => model.Departure)

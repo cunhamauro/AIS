@@ -9,11 +9,11 @@
 
 @{
     var destinationDisplay = ViewBag.AvailableDestination == true
-        ? $"{Model.MostPopularDestination.IATA} - {Model.MostPopularDestination.City}, {Model.MostPopularDestination.Country}"
+        ? $"{Model.MostPopularDestination.City}, {Model.MostPopularDestination.Country}"
         : "N/A";
 
     var destinationImage = ViewBag.AvailableDestination == true
-        ? $"<img src='{Url.Content(Model.MostPopularDestination.ImageUrl)}' alt='Country Flag Image' style='height:2vh; border:solid; border-color: lightgray; border-width: 0.5px' />"
+        ? $"<img src='{Url.Content(Model.MostPopularDestination.ImageUrl)}' class='mr-2' alt='Country Flag Image' style='height:2vh; border:solid; border-color: lightgray; border-width: 0.5px' />"
         : "";
 }
 
@@ -22,8 +22,9 @@
         <div class="col-md-4">
             <div class="card text-center">
                 <div class="card-body">
+                    <i class="fa-solid fa-map-location-dot mb-3"></i>
                     <h5 class="card-title">@Html.DisplayNameFor(model => model.MostPopularDestination)</h5>
-                    <p class="card-text">@Html.Raw(destinationDisplay) @Html.Raw(destinationImage)</p>
+                    <p class="card-text">@Html.Raw(destinationImage)@Html.Raw(destinationDisplay)</p>
                 </div>
             </div>
         </div>
@@ -31,6 +32,7 @@
         <div class="col-md-4">
             <div class="card text-center">
                 <div class="card-body">
+                    <i class="fa-solid fa-location-dot mb-3"></i>
                     <h5 class="card-title">@Html.DisplayNameFor(model => model.AirportsCount)</h5>
                     <p class="card-text">@Model.AirportsCount</p>
                 </div>
@@ -40,6 +42,7 @@
         <div class="col-md-4">
             <div class="card text-center">
                 <div class="card-body">
+                    <i class="fa-solid fa-plane mb-3"></i>
                     <h5 class="card-title">@Html.DisplayNameFor(model => model.AircraftsCount)</h5>
                     <p class="card-text">@Model.AircraftsCount</p>
                 </div>
@@ -49,6 +52,7 @@
         <div class="col-md-4">
             <div class="card text-center">
                 <div class="card-body">
+                    <i class="fa-solid fa-user mb-3"></i>
                     <h5 class="card-title">@Html.DisplayNameFor(model => model.ClientsCount)</h5>
                     <p class="card-text">@Model.ClientsCount</p>
                 </div>
@@ -58,6 +62,7 @@
         <div class="col-md-4">
             <div class="card text-center">
                 <div class="card-body">
+                    <i class="fa-solid fa-user-ninja mb-3"></i>
                     <h5 class="card-title">@Html.DisplayNameFor(model => model.EmployeesCount)</h5>
                     <p class="card-text">@Model.EmployeesCount</p>
                 </div>
@@ -67,6 +72,7 @@
         <div class="col-md-4">
             <div class="card text-center">
                 <div class="card-body">
+                    <i class="fa-solid fa-user-tie mb-3"></i>
                     <h5 class="card-title">@Html.DisplayNameFor(model => model.AdminsCount)</h5>
                     <p class="card-text">@Model.AdminsCount</p>
                 </div>
@@ -76,6 +82,7 @@
         <div class="col-md-4">
             <div class="card text-center">
                 <div class="card-body">
+                    <i class="fa-solid fa-plane-circle-check mb-3"></i>
                     <h5 class="card-title">@Html.DisplayNameFor(model => model.ActiveFlightsCount)</h5>
                     <p class="card-text">@Model.ActiveFlightsCount</p>
                 </div>
@@ -85,6 +92,7 @@
         <div class="col-md-4">
             <div class="card text-center">
                 <div class="card-body">
+                    <i class="fa-solid fa-plane-circle-exclamation mb-3"></i>
                     <h5 class="card-title">@Html.DisplayNameFor(model => model.FlightRecordsCount)</h5>
                     <p class="card-text">@Model.FlightRecordsCount</p>
                 </div>
@@ -94,6 +102,7 @@
         <div class="col-md-4">
             <div class="card text-center">
                 <div class="card-body">
+                    <i class="fa-solid fa-plane-circle-xmark mb-3"></i>
                     <h5 class="card-title">@Html.DisplayNameFor(model => model.CanceledFlightsCount)</h5>
                     <p class="card-text">@Model.CanceledFlightsCount</p>
                 </div>
@@ -103,6 +112,7 @@
         <div class="col-md-4">
             <div class="card text-center">
                 <div class="card-body">
+                    <i class="fa-solid fa-ticket mb-3"></i>
                     <h5 class="card-title">@Html.DisplayNameFor(model => model.ActiveTicketsCount)</h5>
                     <p class="card-text">@Model.ActiveTicketsCount</p>
                 </div>
@@ -112,6 +122,7 @@
         <div class="col-md-4">
             <div class="card text-center">
                 <div class="card-body">
+                    <i class="fa-solid fa-box-archive mb-3"></i>
                     <h5 class="card-title">@Html.DisplayNameFor(model => model.TicketRecordsCount)</h5>
                     <p class="card-text">@Model.TicketRecordsCount</p>
                 </div>
@@ -121,6 +132,7 @@
         <div class="col-md-4">
             <div class="card text-center">
                 <div class="card-body">
+                    <i class="fa-solid fa-sack-dollar mb-3"></i>
                     <h5 class="card-title">@Html.DisplayNameFor(model => model.MoneyTotalTickets)</h5>
                     <p class="card-text">@Model.MoneyTotalTickets.ToString("C2")</p>
                 </div>

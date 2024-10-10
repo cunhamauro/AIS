@@ -93,7 +93,9 @@ table img {
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
+
 .table {
+    background-color: #ffffffba;
     margin-bottom: 0;
 }
 
@@ -174,10 +176,6 @@ hr {
     font-size: 0.9rem;
     color: white;
     font-weight: 100 !important;
-}
-
-.table {
-    background-color: #ffffffa3;
 }
 
 .table th {

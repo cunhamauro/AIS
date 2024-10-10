@@ -120,10 +120,10 @@ namespace AIS.Controllers
             User user = userModel.User;
             User currentAdmin = await _userHelper.GetUserAsync(this.User);
 
-            if (await _ticketRepository.ClientHasTickets(userCheck.Id))
+            if (await _ticketRepository.ClientHasTickets(userCheck.Id)) // Dont allow client deletion if he has tickets
             {
                 ViewBag.ShowMsg = true;
-                ViewBag.Message = "Account deletion not allowed! This user has tickets for scheduled flights.";
+                ViewBag.Message = "Account deletion not allowed! This user has tickets for scheduled flights!";
                 ViewBag.State = "disabled";
 
                 return View(userModel);
@@ -149,8 +149,23 @@ namespace AIS.Controllers
                 return View(userModel);
             }
 
-            ViewBag.ShowMsg = await _userHelper.UserInEntities(await _userHelper.GetUserByIdAsync(id));
-            ViewBag.Message = "This User is registered in current entities!";
+            if (currentAdmin != userMasterAdmin && await _userHelper.IsUserInRoleAsync(user, "Admin")) // Don't allow an admin to delete another admin
+            {
+                ViewBag.ShowMsg = true;
+                ViewBag.Message = "You have no permissions to delete another Admin!";
+                ViewBag.State = "disabled";
+
+                return View(userModel);
+            }
+
+            if (await _userHelper.UserInEntities(await _userHelper.GetUserByIdAsync(id)))
+            {
+                ViewBag.ShowMsg = true;
+                ViewBag.Message = "This User is registered in current entities!";
+                ViewBag.State = "disabled";
+
+                return View(userModel);
+            }
 
             return View(userModel);
         }
@@ -163,21 +178,33 @@ namespace AIS.Controllers
         {
             User user = await _userHelper.GetUserByIdAsync(id);
 
-            if (await _ticketRepository.ClientHasTickets(id))
+            if (await _ticketRepository.ClientHasTickets(id)) // If user has tickets
             {
-                return View();
+                return RedirectToAction("Delete", "Account", new { id = id });
             }
 
             User currentAdmin = await _userHelper.GetUserAsync(this.User);
 
-            if (user.Id == currentAdmin.Id)
+            if (user.Id == currentAdmin.Id) // If user is itself
             {
-                return RedirectToAction("Delete", "Account");
+                return RedirectToAction("Delete", "Account", new { id = id });
+            }
+
+            User userMasterAdmin = await _userHelper.GetUserByEmailAsync(_configuration["Admin:Email"]);
+
+            if (user.Id == userMasterAdmin.Id) // If the user is master admin
+            {
+                return RedirectToAction("Delete", "Account", new { id = id });
+            }
+
+            if (currentAdmin != userMasterAdmin && await _userHelper.IsUserInRoleAsync(user, "Admin")) // Don't allow an admin to delete another admin
+            {
+                return RedirectToAction("Delete", "Account", new { id = id });
             }
 
             if (await _userHelper.UserInEntities(user)) // If User is registered in Entities
             {
-                await _userHelper.RemoveUserFromEntities(user, this.User); // Remove him from those Entities and assign them the current Admin
+                return RedirectToAction("Delete", "Account", new { id = id });
             }
 
             // Delete profile image when User is also deleted
@@ -504,14 +531,14 @@ namespace AIS.Controllers
                 {
                     User user = _converterHelper.ToUser(model);
 
-                    string password = "";
+                    string password = "F";
                     const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
                     var random = new Random();
-
                     for (int i = 0; i < 6; i++)
                     {
                         password += chars[random.Next(chars.Length)];
                     }
+                    password += "24";
 
                     var result = await _userHelper.AddUserAsync(user, password);
 
@@ -675,6 +702,10 @@ namespace AIS.Controllers
                     }
                     return DisplayMessage("Password Recovery", "The instructions to recover your password have been sent to your email!");
                 }
+                else
+                {
+                    ModelState.AddModelError("Email", "Account not found!");
+                }
             }
             return View();
         }
@@ -736,6 +767,12 @@ namespace AIS.Controllers
 
         public async Task<IActionResult> EmailConfirmation(string userId, string token)
         {
+            // Ensure no active user session is affecting this operation
+            if (User.Identity.IsAuthenticated)
+            {
+                return NotAuthorized();
+            }
+
             if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
             {
                 return UserNotFound();
@@ -754,7 +791,7 @@ namespace AIS.Controllers
             {
                 return DisplayMessage("Email confirmation failure", "Your account activation has failed! Try again.");
             }
-            return DisplayMessage("Email confirmed", "Your account activation was succesfully completed! You can now log in.");
+            return DisplayMessage("Email Confirmed", "Your account activation was succesfully completed! You can now log in.");
         }
 
         public IActionResult UserNotFound()

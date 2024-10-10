@@ -7,3 +7,15 @@
     <h1 class="messageDisplay-title">@Model.Title</h1>
     <p class="messageDisplay-message" style="margin-bottom: -0.5rem">@Model.Message</p>
 </div>
+
+@if (Model.Title == "Email Confirmed" || Model.Title == "Password Set")
+{
+    <div class="row" style="margin-top: 5vh">
+        <div style="margin-left: auto; margin-right: auto;">
+            <a class="btn btn-success mr-2" style="margin-left: 0; margin-right: 0" asp-controller="Account" asp-action="Login" class="btn btn-success mr-2">
+                <i class="fa-solid fa-right-to-bracket mr-2"></i>Login
+            </a>
+        </div>
+    </div>
+}
+

@@ -138,7 +138,7 @@ namespace AIS.Controllers
             int airportsCount = _airportRepository.GetAll().Count();
             int aircraftsCount = _aircraftRepository.GetAll().Count();
             List<FlightRecord> flightRecords = await _flightRecordRepository.GetAll().ToListAsync();
-            List<TicketRecord> ticketRecords = await _ticketRecordRepository.GetAll().ToListAsync();
+            List<TicketRecord> ticketRecords = await _ticketRecordRepository.GetAllNonCanceledTicketRecords();
 
             decimal moneyTickets = 0;
             foreach (var ticket in tickets)
@@ -177,9 +177,13 @@ namespace AIS.Controllers
                 CanceledFlightsCount = canceledFlights,
             };
 
-            if (flights.Count == 0)
+            if (flightsCount == 0)
             {
                 ViewBag.AvailableDestination = false;
+            }
+            else
+            {
+                ViewBag.AvailableDestination = true;
             }
 
             return View(dashboard);

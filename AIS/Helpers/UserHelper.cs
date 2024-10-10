@@ -59,36 +59,6 @@ namespace AIS.Helpers
         }
 
         /// <summary>
-        /// Removes a user from all entity records and registers an admin
-        /// </summary>
-        /// <param name="user">User</param>
-        /// <returns>Task</returns>
-        public async Task RemoveUserFromEntities(User user, ClaimsPrincipal adminClaims)
-        {
-            // Get the list of entities with the user registered
-            var userAircrafts = await _aircraftRepository.GetAll().Include(a => a.User).Where(a => a.User.Id == user.Id).ToListAsync();
-            var userAirports = await _airportRepository.GetAll().Include(a => a.User).Where(a => a.User.Id == user.Id).ToListAsync();
-            var userFlights = await _flightRepository.GetAll().Include(a => a.User).Where(a => a.User.Id == user.Id).ToListAsync();
-
-            var admin = await _userManager.GetUserAsync(adminClaims); // Get the admin that is removing the user
-
-            if (userAircrafts.Any())
-            {
-                await _aircraftRepository.AircraftsFromUserToAdmin(userAircrafts, admin);
-            }
-
-            if (userAirports.Any())
-            {
-                await _airportRepository.AirportsFromUserToAdmin(userAirports, admin);
-            }
-
-            if (userFlights.Any())
-            {
-                await _flightRepository.FlightsFromUserToAdmin(userFlights, admin);
-            }
-        }
-
-        /// <summary>
         /// Deletes the user
         /// </summary>
         /// <param name="user">User</param>

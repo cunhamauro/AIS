@@ -1,4 +1,4 @@
-﻿@model ConfirmationViewModel
+﻿@model DisplayMessageViewModel
 @{
     ViewData["Title"] = $"{Model.Title}";
 }
@@ -6,4 +6,9 @@
 <div class="confirm-container">
     <h1 class="confirm-title">@Model.Title</h1>
     <p class="confirm-text" style="margin-bottom: -0.5rem">@Model.Message</p>
+</div>
+<div>
+    <button style="margin-left: 0; margin-right: 0" type="submit" class="btn btn-success mr-2">
+        <i class="fa-solid fa-right-to-bracket mr-2"></i>Login
+    </button>
 </div>

@@ -248,6 +248,12 @@ namespace AIS.Controllers
                 return AirportNotFound();
             }
 
+            if (await _flightRepository.AirportInFlights(id.Value))
+            {
+                ViewBag.ShowMsg = true;
+                ViewBag.Status = "disabled";
+            }
+
             return View(airport);
         }
 
@@ -260,8 +266,7 @@ namespace AIS.Controllers
 
             if (await _flightRepository.AirportInFlights(id))
             {
-                ViewBag.ShowMsg = true;
-                return View(airport);
+                return RedirectToAction("Delete", "Airports", new { id = id });
             }
 
             await _airportRepository.DeleteAsync(airport);

@@ -11,7 +11,7 @@ namespace AIS.Data.Entities
         
         public string UserId { get; set; }
 
-        [Display(Name = "Holder ID Number")]
+        [Display(Name = "Holder ID")]
         public string HolderIdNumber {  get; set; }
 
         public string Seat {  get; set; }

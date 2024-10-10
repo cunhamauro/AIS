@@ -6,5 +6,6 @@ namespace AIS.Data.Repositories
 {
     public interface ITicketRecordRepository : IGenericRepository<TicketRecord>
     {
+        Task<List<TicketRecord>> GetAllNonCanceledTicketRecords();
     }
 }

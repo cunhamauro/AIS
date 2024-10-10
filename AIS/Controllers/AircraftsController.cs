@@ -123,6 +123,12 @@ namespace AIS.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(AircraftViewModel viewModel)
         {
+            if (await _flightRepository.AircraftInFlights(viewModel.Id) && viewModel.IsActive == false)
+            {
+                ModelState.AddModelError("IsActive", "This Aircraft is in an active flight, status cannot be updated!");
+                viewModel.IsActive = true;
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(viewModel);
@@ -186,6 +192,12 @@ namespace AIS.Controllers
                 return AircraftNotFound();
             }
 
+            if (await _flightRepository.AircraftInFlights(id.Value))
+            {
+                ViewBag.ShowMsg = true;
+                ViewBag.Status = "disabled";
+            }
+
             return View(aircraft);
         }
 
@@ -198,8 +210,7 @@ namespace AIS.Controllers
 
             if (await _flightRepository.AircraftInFlights(id))
             {
-                ViewBag.ShowMsg = true;
-                return View(aircraft);
+                return RedirectToAction("Delete", "Aircrafts", new { id = id });
             }
 
             // Delete image when Aircraft is also deleted

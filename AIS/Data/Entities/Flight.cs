@@ -46,7 +46,7 @@ namespace AIS.Data.Entities
 
         public TimeSpan Duration => Arrival - Departure;
 
-        [Display(Name = "Flight Number")]
+        [Display(Name = "Flight")]
         public string FlightNumber { get; set; }
 
         public User User { get; set; }

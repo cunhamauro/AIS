@@ -17,8 +17,6 @@ namespace AIS.Helpers
 
         Task<bool> UserInEntities(User user);
 
-        Task RemoveUserFromEntities(User user, ClaimsPrincipal admin);
-
         Task DeleteUserAsync(User user);
 
         Task UpdateUserEmailAndUsernameAsync(User user, string newEmail);

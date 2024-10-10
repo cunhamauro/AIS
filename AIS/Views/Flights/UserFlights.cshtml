@@ -19,7 +19,7 @@ else
                 <thead>
                     <tr>
                         <th>
-                            @Html.DisplayNameFor(model => model.FlightNumber)
+                            Flight
                         </th>
                         <th>
                             Origin
@@ -55,10 +55,10 @@ else
                                 @Html.DisplayFor(modelItem => item.FlightNumber)
                             </td>
                             <td>
-                                @item.OriginCity, @item.OriginCountry <img src="@Url.Content(item.OriginFlagImageUrl)" class="ml-2" alt="Country Flag Image" style="height:2vh; border:solid; border-color: lightgray; border-width: 0.5px" />
+                                <img src="@Url.Content(item.OriginFlagImageUrl)" class="mr-2" alt="Country Flag Image" style="height:2vh; border:solid; border-color: lightgray; border-width: 0.5px" />@item.OriginCity, @item.OriginCountry
                             </td>
                             <td>
-                                @item.DestinationCity, @item.DestinationCountry <img src="@Url.Content(item.DestinationFlagImageUrl)" class="ml-2" alt="Country Flag Image" style="height:2vh; border:solid; border-color: lightgray; border-width: 0.5px" />
+                                <img src="@Url.Content(item.DestinationFlagImageUrl)" class="mr-2" alt="Country Flag Image" style="height:2vh; border:solid; border-color: lightgray; border-width: 0.5px" />@item.DestinationCity, @item.DestinationCountry
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.Departure)
