@@ -34,7 +34,7 @@ namespace AIS.Services
         /// <returns>List of available Aircrafts</returns>
         public async Task<List<Aircraft>> AvailableAircrafts(DateTime departure, DateTime arrival, Airport origin)
         {
-            List<Aircraft> _listAircrafts = await _aircraftRepository.GetAll().ToListAsync();
+            List<Aircraft> _listAircrafts = await _aircraftRepository.GetAll().Where(a => a.IsActive == true).ToListAsync();
 
             List<Aircraft> availableAircrafts = new List<Aircraft>();
 
