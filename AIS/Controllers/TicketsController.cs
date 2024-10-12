@@ -28,10 +28,10 @@ namespace AIS.Controllers
         private readonly IMailHelper _mailHelper;
         private readonly IPdfHelper _pdfHelper;
         private readonly IQrCodeHelper _qrCodeHelper;
-        private readonly ITicketRecordRepository _flightRecordRepository;
+        private readonly ITicketRecordRepository _ticketRecordRepository;
         private readonly int marginTicketCancelation;
 
-        public TicketsController(IFlightRepository flightRepository, IUserHelper userHelper, ITicketRepository ticketRepository, IConfiguration configuration, IConverterHelper converterHelper, IMailHelper mailHelper, IPdfHelper pdfHelper, IQrCodeHelper qrCodeHelper, ITicketRecordRepository flightRecordRepository)
+        public TicketsController(IFlightRepository flightRepository, IUserHelper userHelper, ITicketRepository ticketRepository, IConfiguration configuration, IConverterHelper converterHelper, IMailHelper mailHelper, IPdfHelper pdfHelper, IQrCodeHelper qrCodeHelper, ITicketRecordRepository ticketRecordRepository)
         {
             _flightRepository = flightRepository;
             _userHelper = userHelper;
@@ -41,7 +41,7 @@ namespace AIS.Controllers
             _mailHelper = mailHelper;
             _pdfHelper = pdfHelper;
             _qrCodeHelper = qrCodeHelper;
-            _flightRecordRepository = flightRecordRepository;
+            _ticketRecordRepository = ticketRecordRepository;
             marginTicketCancelation = int.Parse(_configuration["AppSettings:TicketCancelationMarginHours"]);
         }
 
@@ -204,7 +204,7 @@ namespace AIS.Controllers
                             HolderIdNumber = model.IdNumber,
                         };
 
-                        await _flightRecordRepository.CreateAsync(record);
+                        await _ticketRecordRepository.CreateAsync(record);
 
                         // Send ticket invoice to the email of user that bought the ticket
                         string emailBodyInvoice = _mailHelper.GetHtmlTemplateInvoice($"{user.FirstName} {user.LastName}", flight.FlightNumber, model.Price);
@@ -367,11 +367,11 @@ namespace AIS.Controllers
                         await _flightRepository.UpdateAsync(flight);
 
                         // Update the flight record
-                        TicketRecord record = await _flightRecordRepository.GetByIdAsync(ticket.Id);
+                        TicketRecord record = await _ticketRecordRepository.GetByIdAsync(ticket.Id);
                         record.Seat = model.Seat;
                         record.HolderIdNumber = model.IdNumber;
 
-                        await _flightRecordRepository.UpdateAsync(record);
+                        await _ticketRecordRepository.UpdateAsync(record);
 
                         // Send the ticket itself to the email of the ticket holder that was inserted when buying the ticket
                         MemoryStream qrCode = _qrCodeHelper.GenerateQrCode($"VALID TICKET: Flight {flight.FlightNumber} - Passenger {model.Title} {model.FullName} - Identification Number: {model.IdNumber}");
@@ -485,8 +485,8 @@ namespace AIS.Controllers
             await _flightRepository.UpdateAsync(flight);
 
             // Also delete the flight record for this ticket
-            TicketRecord record = await _flightRecordRepository.GetByIdAsync(id);
-            await _flightRecordRepository.DeleteAsync(record);
+            TicketRecord record = await _ticketRecordRepository.GetByIdAsync(id);
+            await _ticketRecordRepository.DeleteAsync(record);
 
             // Email and PDF for ticket cancel/refund (25% back)
             User user = await _userHelper.GetUserAsync(this.User);

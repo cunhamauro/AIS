@@ -208,10 +208,9 @@ namespace AIS.Controllers
 
             FlightsFiltersViewModel flightsModel = new FlightsFiltersViewModel();
 
-                // Get the current time if times are not filtered in the view
-                flightsModel.Departure = DateTime.Now;
-                flightsModel.Arrival = DateTime.Now.AddHours(1);
-
+            // Get the current time if times are not filtered in the view
+            flightsModel.Departure = DateTime.UtcNow.AddHours(1);
+            flightsModel.Arrival = DateTime.UtcNow.AddHours(2);
 
             if (flights != null && flights.Any())
             {
