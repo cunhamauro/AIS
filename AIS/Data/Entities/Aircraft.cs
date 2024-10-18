@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using AIS.Helpers;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -24,12 +25,13 @@ namespace AIS.Data.Entities
 
         [Required]
         [Range(10, 260, ErrorMessage = "Aircraft capacity must be between {1} and {2}!")]
+        [CapacityDivisibleByRows("Rows")]
         public int Capacity { get; set; }
 
         public List<string> Seats { get; set; } = new List<string>();
 
         [Required]
-        [Range(5, 26, ErrorMessage = "Aircraft rows must be between {1} and {2}!")]
+        [Range(2, 26, ErrorMessage = "Aircraft rows must be between {1} and {2}!")]
         public int Rows
         {
             get

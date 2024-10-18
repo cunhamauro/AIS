@@ -28,11 +28,43 @@
         <!-- Right: Seats -->
         <div class="col-md-4">
             <dl class="row">
-                <dt class="col-sm-12 mb-2">
-                    Seats
-                </dt>
                 <dd class="col-sm-12">
-                    <textarea nowrap="off" id="seatTextArea" readonly style="resize: none; width: 100%; height: 250%; overflow: auto; font-family: consolas;">@Model.FormatSeats()</textarea>
+                    <div class="card cardSeats">
+                        <div class="row" style="margin-right: 0 !important">
+                            <table id="tableSeats" class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th><span style="margin-left: -6px; margin-right: -5px" class="icon-AIS-logo fa-lg"></span></th> <!-- Empty corner cell -->
+                                        @for (int seatIndex = 1; seatIndex <= (Model.Capacity / Model.Rows); seatIndex++)
+                                        {
+                                            <th>@seatIndex</th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        int rows = Model.Rows;
+                                        int seatsPerRow = Model.Capacity / rows;
+                                    }
+
+                                    @for (int rowIndex = 0; rowIndex < rows; rowIndex++)
+                                    {
+                                        <tr>
+                                            <td class="rowIndex">@((char)('A' + rowIndex))</td> <!-- Row Label -->
+                                            @for (int seatIndex = 1; seatIndex <= seatsPerRow; seatIndex++)
+                                            {
+                                                var seatLabel = $"{(char)('A' + rowIndex)}{seatIndex}"; // Seat Label
+
+                                                <td class="planeSeat">
+                                                    @seatLabel
+                                                </td>
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </dd>
             </dl>
         </div>

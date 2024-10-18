@@ -18,7 +18,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.2" />
     <PackageReference Include="PDFsharp" Version="6.1.1" />
     <PackageReference Include="QRCoder" Version="1.6.0" />
-    <PackageReference Include="Syncfusion.EJ2.AspNet.Core" Version="26.2.9" />
+    <PackageReference Include="Syncfusion.EJ2.AspNet.Core" Version="27.1.53" />
   </ItemGroup>
 
 </Project>

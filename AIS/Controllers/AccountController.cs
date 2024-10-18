@@ -341,6 +341,10 @@ namespace AIS.Controllers
                 model.LastName = user.LastName;
                 model.PhoneNumber = user.PhoneNumber;
             }
+            else
+            {
+                return UserNotFound();
+            }
 
             return View(model);
         }
@@ -455,6 +459,10 @@ namespace AIS.Controllers
                         ViewBag.UserMessage = "User password update failed!";
                     }
                 }
+                else
+                {
+                    return UserNotFound();
+                }
             }
             return View(model);
         }
@@ -496,6 +504,10 @@ namespace AIS.Controllers
 
                         return this.Created(string.Empty, results);
                     }
+                }
+                else
+                {
+                    return UserNotFound();
                 }
             }
             return BadRequest();
@@ -587,12 +599,13 @@ namespace AIS.Controllers
         [Route("Edit/{id}")]
         public async Task<IActionResult> Edit(string id)
         {
-            if (string.IsNullOrEmpty(id))
+            User user = await _userHelper.GetUserByIdAsync(id);
+
+            if (string.IsNullOrEmpty(id) || user == null)
             {
                 return UserNotFound();
             }
 
-            User user = await _userHelper.GetUserByIdAsync(id);
             EditUserViewModel model = new EditUserViewModel
             {
                 Email = user.Email,
@@ -643,7 +656,9 @@ namespace AIS.Controllers
         [Route("Details/{id}")]
         public async Task<IActionResult> Details(string id)
         {
-            if (string.IsNullOrEmpty(id))
+            User user = await _userHelper.GetUserByIdAsync(id);
+
+            if (string.IsNullOrEmpty(id) || user == null)
             {
                 return UserNotFound();
             }

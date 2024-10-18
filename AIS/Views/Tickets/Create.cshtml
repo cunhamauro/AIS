@@ -41,7 +41,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Seat" class="control-label"></label>
-                <select asp-for="Seat" asp-items="Model.SeatsList" class="form-control">
+                <select id="selectedSeat" asp-for="Seat" asp-items="Model.SeatsList" class="form-control">
                     <option value="">Select a Seat</option>
                 </select>
                 <span asp-validation-for="Seat" class="text-danger"></span>
@@ -51,7 +51,7 @@
                 }
             </div>
 
-            <hr style="margin-top: 10%"/>
+            <hr style="margin-top: 10%" />
             <h5 style="text-align: center; margin-top: -10px; font-weight: bolder">Ticket Holder</h5>
             <hr />
 
@@ -105,25 +105,54 @@
 
     <div class="col-md-4">
         <div class="sticky-wrapper">
+            <div class="col-md-12 mb-3" style="padding-left: 0;">
+                <i class="fa-solid fa-square mr-2" style="color: #7dff7d;"></i>  Available Seats<br/>
+                <i class="fa-solid fa-square mr-2" style="color: #ff5353;"></i>  Taken Seats<br />
+                <i class="fa-solid fa-square mr-2" style="color: #47b5ff;"></i>  Selected Seat
+            </div>
             <div id="planeContainer">
-                <div class="row">
-                    <div class="col-md-3" style="padding-right: 0;">
-                    </div>
-                    <!-- Right: Seats -->
-                    <div class="col-md-6" style="padding-left: 0; padding-right: 0">
-                        <dl class="row mt-4">
-                            <dd class="col-sm-12">
-                                <img class="img-fluid" src="~/images/airplane-front.png" alt="Front of airplane" />
-                            </dd>
-                            <dd class="col-sm-12" style="height: 40vh">
-                                <textarea nowrap="off" id="seatTextArea" readonly style="resize: none; width: 100%; height: 100%; overflow: auto; font-family: consolas;">@Model.Flight.FormatAvailableSeats()</textarea>
-                            </dd>
-                            <dd class="col-sm-12">
-                                <img class="img-fluid" src="~/images/airplane-tail.png" alt="Tail of airplane" />
-                            </dd>
-                        </dl>
-                    </div>
-                    <div class="col-md-3" style="padding-left: 0;">
+                <div class="card cardSeats">
+                    <div class="row" style="margin-right: 0 !important">
+                        <table id="tableSeats" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th><span style="margin-left: -6px; margin-right: -5px" class="icon-AIS-logo fa-lg"></span></th> <!-- Empty corner cell -->
+                                    @for (int seatIndex = 1; seatIndex <= (Model.Flight.Aircraft.Capacity / Model.Flight.Aircraft.Rows); seatIndex++)
+                                    {
+                                        <th>@seatIndex</th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    int rows = Model.Flight.Aircraft.Rows;
+                                    int seatsPerRow = Model.Flight.Aircraft.Capacity / rows;
+                                }
+
+                                @for (int rowIndex = 0; rowIndex < rows; rowIndex++)
+                                {
+                                    <tr>
+                                        <td class="rowIndex">@((char)('A' + rowIndex))</td> <!-- Row Label -->
+                                        @for (int seatIndex = 1; seatIndex <= seatsPerRow; seatIndex++)
+                                        {
+                                            var seatLabel = $"{(char)('A' + rowIndex)}{seatIndex}"; // Seat Label
+                                            if (seatLabel.Length > 1 && !Model.Flight.AvailableSeats.Contains(seatLabel))
+                                            {
+                                                <td class="notAvailableSeat @seatLabel">
+                                                    @seatLabel
+                                                </td>
+                                            }
+                                            else
+                                            {
+                                                <td class="availableSeat @seatLabel">
+                                                    @seatLabel
+                                                </td>
+                                            }
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -183,7 +212,30 @@
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
 
     <script>
+
+        document.getElementById('selectedSeat').addEventListener('change', function () {
+            let previouslySelectedSeat = document.querySelector('.selectedSeat');
+            if (previouslySelectedSeat) {
+                previouslySelectedSeat.classList.remove('selectedSeat');
+            }
+
+            var selectedSeat = this.value;
+
+            if (selectedSeat) {
+                var seatElement = document.querySelector('.' + selectedSeat);
+
+                if (seatElement) {
+                    // Apply the class to the seat of the table
+                    seatElement.classList.add('selectedSeat');
+                }
+            }
+        });
+
+        // Change background color of the selected seat in the table
+        document.write('<style>.selectedSeat { background-color: #73d6ffc4;}</style>');
+
         $(document).ready(function () {
+
             $("#btnPurchaseTicket").click(function (e) {
                 e.preventDefault(); // Prevent the form from being submitted immediately
 

@@ -98,7 +98,7 @@ namespace AIS
             services.AddScoped<IPdfHelper, PdfHelper>();
             services.AddScoped<IQrCodeHelper, QrCodeHelper>();
 
-            string syncfusionLicenseKey = Configuration["Syncfusion:LicenseKey"];
+            string syncfusionLicenseKey = Configuration[@"Syncfusion:LicenseKey"];
             SyncfusionLicenseProvider.RegisterLicense(syncfusionLicenseKey);
 
             services.ConfigureApplicationCookie(options =>

@@ -19,11 +19,55 @@
         <!-- Right: Seats -->
         <div class="col-md-4">
             <dl class="row">
-                <dt class="col-sm-12 mb-2">
-                    Available Seats
-                </dt>
                 <dd class="col-sm-12">
-                    <textarea nowrap="off" id="seatTextArea" readonly style="resize: none; width: 100%; height: 250%; overflow: auto; font-family: consolas;">@Model.FormatAvailableSeats()</textarea>
+                    <div class="col-md-12 mb-3" style="padding-left: 0;">
+                        <i class="fa-solid fa-square mr-2" style="color: #7dff7d;"></i>  Available Seats<br>
+                        <i class="fa-solid fa-square mr-2" style="color: #ff5353;"></i>  Taken Seats
+                    </div>
+                    <div class="card cardSeats">
+                        <div class="row" style="margin-right: 0 !important">
+                            <table id="tableSeats" class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th><span style="margin-left: -6px; margin-right: -5px" class="icon-AIS-logo fa-lg"></span></th> <!-- Empty corner cell -->
+                                        @for (int seatIndex = 1; seatIndex <= (Model.Aircraft.Capacity / Model.Aircraft.Rows); seatIndex++)
+                                        {
+                                            <th>@seatIndex</th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        int rows = Model.Aircraft.Rows;
+                                        int seatsPerRow = Model.Aircraft.Capacity / rows;
+                                    }
+
+                                    @for (int rowIndex = 0; rowIndex < rows; rowIndex++)
+                                    {
+                                        <tr>
+                                            <td class="rowIndex">@((char)('A' + rowIndex))</td> <!-- Row Label -->
+                                            @for (int seatIndex = 1; seatIndex <= seatsPerRow; seatIndex++)
+                                            {
+                                                var seatLabel = $"{(char)('A' + rowIndex)}{seatIndex}"; // Seat Label
+                                                if (seatLabel.Length > 1 && !Model.AvailableSeats.Contains(seatLabel))
+                                                {
+                                                    <td class="notAvailableSeat">
+                                                        @seatLabel
+                                                    </td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="availableSeat">
+                                                        @seatLabel
+                                                    </td>
+                                                }
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </dd>
             </dl>
         </div>
